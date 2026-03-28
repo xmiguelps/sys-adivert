@@ -11,6 +11,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
 
+builder.Services.AddAuthorization();
+
+builder.Services.AddControllers();
+
 builder.Services.AddDbContext<AppDbContext>(options => 
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -43,6 +47,8 @@ if (app.Environment.IsDevelopment())
 
 // app.UseCors("AllowFrontend");
 app.UseCors("PublicPolicy");
+
+app.UseAuthorization();
 
 app.UseHttpsRedirection();
 
