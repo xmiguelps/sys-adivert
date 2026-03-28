@@ -9,3 +9,4 @@ C:\Users\User\OneDrive\Documentos\DANLEX\sys-adivert\back-end\sys-adivert.Domain
 C:\Users\User\OneDrive\Documentos\DANLEX\sys-adivert\back-end\sys-adivert.Domain\obj\Debug\net10.0\refint\sys-adivert.Domain.dll
 C:\Users\User\OneDrive\Documentos\DANLEX\sys-adivert\back-end\sys-adivert.Domain\obj\Debug\net10.0\sys-adivert.Domain.pdb
 C:\Users\User\OneDrive\Documentos\DANLEX\sys-adivert\back-end\sys-adivert.Domain\obj\Debug\net10.0\ref\sys-adivert.Domain.dll
+C:\Users\User\OneDrive\Documentos\DANLEX\sys-adivert\back-end\sys-adivert.Domain\obj\Debug\net10.0\sys-adivert.Domain.sourcelink.json

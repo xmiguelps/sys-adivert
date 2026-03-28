@@ -13,3 +13,4 @@ C:\Users\User\OneDrive\Documentos\DANLEX\sys-adivert\back-end\sys-adivert.Applic
 C:\Users\User\OneDrive\Documentos\DANLEX\sys-adivert\back-end\sys-adivert.Application\obj\Debug\net10.0\refint\sys-adivert.Application.dll
 C:\Users\User\OneDrive\Documentos\DANLEX\sys-adivert\back-end\sys-adivert.Application\obj\Debug\net10.0\sys-adivert.Application.pdb
 C:\Users\User\OneDrive\Documentos\DANLEX\sys-adivert\back-end\sys-adivert.Application\obj\Debug\net10.0\ref\sys-adivert.Application.dll
+C:\Users\User\OneDrive\Documentos\DANLEX\sys-adivert\back-end\sys-adivert.Application\obj\Debug\net10.0\sys-adivert.Application.sourcelink.json

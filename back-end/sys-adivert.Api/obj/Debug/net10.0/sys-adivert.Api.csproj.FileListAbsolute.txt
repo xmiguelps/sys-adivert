@@ -170,3 +170,6 @@ C:\Users\User\OneDrive\Documentos\DANLEX\sys-adivert\back-end\sys-adivert.Api\ob
 C:\Users\User\OneDrive\Documentos\DANLEX\sys-adivert\back-end\sys-adivert.Api\obj\Debug\net10.0\sys-adivert.Api.pdb
 C:\Users\User\OneDrive\Documentos\DANLEX\sys-adivert\back-end\sys-adivert.Api\obj\Debug\net10.0\sys-adivert.Api.genruntimeconfig.cache
 C:\Users\User\OneDrive\Documentos\DANLEX\sys-adivert\back-end\sys-adivert.Api\obj\Debug\net10.0\ref\sys-adivert.Api.dll
+C:\Users\User\OneDrive\Documentos\DANLEX\sys-adivert\back-end\sys-adivert.Api\bin\Debug\net10.0\Npgsql.dll
+C:\Users\User\OneDrive\Documentos\DANLEX\sys-adivert\back-end\sys-adivert.Api\bin\Debug\net10.0\Npgsql.EntityFrameworkCore.PostgreSQL.dll
+C:\Users\User\OneDrive\Documentos\DANLEX\sys-adivert\back-end\sys-adivert.Api\obj\Debug\net10.0\sys-adivert.Api.sourcelink.json

@@ -17,3 +17,4 @@ C:\Users\User\OneDrive\Documentos\DANLEX\sys-adivert\back-end\sys-adivert.Infras
 C:\Users\User\OneDrive\Documentos\DANLEX\sys-adivert\back-end\sys-adivert.Infrastructure\obj\Debug\net10.0\sys-adivert.Infrastructure.pdb
 C:\Users\User\OneDrive\Documentos\DANLEX\sys-adivert\back-end\sys-adivert.Infrastructure\obj\Debug\net10.0\sys-adivert.Infrastructure.genruntimeconfig.cache
 C:\Users\User\OneDrive\Documentos\DANLEX\sys-adivert\back-end\sys-adivert.Infrastructure\obj\Debug\net10.0\ref\sys-adivert.Infrastructure.dll
+C:\Users\User\OneDrive\Documentos\DANLEX\sys-adivert\back-end\sys-adivert.Infrastructure\obj\Debug\net10.0\sys-adivert.Infrastructure.sourcelink.json
