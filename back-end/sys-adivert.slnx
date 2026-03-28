@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="sys-adivert.Api/sys-adivert.Api.csproj" />
+  <Project Path="sys-adivert.Application/sys-adivert.Application.csproj" />
+  <Project Path="sys-adivert.Domain/sys-adivert.Domain.csproj" />
+  <Project Path="sys-adivert.Infrastructure/sys-adivert.Infrastructure.csproj" />
+</Solution>

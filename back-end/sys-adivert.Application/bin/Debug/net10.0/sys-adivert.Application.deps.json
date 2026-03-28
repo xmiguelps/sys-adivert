@@ -1,0 +1,39 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v10.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v10.0": {
+      "sys-adivert.Application/1.0.0": {
+        "dependencies": {
+          "sys-adivert.Domain": "1.0.0"
+        },
+        "runtime": {
+          "sys-adivert.Application.dll": {}
+        }
+      },
+      "sys-adivert.Domain/1.0.0": {
+        "runtime": {
+          "sys-adivert.Domain.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "sys-adivert.Application/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "sys-adivert.Domain/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}
