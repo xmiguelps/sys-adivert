@@ -1,5 +1,5 @@
-using System.Data.Entity;
 using sys_adivert.adivert.Entity;
+using Microsoft.EntityFrameworkCore;
 using sys_adivert.Application.Repository;
 using sys_adivert.Infrastructure.AppDb;
 

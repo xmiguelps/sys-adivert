@@ -1,6 +1,6 @@
-@Api_HostAddress = http://localhost:5010
+@Api_HostAddress = https://sys-adivert.onrender.com
 
-GET {{Api_HostAddress}}/weatherforecast/
+GET {{Api_HostAddress}}/api/Adiverts
 Accept: application/json
 
 ###
