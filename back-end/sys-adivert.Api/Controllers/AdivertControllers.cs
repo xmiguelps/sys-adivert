@@ -4,11 +4,11 @@ using sys_adivert.Application.Service;
 
 [ApiController]
 [Route("api/[controller]")]
-public class AdivertsContorller : ControllerBase
+public class AdivertsController : ControllerBase
 {
     private readonly IAdivertService _adivertService;
 
-    public AdivertsContorller(IAdivertService adivertService)
+    public AdivertsController(IAdivertService adivertService)
     {
         _adivertService = adivertService;
     }

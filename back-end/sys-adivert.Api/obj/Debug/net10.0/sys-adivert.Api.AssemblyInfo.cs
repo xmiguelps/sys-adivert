@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("sys-adivert.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+771e9d2ba23f128bc7c2c351a7ab3fc161c10308")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f5c5c8a06eff2f112f113d784b9817af26fa39e1")]
 [assembly: System.Reflection.AssemblyProductAttribute("sys-adivert.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("sys-adivert.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
