@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import Tabela from './components/Tabela'
 
 function App() {
