@@ -12,7 +12,7 @@ body {
 
 .box-main {
   height: 100%;
-  width: 1050px;
+  width: 950px;
   background-color: #dadada;
   padding: 10px;
 }
@@ -111,7 +111,7 @@ button  {
 
 .box-menu {
   margin-top: 20px;
-  width: 80px;
+  width: 60px;
   margin-left: 20px;
   background-color: #a1a1a1;
   border-radius: 5px;

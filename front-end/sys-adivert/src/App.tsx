@@ -20,8 +20,8 @@ function App() {
               </div>
             </div>
             <div className='d-flex box-menu flex-column'>
-              <button><img className='icon' src="/plus.png" alt="" /></button>
-              <button><img className='icon' src="/download.png" alt="" /></button>
+              <button><img className='icon buttons-menu' src="/plus.png" alt="" /></button>
+              <button><img className='icon buttons-menu' src="/download.png" alt="" /></button>
             </div>
           </div>
         </div>
