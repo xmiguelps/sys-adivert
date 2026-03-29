@@ -20,9 +20,9 @@ function Tabela() {
                     <td className='adivert-dado'>Escrita</td>
                     <td className='adivert-dado'>Falta sem justificativa no dia</td>
                     <td className='adivert-dado box-actions-buttons'>
-                        <button className='actions-buttons'><img className='icon' src="src/assets/lixeira.png" alt="icone-lixeira"/></button>
-                        <button className='actions-buttons'><img className='icon' src="src/assets/edit.png" alt="icone-edit " /></button>
-                        <button className='actions-buttons'><img className='icon' src="src/assets/download-file.png" alt="icone-download-arquivo"/></button>
+                        <button className='actions-buttons'><img className='icon' src="lixeira.png" alt="icone-lixeira"/></button>
+                        <button className='actions-buttons'><img className='icon' src="edit.png" alt="icone-edit " /></button>
+                        <button className='actions-buttons'><img className='icon' src="download-file.png" alt="icone-download-arquivo"/></button>
                     </td>
                 </tr>
             </tbody>
