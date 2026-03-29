@@ -8,6 +8,8 @@ public interface IAdivertService
 {
     Task<IEnumerable<AdivertReadDto>>  GetAllAsync(string? nome);
 
+    Task<AdivertReadDto?> GetByIdAsync(int id);
+
     Task<bool> CreateAsync(AdivertCreateDto dto);
 
     Task<bool> UpdateAsync(int id, AdivertUpdateDto dto);

@@ -21,7 +21,17 @@ public class AdivertService : IAdivertService
             Adiverts = await _repository.GetByColabAsync(nome);
         }
 
-        return Adiverts.Select(u => new AdivertReadDto(u.Data, u.Matricula, u.Nome, u.Tipo, u.Motivo));
+        return Adiverts.Select(a => new AdivertReadDto(a.Data, a.Matricula, a.Nome, a.Tipo, a.Motivo, a.Id));
+    }
+
+    public async Task<AdivertReadDto?> GetByIdAsync(int id)
+    {
+        var adivert = await _repository.GetByIdAsync(id);
+        if (adivert is null)
+        {
+            return null;
+        }
+        return new AdivertReadDto(adivert.Data, adivert.Matricula, adivert.Nome, adivert.Tipo, adivert.Motivo, adivert.Id);
     }
 
     public async Task<bool> CreateAsync(AdivertCreateDto dto) {
