@@ -1,33 +1,31 @@
-function Tabela() {
+type TabelaProps = {
+    data: string;
+    matricula: string;
+    nome: string;
+    tipo: string;
+    motivo: string;
+    id: number;
+}
+
+function Tabela( { data, matricula, nome, tipo, motivo, id } : TabelaProps ) {
+
+    const dataFormatada = (data: string) => {
+        return new Date(data).toLocaleDateString('pt-BR')
+    }
+
     return (
-        <>
-        <table className='adivert'>
-            <thead>
-                <tr>
-                    <th className='adivert-column' id='data'>Data</th>
-                    <th className='adivert-column' id='matricula'>Matricula</th>
-                    <th className='adivert-column' id='nome'>Nome</th>
-                    <th className='adivert-column' id='tipo'>Tipo</th>
-                    <th className='adivert-column' id='motivo'>Motivo</th>
-                    <th className='adivert-column' id='actions'>Ações</th>
-                </tr>
-            </thead>
-            <tbody className="">
-                <tr>
-                    <td className='adivert-dado data-dado'>23/03/2026</td>
-                    <td className='adivert-dado'>16149</td>
-                    <td className='adivert-dado'>THIAGO LUCIUS MARTINS</td>
-                    <td className='adivert-dado'>Escrita</td>
-                    <td className='adivert-dado'>Falta sem justificativa no dia</td>
-                    <td className='adivert-dado box-actions-buttons'>
-                        <button className='actions-buttons'><img className='icon' src="lixeira.png" alt="icone-lixeira"/></button>
-                        <button className='actions-buttons'><img className='icon' src="edit.png" alt="icone-edit " /></button>
-                        <button className='actions-buttons'><img className='icon' src="download-file.png" alt="icone-download-arquivo"/></button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-        </>
+            <tr>
+                <td className='adivert-dado data-dado'>{dataFormatada(data)}</td>
+                <td className='adivert-dado'>{matricula}</td>
+                <td className='adivert-dado'>{nome.length > 20 ? (nome.substring(0, 20) + '...') : nome}</td>
+                <td className='adivert-dado'>{tipo}</td>
+                <td className='adivert-dado'>{motivo.length > 33 ? (motivo.substring(0, 33) + '...') : motivo}</td>
+                <td className='adivert-dado box-actions-buttons'>
+                    <button className='actions-buttons'><img className='icon' src="lixeira.png" alt="icone-lixeira"/></button>
+                    <button className='actions-buttons'><img className='icon' src="edit.png" alt="icone-edit " /></button>
+                    <button className='actions-buttons'><img className='icon' src="download-file.png" alt="icone-download-arquivo"/></button>
+                </td>
+            </tr>
     )
 }
 
