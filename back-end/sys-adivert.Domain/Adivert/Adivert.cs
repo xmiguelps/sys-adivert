@@ -2,7 +2,7 @@ namespace sys_adivert.adivert.Entity;
 
 public class Adivert
 {
-    public DateTime Data {get; set;}
+    public DateOnly Data {get; set;}
 
     public string Matricula {get; set;}
 
@@ -14,7 +14,7 @@ public class Adivert
 
     public int Id {get; set;}
 
-    public Adivert(DateTime data, string matricula, string motivo, string nome, string tipo)
+    public Adivert(DateOnly data, string matricula, string motivo, string nome, string tipo)
     {
         Data = data;
         Matricula = matricula;
@@ -23,7 +23,7 @@ public class Adivert
         Tipo = tipo;
     }
 
-    public void Update(DateTime data, string? matricula, string? nome, string? tipo, string? motivo)
+    public void Update(DateOnly data, string? matricula, string? nome, string? tipo, string? motivo)
     {
         Data = data;
         if (!string.IsNullOrWhiteSpace(matricula)) Matricula = matricula;

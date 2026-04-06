@@ -8,8 +8,6 @@ C:\Users\User\OneDrive\Documentos\DANLEX\sys-adivert\back-end\sys-adivert.Api\bi
 C:\Users\User\OneDrive\Documentos\DANLEX\sys-adivert\back-end\sys-adivert.Api\bin\Debug\net10.0\sys-adivert.Api.pdb
 C:\Users\User\OneDrive\Documentos\DANLEX\sys-adivert\back-end\sys-adivert.Api\bin\Debug\net10.0\Azure.Core.dll
 C:\Users\User\OneDrive\Documentos\DANLEX\sys-adivert\back-end\sys-adivert.Api\bin\Debug\net10.0\Azure.Identity.dll
-C:\Users\User\OneDrive\Documentos\DANLEX\sys-adivert\back-end\sys-adivert.Api\bin\Debug\net10.0\EntityFramework.SqlServer.dll
-C:\Users\User\OneDrive\Documentos\DANLEX\sys-adivert\back-end\sys-adivert.Api\bin\Debug\net10.0\EntityFramework.dll
 C:\Users\User\OneDrive\Documentos\DANLEX\sys-adivert\back-end\sys-adivert.Api\bin\Debug\net10.0\Humanizer.dll
 C:\Users\User\OneDrive\Documentos\DANLEX\sys-adivert\back-end\sys-adivert.Api\bin\Debug\net10.0\Microsoft.AspNetCore.OpenApi.dll
 C:\Users\User\OneDrive\Documentos\DANLEX\sys-adivert\back-end\sys-adivert.Api\bin\Debug\net10.0\Microsoft.Bcl.AsyncInterfaces.dll
@@ -49,7 +47,6 @@ C:\Users\User\OneDrive\Documentos\DANLEX\sys-adivert\back-end\sys-adivert.Api\bi
 C:\Users\User\OneDrive\Documentos\DANLEX\sys-adivert\back-end\sys-adivert.Api\bin\Debug\net10.0\System.Composition.Runtime.dll
 C:\Users\User\OneDrive\Documentos\DANLEX\sys-adivert\back-end\sys-adivert.Api\bin\Debug\net10.0\System.Composition.TypedParts.dll
 C:\Users\User\OneDrive\Documentos\DANLEX\sys-adivert\back-end\sys-adivert.Api\bin\Debug\net10.0\System.Configuration.ConfigurationManager.dll
-C:\Users\User\OneDrive\Documentos\DANLEX\sys-adivert\back-end\sys-adivert.Api\bin\Debug\net10.0\System.Data.SqlClient.dll
 C:\Users\User\OneDrive\Documentos\DANLEX\sys-adivert\back-end\sys-adivert.Api\bin\Debug\net10.0\System.IdentityModel.Tokens.Jwt.dll
 C:\Users\User\OneDrive\Documentos\DANLEX\sys-adivert\back-end\sys-adivert.Api\bin\Debug\net10.0\System.Memory.Data.dll
 C:\Users\User\OneDrive\Documentos\DANLEX\sys-adivert\back-end\sys-adivert.Api\bin\Debug\net10.0\System.Security.Cryptography.ProtectedData.dll
@@ -136,11 +133,6 @@ C:\Users\User\OneDrive\Documentos\DANLEX\sys-adivert\back-end\sys-adivert.Api\bi
 C:\Users\User\OneDrive\Documentos\DANLEX\sys-adivert\back-end\sys-adivert.Api\bin\Debug\net10.0\runtimes\win-arm64\native\Microsoft.Data.SqlClient.SNI.dll
 C:\Users\User\OneDrive\Documentos\DANLEX\sys-adivert\back-end\sys-adivert.Api\bin\Debug\net10.0\runtimes\win-x64\native\Microsoft.Data.SqlClient.SNI.dll
 C:\Users\User\OneDrive\Documentos\DANLEX\sys-adivert\back-end\sys-adivert.Api\bin\Debug\net10.0\runtimes\win-x86\native\Microsoft.Data.SqlClient.SNI.dll
-C:\Users\User\OneDrive\Documentos\DANLEX\sys-adivert\back-end\sys-adivert.Api\bin\Debug\net10.0\runtimes\win-arm64\native\sni.dll
-C:\Users\User\OneDrive\Documentos\DANLEX\sys-adivert\back-end\sys-adivert.Api\bin\Debug\net10.0\runtimes\win-x64\native\sni.dll
-C:\Users\User\OneDrive\Documentos\DANLEX\sys-adivert\back-end\sys-adivert.Api\bin\Debug\net10.0\runtimes\win-x86\native\sni.dll
-C:\Users\User\OneDrive\Documentos\DANLEX\sys-adivert\back-end\sys-adivert.Api\bin\Debug\net10.0\runtimes\unix\lib\netcoreapp2.1\System.Data.SqlClient.dll
-C:\Users\User\OneDrive\Documentos\DANLEX\sys-adivert\back-end\sys-adivert.Api\bin\Debug\net10.0\runtimes\win\lib\netcoreapp2.1\System.Data.SqlClient.dll
 C:\Users\User\OneDrive\Documentos\DANLEX\sys-adivert\back-end\sys-adivert.Api\bin\Debug\net10.0\sys-adivert.Application.dll
 C:\Users\User\OneDrive\Documentos\DANLEX\sys-adivert\back-end\sys-adivert.Api\bin\Debug\net10.0\sys-adivert.Domain.dll
 C:\Users\User\OneDrive\Documentos\DANLEX\sys-adivert\back-end\sys-adivert.Api\bin\Debug\net10.0\sys-adivert.Infrastructure.dll

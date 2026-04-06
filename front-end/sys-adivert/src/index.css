@@ -145,8 +145,209 @@ button  {
     border-radius: 12px;
     padding: 24px;
     width: 800px;
+    height: 400px;
 }
 
 select {
     width: 400px;
+}
+
+.body-add {
+    height: 270px;
+}
+
+/* ── Popup wrapper ── */
+.add-popup {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    position: relative;
+    padding: 4px;
+}
+
+/* ── Botão fechar (X) ── */
+.add-btn-fechar {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+}
+
+/* ── Título ── */
+.add-titulo {
+    margin: 0 0 12px 20px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+}
+
+/* ── Lista de cards ── */
+.add-lista {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 180px;
+    max-height: 400px;
+    padding-right: 4px;
+}
+
+.add-vazio {
+    color: #999;
+    text-align: center;
+    margin-top: 40px;
+    font-size: 13px;
+}
+
+/* ── Card de advertência ── */
+.add-card {
+    background: #f2f2f2;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px 12px;
+}
+
+.add-card-conteudo {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.add-card-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+}
+
+.add-card-nome {
+    font-weight: 600;
+    font-size: 14px;
+    color: #222;
+}
+
+.add-card-sub {
+    font-size: 12px;
+    color: #555;
+}
+
+.add-card-motivo {
+    font-size: 12px;
+    color: #666;
+    margin-top: 2px;
+}
+
+.add-card-acoes {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.add-btn-icone {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 2px;
+}
+
+/* ── Formulário inline ── */
+.add-form-box {
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.add-form-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.add-form-acoes {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.add-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #444;
+    white-space: nowrap;
+}
+
+.add-input {
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 3px 7px;
+    font-size: 13px;
+    flex: 1;
+    min-width: 80px;
+}
+
+.add-input--matricula { width: 120px; flex: none; }
+.add-input--data      { width: 140px; flex: none; }
+.add-input--tipo      { width: 100px; flex: none; }
+.add-input--motivo    { flex: 1; }
+
+/* ── Botões do formulário ── */
+.add-btn-confirm {
+    background: #4caf50;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 5px 14px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.add-btn-cancel {
+    background: #e0e0e0;
+    color: #333;
+    border: none;
+    border-radius: 6px;
+    padding: 5px 14px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+/* ── Rodapé com 2 botões ── */
+.add-rodape {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.add-btn-nova {
+    background: #1976d2;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 20px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.add-btn-salvar {
+    background: #388e3c;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 20px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
 }

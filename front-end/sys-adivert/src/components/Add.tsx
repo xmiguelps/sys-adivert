@@ -1,6 +1,13 @@
-import type React from "react"
 import motivos from "../context"
 import { useState } from "react";
+
+type Advertencia = {
+    Nome: string;
+    matricula: string;
+    data: string;
+    tipo: string;
+    motivo: string;
+}
 
 type AddProps = {
     setAddAberto: React.Dispatch<React.SetStateAction<boolean>>;
@@ -8,84 +15,180 @@ type AddProps = {
     data: any[];
 }
 
-function Add({ setAddAberto, setData, data }: AddProps) {
+const campoVazio = (): Advertencia => ({
+    Nome: "",
+    matricula: "",
+    data: new Date().toISOString().split('T')[0],
+    tipo: "",
+    motivo: motivos[0]?.motivo ?? "",
+});
 
-    const [colaborador, setColaborador] = useState("");
-    const [matricula, setMatricula] = useState("");
-    const [data_input, setDataInput] = useState(new Date().toISOString().split('T')[0]);
-    const [tipo, setTipo] = useState("");
-    const [motivo, setMotivo] = useState("");
-    const [count, setCount] = useState<number>(1);
+function Add({ setAddAberto, setData }: AddProps) {
 
-    const criarAdiverts = () => {
-        setData(prev => [...prev, {
-            colaborador, matricula, data: data_input, tipo, motivo
-        }])
-    }
+    const [lista, setLista] = useState<Advertencia[]>([]);
+    const [editandoIdx, setEditandoIdx] = useState<number | null>(null);
+    const [editForm, setEditForm] = useState<Advertencia>(campoVazio());
+    const [criandoNova, setCriandoNova] = useState(false);
+    const [novaForm, setNovaForm] = useState<Advertencia>(campoVazio());
 
-    const salvarData = () => {
-        setData(prev => [...prev, {
-            colaborador, matricula, data: data_input, tipo, motivo
-        }]);
+    const abrirNova = () => {
+        setNovaForm(campoVazio());
+        setCriandoNova(true);
+        setEditandoIdx(null);
+    };
 
-        setColaborador("");
-        setMatricula("");
-        setDataInput(new Date().toISOString().split('T')[0]);
-        setTipo("");
-        setMotivo("");
-        setCount(count + 1);
-    }
+    const confirmarNova = () => {
+        if (!novaForm.Nome.trim()) return;
+        setLista(prev => [...prev, { ...novaForm }]);
+        setCriandoNova(false);
+    };
 
-    const voltar = () => {
-        const anterior = data[count - 2]; // pega o registro anterior
-        setColaborador(anterior.colaborador);
-        setMatricula(anterior.matricula);
-        setDataInput(anterior.data);
-        setTipo(anterior.tipo);
-        setMotivo(anterior.motivo);
-        setCount(count - 1);
-    }
+    const iniciarEdicao = (idx: number) => {
+        setEditandoIdx(idx);
+        setEditForm({ ...lista[idx] });
+        setCriandoNova(false);
+    };
 
-    return (
-        <>
-            <button onClick={() => setAddAberto(false)}>
-                <img className='icon' src="close.png" alt="botão de fechar" />
-            </button>
-            <p>{count}° Advertência:</p>
+    const salvarEdicao = (idx: number) => {
+        setLista(prev => prev.map((a, i) => i === idx ? { ...editForm } : a));
+        setEditandoIdx(null);
+    };
 
-            {count > 1 && (
-                <button onClick={voltar}>Voltar</button>
-            )}
+    const cancelarEdicao = () => setEditandoIdx(null);
 
-            <div>
-                <label>Colaborador:</label>
-                <input type="text" value={colaborador} onChange={(e) => setColaborador(e.target.value)} />
+    const excluir = (idx: number) => {
+        setLista(prev => prev.filter((_, i) => i !== idx));
+        if (editandoIdx === idx) setEditandoIdx(null);
+    };
+
+    const finalizarESalvar = async () => {
+        try {
+            for (const adv of lista) {
+                await fetch(`${import.meta.env.VITE_API_URL}/api/Adiverts`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(adv),
+                });
+            }
+        } catch (err) {
+            console.error("Erro ao salvar advertências", err);
+        }
+        setData(prev => [...prev, ...lista]);
+        setAddAberto(false);
+    };
+
+    const renderForm = (
+        form: Advertencia,
+        onChange: (f: Advertencia) => void,
+        onConfirm: () => void,
+        onCancel: () => void,
+        labelConfirm: string
+    ) => (
+        <div className="add-form-box">
+            <div className="add-form-row">
+                <label className="add-label">Colaborador:</label>
+                <input
+                    className="add-input"
+                    value={form.Nome}
+                    onChange={e => onChange({ ...form, Nome: e.target.value })}
+                />
             </div>
-            <div>
-                <label>Matricula:</label>
-                <input type="text" value={matricula} onChange={(e) => setMatricula(e.target.value)} />
-                <label>Data:</label>
-                <input type="date" value={data_input} onChange={(e) => setDataInput(e.target.value)} />
+            <div className="add-form-row">
+                <label className="add-label">Matrícula:</label>
+                <input
+                    className="add-input add-input--matricula"
+                    value={form.matricula}
+                    onChange={e => onChange({ ...form, matricula: e.target.value })}
+                />
+                <label className="add-label">Data:</label>
+                <input
+                    type="date"
+                    className="add-input add-input--data"
+                    value={form.data}
+                    onChange={e => onChange({ ...form, data: e.target.value })}
+                />
+                <label className="add-label">Tipo:</label>
+                <input
+                    className="add-input add-input--tipo"
+                    value={form.tipo}
+                    onChange={e => onChange({ ...form, tipo: e.target.value })}
+                />
             </div>
-            <div>
-                <label>Tipo:</label>
-                <input type="text" value={tipo} onChange={(e) => setTipo(e.target.value)} />
-            </div>
-            <div>
-                <label>Motivo:</label>
-                <select value={motivo} onChange={(e) => setMotivo(e.target.value)}>
+            <div className="add-form-row">
+                <label className="add-label">Motivo:</label>
+                <select
+                    className="add-input add-input--motivo"
+                    value={form.motivo}
+                    onChange={e => onChange({ ...form, motivo: e.target.value })}
+                >
                     {motivos.map(m => (
                         <option key={m.motivo} value={m.motivo}>{m.motivo}</option>
                     ))}
                 </select>
             </div>
+            <div className="add-form-acoes">
+                <button className="add-btn-confirm" onClick={onConfirm}>{labelConfirm}</button>
+                <button className="add-btn-cancel" onClick={onCancel}>Cancelar</button>
+            </div>
+        </div>
+    );
 
-            <button onClick={salvarData}>Fazer mais advertências</button>
-            {!data[count] && (
-                <button>Criar adivertencias</button>
-            )}
-        </>
-    )
+    return (
+        <div className="add-popup">
+
+            <div className="d-flex">
+                <button className="add-btn-fechar" onClick={() => setAddAberto(false)} title="Fechar">
+                    <img className="icon" src="close.png" alt="fechar" />
+                </button>
+            </div>
+
+            <div className="add-lista">
+                {lista.length === 0 && !criandoNova && (
+                    <p className="add-vazio">Nenhuma advertência adicionada ainda.</p>
+                )}
+
+                {lista.map((adv, idx) => (
+                    <div key={idx} className="add-card">
+                        {editandoIdx === idx
+                            ? renderForm(editForm, setEditForm, () => salvarEdicao(idx), cancelarEdicao, "Salvar")
+                            : (
+                                <div className="add-card-conteudo">
+                                    <div className="add-card-info">
+                                        <span className="add-card-nome">{adv.Nome || "—"}</span>
+                                        <span className="add-card-sub">
+                                            Mat: {adv.matricula} &nbsp;|&nbsp; {adv.data} &nbsp;|&nbsp; {adv.tipo}
+                                        </span>
+                                        <span className="add-card-motivo" title={adv.motivo}>
+                                            {adv.motivo.length > 85 ? adv.motivo.substring(0, 85) + "…" : adv.motivo}
+                                        </span>
+                                    </div>
+                                    <div className="add-card-acoes">
+                                        <button className="add-btn-icone" onClick={() => iniciarEdicao(idx)} title="Editar">
+                                            <img className="icon" src="edit.png" alt="editar" />
+                                        </button>
+                                        <button className="add-btn-icone" onClick={() => excluir(idx)} title="Excluir">
+                                            <img className="icon" src="lixeira.png" alt="excluir" />
+                                        </button>
+                                    </div>
+                                </div>
+                            )
+                        }
+                    </div>
+                ))}
+
+                {criandoNova && renderForm(novaForm, setNovaForm, confirmarNova, () => setCriandoNova(false), "Adicionar")}
+            </div>
+
+            <div className="add-rodape">
+                <button className="add-btn-nova" onClick={abrirNova}>
+                    + Nova Advertência
+                </button>
+                <button className="add-btn-salvar" onClick={finalizarESalvar}>
+                    Finalizar e Salvar
+                </button>
+            </div>
+        </div>
+    );
 }
 
-export default Add
+export default Add;

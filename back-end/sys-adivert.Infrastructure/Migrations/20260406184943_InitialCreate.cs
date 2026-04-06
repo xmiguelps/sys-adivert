@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace sys_adivert.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialPostgres : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -18,7 +18,7 @@ namespace sys_adivert.Infrastructure.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Data = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Data = table.Column<DateOnly>(type: "date", nullable: false),
                     Matricula = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     Nome = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
                     Tipo = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),

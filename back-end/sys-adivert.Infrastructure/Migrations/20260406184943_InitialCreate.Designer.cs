@@ -12,8 +12,8 @@ using sys_adivert.Infrastructure.AppDb;
 namespace sys_adivert.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260328175818_InitialPostgres")]
-    partial class InitialPostgres
+    [Migration("20260406184943_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -33,8 +33,8 @@ namespace sys_adivert.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("Data")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<DateOnly>("Data")
+                        .HasColumnType("date");
 
                     b.Property<string>("Matricula")
                         .IsRequired()

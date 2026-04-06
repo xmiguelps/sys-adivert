@@ -10,6 +10,7 @@ public class AdivertConfiguration : IEntityTypeConfiguration<Adivert>
     {
         builder.HasKey(c => c.Id);
         builder.Property(c => c.Id).ValueGeneratedOnAdd();
+        builder.Property(a => a.Data).HasColumnType("date");
         builder.Property(c => c.Matricula).HasMaxLength(50);
         builder.Property(c => c.Nome).HasMaxLength(255);
         builder.Property(c => c.Motivo).HasMaxLength(455);

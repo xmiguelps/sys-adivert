@@ -4,3 +4,14 @@ GET {{Api_HostAddress}}/api/Adiverts
 Accept: application/json
 
 ###
+POST {{Api_HostAddress}}/api/Adiverts
+Content-Type: application/json
+
+{
+    "data": "2025-05-20",
+    "matricula": "24056",
+    "nome": "MIGUEL PASSOS GIBERTONI DE SOUZA ALVES",
+    "tipo": "Escrita",
+    "motivo": "Não cumprir com os procedimentos da empresa, não realizando validação do quality da manutenção com seu superior ou COP."
+}
+###
