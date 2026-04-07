@@ -10,22 +10,22 @@ function App() {
     const [excluirView, setExcluirView] = useState<boolean>(false)
 
     const getAdiverts = async () => {
-            try {
-                const response = await fetch(
-                    `${import.meta.env.VITE_API_URL}/api/Adiverts`, 
-                    {
-                        method: "GET",
-                        headers: {
-                            "Accept": "application/son"
-                        }
-                    }
-                );
-                const data = await response.json();
-                setAdiverts(data)
-            } catch (error) {
-                console.error("Falha ao puxar os dados ", error)
+        const response = await fetch(
+            `${import.meta.env.VITE_API_URL}/api/Adiverts`, 
+            {
+                method: "GET",
+                headers: {
+                    "Accept": "application/son"
+                }
             }
+        );
+        if (!response.ok) {
+            throw new Error(`Erro: ${response.status}`);
+        } else {
+            const data = await response.json();
+            setAdiverts(data);
         }
+    }
 
     useEffect(() => {
         getAdiverts();

@@ -10,16 +10,15 @@ type ExcluirProps = {
 function Excluir( { setExcluirView, id, getAdiverts } : ExcluirProps) {
 
     const ExcluirAdivert = async () => {
-        try {
-            await fetch(`${import.meta.env.VITE_API_URL}/api/Adiverts/${id}`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/Adiverts/${id}`, {
                 method: "DELETE"
             });
-            await getAdiverts();
-            setExcluirView(false);
-        } catch (error) {
-            console.error("Erro ao deletar adivertencia" + error)
-        }
-
+            if (!response.ok) {
+                throw new Error(`Erro: ${response.status}`)
+            } else {
+                await getAdiverts();
+                setExcluirView(false);
+            }
     }
 
     return (
