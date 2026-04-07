@@ -4,10 +4,10 @@ type TabelaProps = {
     nome: string;
     tipo: string;
     motivo: string;
-    id: number;
+    //id: number;
 }
 
-function Tabela( { data, matricula, nome, tipo, motivo, id } : TabelaProps ) {
+function Tabela( { data, matricula, nome, tipo, motivo, /*id*/ } : TabelaProps ) {
 
     const dataFormatada = (data: string) => {
         return new Date(data).toLocaleDateString('pt-BR')

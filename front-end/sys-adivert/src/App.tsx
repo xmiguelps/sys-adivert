@@ -74,7 +74,7 @@ function App() {
                                     nome={adivert.nome}
                                     tipo={adivert.tipo}
                                     motivo={adivert.motivo}
-                                    id={adivert.id}
+                                    //id={adivert.id}
                                     />
                                 ))}
                         </tbody>
