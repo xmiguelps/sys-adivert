@@ -7,9 +7,9 @@ function App() {
     const [addAberto, setAddAberto] = useState(false)
     const [adiverts, setAdiverts] = useState<any[]>([])
     const [data, setData] = useState<any[]>([])
+    const [excluirView, setExcluirView] = useState<boolean>(false)
 
-    useEffect(() => {
-        const getAdiverts = async () => {
+    const getAdiverts = async () => {
             try {
                 const response = await fetch(
                     `${import.meta.env.VITE_API_URL}/api/Adiverts`, 
@@ -26,6 +26,8 @@ function App() {
                 console.error("Falha ao puxar os dados ", error)
             }
         }
+
+    useEffect(() => {
         getAdiverts();
     }, [])
 
@@ -38,6 +40,8 @@ function App() {
                     setAddAberto={setAddAberto}
                     setData={setData}
                     data={data}
+                    setAdiverts={setAdiverts}
+                    getAdiverts={getAdiverts}
                     />
                 </div>
             </div>
@@ -74,7 +78,11 @@ function App() {
                                     nome={adivert.nome}
                                     tipo={adivert.tipo}
                                     motivo={adivert.motivo}
-                                    //id={adivert.id}
+                                    id={adivert.id}
+                                    excluirView = {excluirView}
+                                    setExcluirView={setExcluirView}
+                                    setAdiverts={setAdiverts}
+                                    getAdiverts={getAdiverts}
                                     />
                                 ))}
                         </tbody>

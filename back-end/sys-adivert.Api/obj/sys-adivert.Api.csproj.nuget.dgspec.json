@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\User\\OneDrive\\Documentos\\DANLEX\\sys-adivert\\back-end\\sys-adivert.Api\\sys-adivert.Api.csproj": {}
+    "C:\\Users\\Miguel Alves\\Documents\\Estudos - Miguel Passos\\dlx\\sys-adivert\\back-end\\sys-adivert.Api\\sys-adivert.Api.csproj": {}
   },
   "projects": {
-    "C:\\Users\\User\\OneDrive\\Documentos\\DANLEX\\sys-adivert\\back-end\\sys-adivert.Api\\sys-adivert.Api.csproj": {
+    "C:\\Users\\Miguel Alves\\Documents\\Estudos - Miguel Passos\\dlx\\sys-adivert\\back-end\\sys-adivert.Api\\sys-adivert.Api.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\User\\OneDrive\\Documentos\\DANLEX\\sys-adivert\\back-end\\sys-adivert.Api\\sys-adivert.Api.csproj",
+        "projectUniqueName": "C:\\Users\\Miguel Alves\\Documents\\Estudos - Miguel Passos\\dlx\\sys-adivert\\back-end\\sys-adivert.Api\\sys-adivert.Api.csproj",
         "projectName": "sys-adivert.Api",
-        "projectPath": "C:\\Users\\User\\OneDrive\\Documentos\\DANLEX\\sys-adivert\\back-end\\sys-adivert.Api\\sys-adivert.Api.csproj",
-        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\User\\OneDrive\\Documentos\\DANLEX\\sys-adivert\\back-end\\sys-adivert.Api\\obj\\",
+        "projectPath": "C:\\Users\\Miguel Alves\\Documents\\Estudos - Miguel Passos\\dlx\\sys-adivert\\back-end\\sys-adivert.Api\\sys-adivert.Api.csproj",
+        "packagesPath": "C:\\Users\\Miguel Alves\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Miguel Alves\\Documents\\Estudos - Miguel Passos\\dlx\\sys-adivert\\back-end\\sys-adivert.Api\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\Miguel Alves\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net10.0"
@@ -26,11 +26,11 @@
           "net10.0": {
             "targetAlias": "net10.0",
             "projectReferences": {
-              "C:\\Users\\User\\OneDrive\\Documentos\\DANLEX\\sys-adivert\\back-end\\sys-adivert.Application\\sys-adivert.Application.csproj": {
-                "projectPath": "C:\\Users\\User\\OneDrive\\Documentos\\DANLEX\\sys-adivert\\back-end\\sys-adivert.Application\\sys-adivert.Application.csproj"
+              "C:\\Users\\Miguel Alves\\Documents\\Estudos - Miguel Passos\\dlx\\sys-adivert\\back-end\\sys-adivert.Application\\sys-adivert.Application.csproj": {
+                "projectPath": "C:\\Users\\Miguel Alves\\Documents\\Estudos - Miguel Passos\\dlx\\sys-adivert\\back-end\\sys-adivert.Application\\sys-adivert.Application.csproj"
               },
-              "C:\\Users\\User\\OneDrive\\Documentos\\DANLEX\\sys-adivert\\back-end\\sys-adivert.Infrastructure\\sys-adivert.Infrastructure.csproj": {
-                "projectPath": "C:\\Users\\User\\OneDrive\\Documentos\\DANLEX\\sys-adivert\\back-end\\sys-adivert.Infrastructure\\sys-adivert.Infrastructure.csproj"
+              "C:\\Users\\Miguel Alves\\Documents\\Estudos - Miguel Passos\\dlx\\sys-adivert\\back-end\\sys-adivert.Infrastructure\\sys-adivert.Infrastructure.csproj": {
+                "projectPath": "C:\\Users\\Miguel Alves\\Documents\\Estudos - Miguel Passos\\dlx\\sys-adivert\\back-end\\sys-adivert.Infrastructure\\sys-adivert.Infrastructure.csproj"
               }
             }
           }
@@ -499,17 +499,17 @@
         }
       }
     },
-    "C:\\Users\\User\\OneDrive\\Documentos\\DANLEX\\sys-adivert\\back-end\\sys-adivert.Application\\sys-adivert.Application.csproj": {
+    "C:\\Users\\Miguel Alves\\Documents\\Estudos - Miguel Passos\\dlx\\sys-adivert\\back-end\\sys-adivert.Application\\sys-adivert.Application.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\User\\OneDrive\\Documentos\\DANLEX\\sys-adivert\\back-end\\sys-adivert.Application\\sys-adivert.Application.csproj",
+        "projectUniqueName": "C:\\Users\\Miguel Alves\\Documents\\Estudos - Miguel Passos\\dlx\\sys-adivert\\back-end\\sys-adivert.Application\\sys-adivert.Application.csproj",
         "projectName": "sys-adivert.Application",
-        "projectPath": "C:\\Users\\User\\OneDrive\\Documentos\\DANLEX\\sys-adivert\\back-end\\sys-adivert.Application\\sys-adivert.Application.csproj",
-        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\User\\OneDrive\\Documentos\\DANLEX\\sys-adivert\\back-end\\sys-adivert.Application\\obj\\",
+        "projectPath": "C:\\Users\\Miguel Alves\\Documents\\Estudos - Miguel Passos\\dlx\\sys-adivert\\back-end\\sys-adivert.Application\\sys-adivert.Application.csproj",
+        "packagesPath": "C:\\Users\\Miguel Alves\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Miguel Alves\\Documents\\Estudos - Miguel Passos\\dlx\\sys-adivert\\back-end\\sys-adivert.Application\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\Miguel Alves\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net10.0"
@@ -521,8 +521,8 @@
           "net10.0": {
             "targetAlias": "net10.0",
             "projectReferences": {
-              "C:\\Users\\User\\OneDrive\\Documentos\\DANLEX\\sys-adivert\\back-end\\sys-adivert.Domain\\sys-adivert.Domain.csproj": {
-                "projectPath": "C:\\Users\\User\\OneDrive\\Documentos\\DANLEX\\sys-adivert\\back-end\\sys-adivert.Domain\\sys-adivert.Domain.csproj"
+              "C:\\Users\\Miguel Alves\\Documents\\Estudos - Miguel Passos\\dlx\\sys-adivert\\back-end\\sys-adivert.Domain\\sys-adivert.Domain.csproj": {
+                "projectPath": "C:\\Users\\Miguel Alves\\Documents\\Estudos - Miguel Passos\\dlx\\sys-adivert\\back-end\\sys-adivert.Domain\\sys-adivert.Domain.csproj"
               }
             }
           }
@@ -836,17 +836,17 @@
         }
       }
     },
-    "C:\\Users\\User\\OneDrive\\Documentos\\DANLEX\\sys-adivert\\back-end\\sys-adivert.Domain\\sys-adivert.Domain.csproj": {
+    "C:\\Users\\Miguel Alves\\Documents\\Estudos - Miguel Passos\\dlx\\sys-adivert\\back-end\\sys-adivert.Domain\\sys-adivert.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\User\\OneDrive\\Documentos\\DANLEX\\sys-adivert\\back-end\\sys-adivert.Domain\\sys-adivert.Domain.csproj",
+        "projectUniqueName": "C:\\Users\\Miguel Alves\\Documents\\Estudos - Miguel Passos\\dlx\\sys-adivert\\back-end\\sys-adivert.Domain\\sys-adivert.Domain.csproj",
         "projectName": "sys-adivert.Domain",
-        "projectPath": "C:\\Users\\User\\OneDrive\\Documentos\\DANLEX\\sys-adivert\\back-end\\sys-adivert.Domain\\sys-adivert.Domain.csproj",
-        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\User\\OneDrive\\Documentos\\DANLEX\\sys-adivert\\back-end\\sys-adivert.Domain\\obj\\",
+        "projectPath": "C:\\Users\\Miguel Alves\\Documents\\Estudos - Miguel Passos\\dlx\\sys-adivert\\back-end\\sys-adivert.Domain\\sys-adivert.Domain.csproj",
+        "packagesPath": "C:\\Users\\Miguel Alves\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Miguel Alves\\Documents\\Estudos - Miguel Passos\\dlx\\sys-adivert\\back-end\\sys-adivert.Domain\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\Miguel Alves\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net10.0"
@@ -1169,17 +1169,17 @@
         }
       }
     },
-    "C:\\Users\\User\\OneDrive\\Documentos\\DANLEX\\sys-adivert\\back-end\\sys-adivert.Infrastructure\\sys-adivert.Infrastructure.csproj": {
+    "C:\\Users\\Miguel Alves\\Documents\\Estudos - Miguel Passos\\dlx\\sys-adivert\\back-end\\sys-adivert.Infrastructure\\sys-adivert.Infrastructure.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\User\\OneDrive\\Documentos\\DANLEX\\sys-adivert\\back-end\\sys-adivert.Infrastructure\\sys-adivert.Infrastructure.csproj",
+        "projectUniqueName": "C:\\Users\\Miguel Alves\\Documents\\Estudos - Miguel Passos\\dlx\\sys-adivert\\back-end\\sys-adivert.Infrastructure\\sys-adivert.Infrastructure.csproj",
         "projectName": "sys-adivert.Infrastructure",
-        "projectPath": "C:\\Users\\User\\OneDrive\\Documentos\\DANLEX\\sys-adivert\\back-end\\sys-adivert.Infrastructure\\sys-adivert.Infrastructure.csproj",
-        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\User\\OneDrive\\Documentos\\DANLEX\\sys-adivert\\back-end\\sys-adivert.Infrastructure\\obj\\",
+        "projectPath": "C:\\Users\\Miguel Alves\\Documents\\Estudos - Miguel Passos\\dlx\\sys-adivert\\back-end\\sys-adivert.Infrastructure\\sys-adivert.Infrastructure.csproj",
+        "packagesPath": "C:\\Users\\Miguel Alves\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Miguel Alves\\Documents\\Estudos - Miguel Passos\\dlx\\sys-adivert\\back-end\\sys-adivert.Infrastructure\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\Miguel Alves\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net10.0"
@@ -1191,11 +1191,11 @@
           "net10.0": {
             "targetAlias": "net10.0",
             "projectReferences": {
-              "C:\\Users\\User\\OneDrive\\Documentos\\DANLEX\\sys-adivert\\back-end\\sys-adivert.Application\\sys-adivert.Application.csproj": {
-                "projectPath": "C:\\Users\\User\\OneDrive\\Documentos\\DANLEX\\sys-adivert\\back-end\\sys-adivert.Application\\sys-adivert.Application.csproj"
+              "C:\\Users\\Miguel Alves\\Documents\\Estudos - Miguel Passos\\dlx\\sys-adivert\\back-end\\sys-adivert.Application\\sys-adivert.Application.csproj": {
+                "projectPath": "C:\\Users\\Miguel Alves\\Documents\\Estudos - Miguel Passos\\dlx\\sys-adivert\\back-end\\sys-adivert.Application\\sys-adivert.Application.csproj"
               },
-              "C:\\Users\\User\\OneDrive\\Documentos\\DANLEX\\sys-adivert\\back-end\\sys-adivert.Domain\\sys-adivert.Domain.csproj": {
-                "projectPath": "C:\\Users\\User\\OneDrive\\Documentos\\DANLEX\\sys-adivert\\back-end\\sys-adivert.Domain\\sys-adivert.Domain.csproj"
+              "C:\\Users\\Miguel Alves\\Documents\\Estudos - Miguel Passos\\dlx\\sys-adivert\\back-end\\sys-adivert.Domain\\sys-adivert.Domain.csproj": {
+                "projectPath": "C:\\Users\\Miguel Alves\\Documents\\Estudos - Miguel Passos\\dlx\\sys-adivert\\back-end\\sys-adivert.Domain\\sys-adivert.Domain.csproj"
               }
             }
           }

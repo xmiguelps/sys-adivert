@@ -48,12 +48,9 @@ if (app.Environment.IsDevelopment())
 }
 
 // app.UseCors("AllowFrontend");
-app.UseCors("PublicPolicy");
-
-app.UseAuthorization();
-
 app.UseHttpsRedirection();
-
+app.UseCors("PublicPolicy");
+app.UseAuthorization();
 app.MapControllers();
 
 app.Run();

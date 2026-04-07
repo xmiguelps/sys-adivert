@@ -156,7 +156,6 @@ select {
     height: 270px;
 }
 
-/* ── Popup wrapper ── */
 .add-popup {
     display: flex;
     flex-direction: column;
@@ -165,7 +164,6 @@ select {
     padding: 4px;
 }
 
-/* ── Botão fechar (X) ── */
 .add-btn-fechar {
     background: transparent;
     border: none;
@@ -173,7 +171,6 @@ select {
     padding: 4px;
 }
 
-/* ── Título ── */
 .add-titulo {
     margin: 0 0 12px 20px;
     font-size: 16px;
@@ -181,7 +178,6 @@ select {
     color: #333;
 }
 
-/* ── Lista de cards ── */
 .add-lista {
     flex: 1;
     overflow-y: auto;
@@ -200,7 +196,6 @@ select {
     font-size: 13px;
 }
 
-/* ── Card de advertência ── */
 .add-card {
     background: #f2f2f2;
     border: 1px solid #ddd;
@@ -253,7 +248,6 @@ select {
     padding: 2px;
 }
 
-/* ── Formulário inline ── */
 .add-form-box {
     background: #fff;
     border: 1px solid #ccc;
@@ -298,7 +292,6 @@ select {
 .add-input--tipo      { width: 100px; flex: none; }
 .add-input--motivo    { flex: 1; }
 
-/* ── Botões do formulário ── */
 .add-btn-confirm {
     background: #4caf50;
     color: #fff;
@@ -320,7 +313,6 @@ select {
     font-size: 13px;
 }
 
-/* ── Rodapé com 2 botões ── */
 .add-rodape {
     display: flex;
     gap: 12px;

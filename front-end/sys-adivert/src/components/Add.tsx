@@ -1,5 +1,5 @@
 import motivos from "../context"
-import { useState } from "react";
+import React, { useState } from "react";
 
 type Advertencia = {
     Nome: string;
@@ -13,6 +13,8 @@ type AddProps = {
     setAddAberto: React.Dispatch<React.SetStateAction<boolean>>;
     setData: React.Dispatch<React.SetStateAction<any[]>>;
     data: any[];
+    setAdiverts: React.Dispatch<React.SetStateAction<any[]>>;
+    getAdiverts: () => void;
 }
 
 const campoVazio = (): Advertencia => ({
@@ -23,7 +25,7 @@ const campoVazio = (): Advertencia => ({
     motivo: motivos[0]?.motivo ?? "",
 });
 
-function Add({ setAddAberto, setData }: AddProps) {
+function Add({ setAddAberto, setData, setAdiverts, getAdiverts, data }: AddProps) {
 
     const [lista, setLista] = useState<Advertencia[]>([]);
     const [editandoIdx, setEditandoIdx] = useState<number | null>(null);
@@ -74,6 +76,8 @@ function Add({ setAddAberto, setData }: AddProps) {
             console.error("Erro ao salvar advertências", err);
         }
         setData(prev => [...prev, ...lista]);
+        setAdiverts(data)
+        getAdiverts()
         setAddAberto(false);
     };
 
