@@ -18,6 +18,7 @@ public class AdivertRepository : IAdivertRepository
     {
         return await _db.Adiverts
             .AsNoTracking()
+            .OrderByDescending(adv => adv.Data)
             .ToListAsync(cancellationToken);
     }
 

@@ -73,8 +73,6 @@ function Add({ setAddAberto, setData, setAdiverts, getAdiverts, data }: AddProps
                 })
             )
         );
-        setData(prev => [...prev, ...lista]);
-        setAdiverts(data)
         await getAdiverts()
         setAddAberto(false);
     };

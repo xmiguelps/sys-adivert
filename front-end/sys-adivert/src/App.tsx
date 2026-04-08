@@ -4,10 +4,9 @@ import Add from './components/Add'
 
 function App() {
 
-    const [addAberto, setAddAberto] = useState(false)
+    const [addAberto, setAddAberto] = useState<boolean>(false)
     const [adiverts, setAdiverts] = useState<any[]>([])
     const [data, setData] = useState<any[]>([])
-    const [excluirView, setExcluirView] = useState<boolean>(false)
 
     const getAdiverts = async () => {
         const response = await fetch(
@@ -69,23 +68,18 @@ function App() {
                                 <th className='adivert-column' id='actions'>Ações</th>
                             </tr>
                         </thead>
-                        <tbody>
                             {adiverts.map(adivert => (
-                                    <Tabela
-                                    key={adivert.id}
-                                    data={adivert.data}
-                                    matricula={adivert.matricula}
-                                    nome={adivert.nome}
-                                    tipo={adivert.tipo}
-                                    motivo={adivert.motivo}
-                                    id={adivert.id}
-                                    excluirView = {excluirView}
-                                    setExcluirView={setExcluirView}
-                                    setAdiverts={setAdiverts}
-                                    getAdiverts={getAdiverts}
-                                    />
-                                ))}
-                        </tbody>
+                                <Tabela
+                                key            = {adivert.id}
+                                data           = {adivert.data}
+                                matricula      = {adivert.matricula}
+                                nome           = {adivert.nome}
+                                tipo           = {adivert.tipo}
+                                motivo         = {adivert.motivo}
+                                id             = {adivert.id}
+                                getAdiverts    = {getAdiverts}
+                                />
+                            ))}
                     </table>
                     </div>
                 </div>
