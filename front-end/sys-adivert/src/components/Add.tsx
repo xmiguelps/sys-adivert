@@ -64,17 +64,13 @@ function Add({ setAddAberto, setData, setAdiverts, getAdiverts, data }: AddProps
     };
 
     const finalizarESalvar = async () => {
-        try {
-            for (const adv of lista) {
-                await fetch(`${import.meta.env.VITE_API_URL}/api/Adiverts`, {
+        lista.map(adv => (
+            await fetch(`${import.meta.env.VITE_API_URL}/api/Adiverts`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(adv),
-                });
-            }
-        } catch (err) {
-            console.error("Erro ao salvar advertências", err);
-        }
+                })
+        ))
         setData(prev => [...prev, ...lista]);
         setAdiverts(data)
         getAdiverts()
