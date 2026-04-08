@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("sys-adivert.Infrastructure")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+15a58bd57e739a3d8d3ef5cb6b830e2d05f873f1")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+20829cdfdac0a2cd09ef3d97fe876b87387c2abe")]
 [assembly: System.Reflection.AssemblyProductAttribute("sys-adivert.Infrastructure")]
 [assembly: System.Reflection.AssemblyTitleAttribute("sys-adivert.Infrastructure")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
