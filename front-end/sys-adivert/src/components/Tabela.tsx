@@ -20,19 +20,20 @@ function Tabela( { data, matricula, nome, tipo, motivo, id , excluirView, setExc
     }
 
     return (
+        <>
+            {excluirView && (
+                <div className='overlay'>
+                    <div className='caixa'>
+                        <Excluir
+                        setAdiverts={setAdiverts}
+                        getAdiverts={getAdiverts}
+                        setExcluirView={setExcluirView}
+                        id={id}
+                        />
+                    </div>
+                </div>  
+            )}
             <tr>
-                {excluirView && (
-                    <div className='overlay'>
-                        <div className='caixa'>
-                            <Excluir
-                            setAdiverts={setAdiverts}
-                            getAdiverts={getAdiverts}
-                            setExcluirView={setExcluirView}
-                            id={id}
-                            />
-                        </div>
-                    </div>  
-                )}
                 <td className='adivert-dado data-dado'>{dataFormatada(data)}</td>
                 <td className='adivert-dado'>{matricula}</td>
                 <td className='adivert-dado'>{nome.length > 20 ? (nome.substring(0, 20) + '...') : nome}</td>
@@ -44,6 +45,7 @@ function Tabela( { data, matricula, nome, tipo, motivo, id , excluirView, setExc
                     <button className='actions-buttons'><img className='icon' src="download-file.png" alt="icone-download-arquivo"/></button>
                 </td>
             </tr>
+        </>
     )
 }
 

@@ -64,16 +64,18 @@ function Add({ setAddAberto, setData, setAdiverts, getAdiverts, data }: AddProps
     };
 
     const finalizarESalvar = async () => {
-        lista.map(adv => (
-            await fetch(`${import.meta.env.VITE_API_URL}/api/Adiverts`, {
+        await Promise.all(
+            lista.map(adv =>
+                fetch(`${import.meta.env.VITE_API_URL}/api/Adiverts`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(adv),
                 })
-        ))
+            )
+        );
         setData(prev => [...prev, ...lista]);
         setAdiverts(data)
-        getAdiverts()
+        await getAdiverts()
         setAddAberto(false);
     };
 

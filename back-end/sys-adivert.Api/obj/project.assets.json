@@ -3283,6 +3283,7 @@
   "projectFileDependencyGroups": {
     "net10.0": [
       "Microsoft.AspNetCore.OpenApi >= 10.0.3",
+      "Microsoft.EntityFrameworkCore >= 10.0.5",
       "Microsoft.EntityFrameworkCore.Design >= 10.0.5",
       "Microsoft.Extensions.Configuration.Json >= 10.0.0",
       "sys-adivert.Application >= 1.0.0",
@@ -3290,19 +3291,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\User\\.nuget\\packages\\": {}
+    "C:\\Users\\Miguel Alves\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\User\\OneDrive\\Documentos\\DANLEX\\sys-adivert\\back-end\\sys-adivert.Api\\sys-adivert.Api.csproj",
+      "projectUniqueName": "C:\\Users\\Miguel Alves\\Documents\\Estudos - Miguel Passos\\dlx\\sys-adivert\\back-end\\sys-adivert.Api\\sys-adivert.Api.csproj",
       "projectName": "sys-adivert.Api",
-      "projectPath": "C:\\Users\\User\\OneDrive\\Documentos\\DANLEX\\sys-adivert\\back-end\\sys-adivert.Api\\sys-adivert.Api.csproj",
-      "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\User\\OneDrive\\Documentos\\DANLEX\\sys-adivert\\back-end\\sys-adivert.Api\\obj\\",
+      "projectPath": "C:\\Users\\Miguel Alves\\Documents\\Estudos - Miguel Passos\\dlx\\sys-adivert\\back-end\\sys-adivert.Api\\sys-adivert.Api.csproj",
+      "packagesPath": "C:\\Users\\Miguel Alves\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\Miguel Alves\\Documents\\Estudos - Miguel Passos\\dlx\\sys-adivert\\back-end\\sys-adivert.Api\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "C:\\Users\\Miguel Alves\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net10.0"
@@ -3314,11 +3315,11 @@
         "net10.0": {
           "targetAlias": "net10.0",
           "projectReferences": {
-            "C:\\Users\\User\\OneDrive\\Documentos\\DANLEX\\sys-adivert\\back-end\\sys-adivert.Application\\sys-adivert.Application.csproj": {
-              "projectPath": "C:\\Users\\User\\OneDrive\\Documentos\\DANLEX\\sys-adivert\\back-end\\sys-adivert.Application\\sys-adivert.Application.csproj"
+            "C:\\Users\\Miguel Alves\\Documents\\Estudos - Miguel Passos\\dlx\\sys-adivert\\back-end\\sys-adivert.Application\\sys-adivert.Application.csproj": {
+              "projectPath": "C:\\Users\\Miguel Alves\\Documents\\Estudos - Miguel Passos\\dlx\\sys-adivert\\back-end\\sys-adivert.Application\\sys-adivert.Application.csproj"
             },
-            "C:\\Users\\User\\OneDrive\\Documentos\\DANLEX\\sys-adivert\\back-end\\sys-adivert.Infrastructure\\sys-adivert.Infrastructure.csproj": {
-              "projectPath": "C:\\Users\\User\\OneDrive\\Documentos\\DANLEX\\sys-adivert\\back-end\\sys-adivert.Infrastructure\\sys-adivert.Infrastructure.csproj"
+            "C:\\Users\\Miguel Alves\\Documents\\Estudos - Miguel Passos\\dlx\\sys-adivert\\back-end\\sys-adivert.Infrastructure\\sys-adivert.Infrastructure.csproj": {
+              "projectPath": "C:\\Users\\Miguel Alves\\Documents\\Estudos - Miguel Passos\\dlx\\sys-adivert\\back-end\\sys-adivert.Infrastructure\\sys-adivert.Infrastructure.csproj"
             }
           }
         }
@@ -3342,6 +3343,10 @@
           "Microsoft.AspNetCore.OpenApi": {
             "target": "Package",
             "version": "[10.0.3, )"
+          },
+          "Microsoft.EntityFrameworkCore": {
+            "target": "Package",
+            "version": "[10.0.5, )"
           },
           "Microsoft.EntityFrameworkCore.Design": {
             "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
