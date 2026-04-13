@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("sys-adivert.Domain")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c64d751218a812e585ac10b631caa61d845814c6")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c93b9f82e048132362cb14450f06a55256558fe6")]
 [assembly: System.Reflection.AssemblyProductAttribute("sys-adivert.Domain")]
 [assembly: System.Reflection.AssemblyTitleAttribute("sys-adivert.Domain")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

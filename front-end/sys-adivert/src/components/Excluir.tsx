@@ -2,9 +2,8 @@ import React from "react"
 
 type ExcluirProps = {
     setExcluirView: React.Dispatch<React.SetStateAction<boolean>>
-    id: number
-    setAdiverts: React.Dispatch<React.SetStateAction<any[]>>;
     getAdiverts: () => void;
+    id: number
 }
 
 function Excluir( { setExcluirView, id, getAdiverts } : ExcluirProps) {
@@ -23,7 +22,7 @@ function Excluir( { setExcluirView, id, getAdiverts } : ExcluirProps) {
 
     return (
         <div>
-            <p>Deseja apagar essa adivertencia?</p>
+            <p>Tem certeza que quer apagar essa adivertencia?</p>
             <div className="d-flex">
                 <button onClick={() => setExcluirView(false)} title="Fechar">
                     Cancelar

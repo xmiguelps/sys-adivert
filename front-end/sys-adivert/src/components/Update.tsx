@@ -1,0 +1,102 @@
+import motivos from "../context"
+import React, { useState } from "react";
+
+type UpdateProps = {
+    setUpdateView: React.Dispatch<React.SetStateAction<boolean>>
+    getAdiverts: () => void;
+    id: number
+    data: string;
+    matricula: string;
+    nome: string;
+    tipo: string;
+    motivo: string;
+}
+
+function Update({ setUpdateView, getAdiverts, id, data, matricula, nome, tipo, motivo }: UpdateProps) {
+
+    const [form, setForm] = useState({
+        Nome: nome,
+        matricula: matricula,
+        data: data,
+        tipo: tipo,
+        motivo: motivo,
+    });
+
+    const handleSalvar = async () => {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/Adiverts/${id}`, {
+            method: "PUT",
+            headers: { "Content-Type" : "application/json" },
+            body: JSON.stringify(form)
+        });
+        if (!response.ok) {
+            console.error("Erro ao atualizar meninão: " + response.status)
+        } else {
+            await getAdiverts();
+            setUpdateView(false);
+        }
+    };
+
+    return (
+        <div className="add-popup">
+
+            <div className="d-flex">
+                <button className="add-btn-fechar" onClick={() => setUpdateView(false)} title="Fechar">
+                    <img className="icon" src="close.png" alt="fechar" />
+                </button>
+            </div>
+
+            <div className="add-lista">
+                <div className="add-form-box">
+                    <div className="add-form-row">
+                        <label className="add-label">Colaborador:</label>
+                        <input
+                            className="add-input"
+                            value={form.Nome}
+                            onChange={e => setForm({ ...form, Nome: e.target.value })}
+                        />
+                    </div>
+                    <div className="add-form-row">
+                        <label className="add-label">Matrícula:</label>
+                        <input
+                            className="add-input add-input--matricula"
+                            value={form.matricula}
+                            onChange={e => setForm({ ...form, matricula: e.target.value })}
+                        />
+                        <label className="add-label">Data:</label>
+                        <input
+                            type="date"
+                            className="add-input add-input--data"
+                            value={form.data}
+                            onChange={e => setForm({ ...form, data: e.target.value })}
+                        />
+                        <label className="add-label">Tipo:</label>
+                        <input
+                            className="add-input add-input--tipo"
+                            value={form.tipo}
+                            onChange={e => setForm({ ...form, tipo: e.target.value })}
+                        />
+                    </div>
+                    <div className="add-form-row">
+                        <label className="add-label">Motivo:</label>
+                        <select
+                            className="add-input add-input--motivo"
+                            value={form.motivo}
+                            onChange={e => setForm({ ...form, motivo: e.target.value })}
+                        >
+                            {motivos.map(m => (
+                                <option key={m.motivo} value={m.motivo}>{m.motivo}</option>
+                            ))}
+                        </select>
+                    </div>
+                    <div className="add-form-acoes">
+                        <button className="add-btn-confirm" onClick={handleSalvar}>Salvar</button>
+                        <button className="add-btn-cancel" onClick={() => setUpdateView(false)}>Cancelar</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    );
+}
+
+export default Update;
