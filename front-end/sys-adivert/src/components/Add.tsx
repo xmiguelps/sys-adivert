@@ -25,7 +25,7 @@ const campoVazio = (): Advertencia => ({
     motivo: motivos[0]?.motivo ?? "",
 });
 
-function Add({ setAddAberto, setData, setAdiverts, getAdiverts, data }: AddProps) {
+function Add({ setAddAberto, getAdiverts}: AddProps) {
 
     const [lista, setLista] = useState<Advertencia[]>([]);
     const [editandoIdx, setEditandoIdx] = useState<number | null>(null);
@@ -127,8 +127,8 @@ function Add({ setAddAberto, setData, setAdiverts, getAdiverts, data }: AddProps
                 </select>
             </div>
             <div className="add-form-acoes">
-                <button className="add-btn-confirm" onClick={onConfirm}>{labelConfirm}</button>
-                <button className="add-btn-cancel" onClick={onCancel}>Cancelar</button>
+                <button className="add-btn-confirm btn" onClick={onConfirm}>{labelConfirm}</button>
+                <button className="cancel-btn btn" onClick={onCancel}>Cancelar</button>
             </div>
         </div>
     );
@@ -180,10 +180,10 @@ function Add({ setAddAberto, setData, setAdiverts, getAdiverts, data }: AddProps
             </div>
 
             <div className="add-rodape">
-                <button className="add-btn-nova" onClick={abrirNova}>
+                <button className="add-btn-nova btn" onClick={abrirNova}>
                     + Nova Advertência
                 </button>
-                <button className="add-btn-salvar" onClick={finalizarESalvar}>
+                <button className="add-btn-salvar btn" onClick={finalizarESalvar}>
                     Finalizar e Salvar
                 </button>
             </div>

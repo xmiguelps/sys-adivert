@@ -23,6 +23,8 @@ body {
 .box-body {
     background-color: #dadada;
     padding: 15px;
+    border: #a81515 4px solid;
+    border-radius: 5px;
 }
 
 .logo {
@@ -49,11 +51,10 @@ body {
     overflow-y: auto;
     max-height: 600px;
     margin-top: 10px;
-    background-color: #9e9e9e;
-    padding: 10px;
-    padding-top: 0px;
-    border-radius: 10px;
-    width: 1000px;
+    background-color: #a81515;
+    padding: 5px;
+    border-radius: 4px 4px 10px 10px;
+    width: 988px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -63,7 +64,7 @@ body {
     overflow-y: auto;
     width: 975px;
     background-color: #bbbbbb;
-    border-radius: 10px;
+    border-radius: 7px;
 }
 
 thead > tr > th {
@@ -292,27 +293,6 @@ select {
 .add-input--tipo      { width: 100px; flex: none; }
 .add-input--motivo    { flex: 1; }
 
-.add-btn-confirm {
-    background: #4caf50;
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    padding: 5px 14px;
-    cursor: pointer;
-    font-size: 13px;
-    font-weight: 600;
-}
-
-.add-btn-cancel {
-    background: #e0e0e0;
-    color: #333;
-    border: none;
-    border-radius: 6px;
-    padding: 5px 14px;
-    cursor: pointer;
-    font-size: 13px;
-}
-
 .add-rodape {
     display: flex;
     gap: 12px;
@@ -322,24 +302,52 @@ select {
     border-top: 1px solid #e0e0e0;
 }
 
-.add-btn-nova {
-    background: #1976d2;
+.add-btn-confirm {
+    background: #4caf50;
+}
+
+.btn {
     color: #fff;
-    border: none;
-    border-radius: 8px;
+    border-radius: 7px;
     padding: 8px 20px;
     cursor: pointer;
-    font-size: 14px;
     font-weight: 600;
 }
 
+.add-btn-nova {
+    background-color: #1976d2;
+
+}
+
+.add-btn-nova:hover {
+    background-color: #fff;
+    color: #1976d2;
+}
+
 .add-btn-salvar {
-    background: #388e3c;
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    padding: 8px 20px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 600;
+    background-color: #388e3c;
+}
+
+.add-btn-salvar:hover {
+    background-color: #fff;
+    color: #388e3c;
+}
+
+.excluir-btn {
+    margin-left: 20px;
+    background-color: #ac1515;
+}
+
+.excluir-btn:hover {
+    background-color: #e21c1c;
+    color: #ac1515;
+}
+
+.cancel-btn {
+    background-color: #666;
+}
+
+.cancel-btn:hover {
+    background-color: #929292;
+    color: #666;
 }

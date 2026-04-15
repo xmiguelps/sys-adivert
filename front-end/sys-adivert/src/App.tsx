@@ -89,7 +89,7 @@ function App() {
         <div className='d-flex box-site'>
             <div className='d-flex box-body flex-column'>
             <div className='d-flex'>
-                <img className='logo' src="/logo.png" alt="logo-empresa" />
+                <img className='logo' src="/danlex.png" alt="logo-empresa" />
                 <h1>Sistema de Adivertencias</h1>
             </div>
             <form className='box-search' onSubmit={e => {e.preventDefault(); getAdiverts();}}>

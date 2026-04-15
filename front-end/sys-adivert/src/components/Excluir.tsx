@@ -21,15 +21,17 @@ function Excluir( { setExcluirView, id, getAdiverts } : ExcluirProps) {
     }
 
     return (
-        <div>
-            <p>Tem certeza que quer apagar essa adivertencia?</p>
-            <div className="d-flex">
-                <button onClick={() => setExcluirView(false)} title="Fechar">
-                    Cancelar
-                </button>
-                <button onClick={ExcluirAdivert}>
-                    Excluir
-                </button>
+        <div className="d-flex justify-content-center align-itens-center h-100">
+            <div className="d-flex flex-column justify-content-center h-75">
+                <h5>Tem certeza que quer <strong>apagar</strong> essa adivertencia?</h5>
+                <div className="d-flex justify-content-center">
+                    <button className="cancel-btn btn" onClick={() => setExcluirView(false)} title="Fechar">
+                        Cancelar
+                    </button>
+                    <button className="btn excluir-btn" onClick={ExcluirAdivert}>
+                        Excluir
+                    </button>
+                </div>
             </div>
         </div>
     )

@@ -89,8 +89,8 @@ function Update({ setUpdateView, getAdiverts, id, data, matricula, nome, tipo, m
                         </select>
                     </div>
                     <div className="add-form-acoes">
-                        <button className="add-btn-confirm" onClick={handleSalvar}>Salvar</button>
-                        <button className="add-btn-cancel" onClick={() => setUpdateView(false)}>Cancelar</button>
+                        <button className="add-btn-confirm btn" onClick={handleSalvar}>Salvar</button>
+                        <button className="cancel-btn btn" onClick={() => setUpdateView(false)}>Cancelar</button>
                     </div>
                 </div>
             </div>
