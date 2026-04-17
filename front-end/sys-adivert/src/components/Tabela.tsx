@@ -23,6 +23,11 @@ function Tabela( { data, matricula, nome, tipo, motivo, id, getAdiverts } : Tabe
         return new Date(data).toLocaleDateString('pt-BR')
     }
 
+    const truncarNome = (nome: string) => {
+        const partes = nome.trim().split(/\s+/);
+        return partes.slice(0, 3).join(' ');
+    }
+
     const downloadPDF = () => {
         const doc = new jsPDF()
 
@@ -76,7 +81,7 @@ function Tabela( { data, matricula, nome, tipo, motivo, id, getAdiverts } : Tabe
                 <tr>
                     <td className='adivert-dado data-dado'>{dataFormatada(data)}</td>
                     <td className='adivert-dado'>{matricula}</td>
-                    <td className='adivert-dado'>{nome.length > 20 ? (nome.substring(0, 20) + '...') : nome}</td>
+                    <td className='adivert-dado'>{truncarNome(nome)}</td>
                     <td className='adivert-dado'>{tipo}</td>
                     <td className='adivert-dado'>{motivo.length > 33 ? (motivo.substring(0, 33) + '...') : motivo}</td>
                     <td className='adivert-dado box-actions-buttons'>

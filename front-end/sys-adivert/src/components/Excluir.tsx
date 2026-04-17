@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useState } from "react"
 
 type ExcluirProps = {
     setExcluirView: React.Dispatch<React.SetStateAction<boolean>>
@@ -7,16 +7,22 @@ type ExcluirProps = {
 }
 
 function Excluir( { setExcluirView, id, getAdiverts } : ExcluirProps) {
+    const [excluindo, setExcluindo] = useState(false);
 
     const ExcluirAdivert = async () => {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/Adiverts/${id}`, {
-                method: "DELETE"
-            });
-            if (!response.ok) {
-                throw new Error(`Erro: ${response.status}`)
-            } else {
-                await getAdiverts();
-                setExcluirView(false);
+            setExcluindo(true);
+            try {
+                const response = await fetch(`${import.meta.env.VITE_API_URL}/api/Adiverts/${id}`, {
+                    method: "DELETE"
+                });
+                if (!response.ok) {
+                    throw new Error(`Erro: ${response.status}`)
+                } else {
+                    await getAdiverts();
+                    setExcluirView(false);
+                }
+            } finally {
+                setExcluindo(false);
             }
     }
 
@@ -28,8 +34,8 @@ function Excluir( { setExcluirView, id, getAdiverts } : ExcluirProps) {
                     <button className="cancel-btn btn" onClick={() => setExcluirView(false)} title="Fechar">
                         Cancelar
                     </button>
-                    <button className="btn excluir-btn" onClick={ExcluirAdivert}>
-                        Excluir
+                    <button className="btn excluir-btn" onClick={ExcluirAdivert} disabled={excluindo}>
+                        {excluindo ? "Excluindo..." : "Excluir"}
                     </button>
                 </div>
             </div>

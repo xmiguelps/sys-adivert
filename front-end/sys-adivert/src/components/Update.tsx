@@ -21,18 +21,24 @@ function Update({ setUpdateView, getAdiverts, id, data, matricula, nome, tipo, m
         tipo: tipo,
         motivo: motivo,
     });
+    const [salvando, setSalvando] = useState(false);
 
     const handleSalvar = async () => {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/Adiverts/${id}`, {
-            method: "PUT",
-            headers: { "Content-Type" : "application/json" },
-            body: JSON.stringify(form)
-        });
-        if (!response.ok) {
-            console.error("Erro ao atualizar meninão: " + response.status)
-        } else {
-            await getAdiverts();
-            setUpdateView(false);
+        setSalvando(true);
+        try {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/Adiverts/${id}`, {
+                method: "PUT",
+                headers: { "Content-Type" : "application/json" },
+                body: JSON.stringify(form)
+            });
+            if (!response.ok) {
+                console.error("Erro ao atualizar meninão: " + response.status)
+            } else {
+                await getAdiverts();
+                setUpdateView(false);
+            }
+        } finally {
+            setSalvando(false);
         }
     };
 
@@ -70,11 +76,14 @@ function Update({ setUpdateView, getAdiverts, id, data, matricula, nome, tipo, m
                             onChange={e => setForm({ ...form, data: e.target.value })}
                         />
                         <label className="add-label">Tipo:</label>
-                        <input
+                        <select
                             className="add-input add-input--tipo"
                             value={form.tipo}
                             onChange={e => setForm({ ...form, tipo: e.target.value })}
-                        />
+                        >
+                            <option value="Escrita">Escrita</option>
+                            <option value="Verbal">Verbal</option>
+                        </select>
                     </div>
                     <div className="add-form-row">
                         <label className="add-label">Motivo:</label>
@@ -89,7 +98,9 @@ function Update({ setUpdateView, getAdiverts, id, data, matricula, nome, tipo, m
                         </select>
                     </div>
                     <div className="add-form-acoes">
-                        <button className="add-btn-confirm btn" onClick={handleSalvar}>Salvar</button>
+                        <button className="add-btn-confirm btn" onClick={handleSalvar} disabled={salvando}>
+                            {salvando ? "Salvando..." : "Salvar"}
+                        </button>
                         <button className="cancel-btn btn" onClick={() => setUpdateView(false)}>Cancelar</button>
                     </div>
                 </div>
