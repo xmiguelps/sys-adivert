@@ -134,6 +134,7 @@ body {
     justify-content: center;
     transition: background var(--transition);
     min-width: 44px;
+    height: 43px;
 }
 
 .search-buttom:hover {
@@ -180,6 +181,7 @@ body {
     align-items: flex-start;
     gap: 16px;
     min-height: 0;
+    height: 350px;
 }
 
 /* ── Tabela de advertências ── */
@@ -460,9 +462,9 @@ button {
 
 .add-btn-fechar {
     background: var(--gray-200) !important;
-    border-radius: 50% !important;
-    width: 32px !important;
-    height: 32px !important;
+    border-radius: 10px !important;
+    width: 40px !important;
+    height: 40px !important;
     display: flex !important;
     align-items: center;
     justify-content: center;
@@ -783,4 +785,310 @@ select:focus { border-color: var(--blue-primary); }
 
 .colab-row--selecionada {
     background: #fff8e1 !important;
+}
+
+/* ══════════════════════════════════════════════════
+   TABELA RESPONSIVA — sem quebrar com N registros
+══════════════════════════════════════════════════ */
+
+/* O wrapper já tem overflow-y: auto; garantir que a tabela
+   não force expansão horizontal quebrada */
+.box-adiverts {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Limitar colunas de texto para não estourar o layout */
+.adivert {
+    table-layout: fixed;
+    min-width: 600px; /* garante scroll horizontal em telas pequenas */
+}
+
+/* Larguras fixas para colunas conhecidas */
+.adivert thead th#data       { width: 90px;  }
+.adivert thead th#matricula  { width: 80px;  }
+.adivert thead th#nome       { width: 20%;   }
+.adivert thead th#tipo       { width: 75px;  }
+.adivert thead th#motivo     { width: 32%;   }
+.adivert thead th#actions    { width: 140px; }
+
+/* Colunas de dados — evitar overflow com ellipsis */
+.nome-dado,
+.motivo-dado {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 0; /* trick: deixa o table-layout:fixed controlar */
+}
+
+.tipo-dado {
+    white-space: nowrap;
+}
+
+/* ══════════════════════════════════════════════════
+   BOTÃO INSPECIONAR
+══════════════════════════════════════════════════ */
+.btn-inspecionar {
+    font-size: 16px;
+    padding: 2px 6px;
+    border-radius: 6px;
+    background: rgba(21, 101, 192, 0.12) !important;
+    transition: background 0.18s ease;
+    cursor: pointer;
+    border: none;
+    line-height: 1;
+}
+
+.btn-inspecionar:hover {
+    background: rgba(21, 101, 192, 0.25) !important;
+}
+
+/* ── Modal Inspecionar ── */
+.inspecionar-caixa {
+    width: 520px !important;
+    max-width: 96vw !important;
+}
+
+.inspecionar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 14px;
+    border-bottom: 2px solid var(--gray-200);
+    margin-bottom: 4px;
+}
+
+.inspecionar-titulo {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--gray-900);
+    margin: 0;
+}
+
+.inspecionar-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding: 8px 0;
+}
+
+.inspecionar-campo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 4px;
+    flex-wrap: wrap;
+}
+
+.inspecionar-campo--coluna {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+}
+
+.inspecionar-divider {
+    height: 1px;
+    background: var(--gray-200);
+    margin: 0 4px;
+}
+
+.inspecionar-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--gray-600);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.inspecionar-valor {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--gray-900);
+    text-align: right;
+    word-break: break-word;
+}
+
+.inspecionar-motivo {
+    font-size: 14px;
+    color: var(--gray-800);
+    line-height: 1.5;
+    word-break: break-word;
+    background: var(--gray-100);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    width: 100%;
+    border-left: 4px solid var(--red-primary);
+}
+
+.inspecionar-badge {
+    font-size: 13px;
+    font-weight: 700;
+    padding: 4px 14px;
+    border-radius: 999px;
+    letter-spacing: 0.3px;
+}
+
+.badge-escrita {
+    background: #e3f2fd;
+    color: var(--blue-dark);
+    border: 1px solid #90caf9;
+}
+
+.badge-verbal {
+    background: #fff3e0;
+    color: var(--orange);
+    border: 1px solid #ffcc80;
+}
+
+.inspecionar-rodape {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    padding-top: 14px;
+    border-top: 2px solid var(--gray-200);
+    margin-top: 4px;
+}
+
+/* ══════════════════════════════════════════════════
+   VALIDAÇÃO DE CAMPOS OBRIGATÓRIOS
+══════════════════════════════════════════════════ */
+.campo-obrigatorio {
+    color: var(--red-primary);
+    font-weight: 700;
+    margin-left: 2px;
+}
+
+.add-erro-form {
+    background: #fff5f5;
+    border: 1px solid #f5c2c2;
+    border-left: 4px solid var(--red-primary);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    font-size: 13px;
+    color: var(--red-dark);
+    font-weight: 600;
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ══════════════════════════════════════════════════
+   COLABORADORES — novos botões
+══════════════════════════════════════════════════ */
+.colab-btn-refresh {
+    background: var(--blue-primary);
+    color: #fff;
+    border-color: var(--blue-primary);
+    font-weight: 600;
+}
+
+.colab-btn-refresh:hover:not(:disabled) {
+    background: var(--blue-dark);
+    border-color: var(--blue-dark);
+}
+
+.colab-btn-download {
+    background: var(--green-primary);
+    color: #fff;
+    border-color: var(--green-primary);
+    font-weight: 600;
+}
+
+.colab-btn-download:hover:not(:disabled) {
+    background: var(--green-dark);
+    border-color: var(--green-dark);
+}
+
+.colab-btn-download:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.colab-lista-info {
+    padding: 8px 14px;
+    background: var(--gray-100);
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.colab-total {
+    font-size: 12px;
+    color: var(--gray-600);
+}
+
+.colab-td--num {
+    width: 36px;
+    color: var(--gray-500);
+    font-size: 12px;
+    text-align: center;
+}
+
+/* ══════════════════════════════════════════════════
+   RESPONSIVIDADE GERAL — telas pequenas
+══════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+    .box-body {
+        padding: 14px 10px;
+    }
+
+    .box-content {
+        flex-direction: column;
+    }
+
+    .box-menu {
+        flex-direction: row;
+        width: 100%;
+        padding: 8px 12px;
+    }
+
+    .box-adiverts {
+        max-height: 55vh;
+    }
+
+    .adivert {
+        font-size: 11px;
+    }
+
+    .adivert-column,
+    .adivert-dado {
+        padding: 6px 8px;
+    }
+
+    /* Esconde colunas menos importantes em telas muito pequenas */
+    @media (max-width: 480px) {
+        .adivert thead th#tipo,
+        .adivert .tipo-dado {
+            display: none;
+        }
+    }
+
+    .caixa {
+        padding: 16px;
+        width: 100% !important;
+    }
+
+    .add-form-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .add-input--matricula,
+    .add-input--data,
+    .add-input--tipo {
+        width: 100%;
+    }
+
+    .colab-acoes-bar {
+        flex-direction: column;
+    }
+
+    .colab-acoes-bar .btn {
+        width: 100%;
+        text-align: center;
+    }
 }

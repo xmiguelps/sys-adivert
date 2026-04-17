@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 type Colab = {
     id: number;
@@ -12,7 +12,6 @@ type ColabsProps = {
 
 function Colaboradores({ setColabAberto }: ColabsProps) {
     const [colabs, setColabs] = useState<Colab[]>([]);
-    const [listada, setListada] = useState(false);
     const [carregando, setCarregando] = useState(false);
 
     const [criandoColab, setCriandoColab] = useState(false);
@@ -20,11 +19,15 @@ function Colaboradores({ setColabAberto }: ColabsProps) {
     const [novaMatricula, setNovaMatricula] = useState("");
     const [salvando, setSalvando] = useState(false);
 
-    // Remover: só aparece quando ativo
     const [removendoAtivo, setRemovendoAtivo] = useState(false);
     const [nomeRemover, setNomeRemover] = useState("");
     const [removendo, setRemovendo] = useState(false);
     const [confirmRemoverId, setConfirmRemoverId] = useState<number | null>(null);
+
+    // Carrega a lista automaticamente ao abrir
+    useEffect(() => {
+        listarColabs();
+    }, []);
 
     const listarColabs = async () => {
         setCarregando(true);
@@ -35,7 +38,6 @@ function Colaboradores({ setColabAberto }: ColabsProps) {
             if (!res.ok) throw new Error("Erro ao buscar colaboradores");
             const data: Colab[] = await res.json();
             setColabs(data);
-            setListada(true);
         } catch {
             alert("Erro ao buscar colaboradores.");
         } finally {
@@ -60,7 +62,7 @@ function Colaboradores({ setColabAberto }: ColabsProps) {
             setNovoNome("");
             setNovaMatricula("");
             setCriandoColab(false);
-            if (listada) await listarColabs();
+            await listarColabs();
         } catch {
             alert("Erro ao criar colaborador.");
         } finally {
@@ -98,10 +100,9 @@ function Colaboradores({ setColabAberto }: ColabsProps) {
                 alert(`Colaborador "${nomeRemover}" não encontrado.`);
                 return;
             }
-            const listRes = await fetch(`${import.meta.env.VITE_API_URL}/api/Colabs`, {
+            const todos: Colab[] = await fetch(`${import.meta.env.VITE_API_URL}/api/Colabs`, {
                 headers: { Accept: "application/json" },
-            });
-            const todos: Colab[] = await listRes.json();
+            }).then(r => r.json());
             const encontrado = todos.find(
                 c => c.nome.toLowerCase() === nomeRemover.trim().toLowerCase()
             );
@@ -111,7 +112,6 @@ function Colaboradores({ setColabAberto }: ColabsProps) {
             }
             setConfirmRemoverId(encontrado.id);
             setColabs(todos);
-            setListada(true);
         } catch {
             alert("Erro ao buscar colaborador pelo nome.");
         } finally {
@@ -138,14 +138,6 @@ function Colaboradores({ setColabAberto }: ColabsProps) {
 
             {/* ── Barra de ações ── */}
             <div className="colab-acoes-bar">
-                <button
-                    className="btn colab-btn-listar"
-                    onClick={listarColabs}
-                    disabled={carregando}
-                >
-                    {carregando ? "⏳ Carregando..." : "📋 Listar Colaboradores"}
-                </button>
-
                 <button
                     className="btn colab-btn-novo"
                     onClick={() => { setCriandoColab(v => !v); setRemovendoAtivo(false); setConfirmRemoverId(null); }}
@@ -184,11 +176,7 @@ function Colaboradores({ setColabAberto }: ColabsProps) {
                         />
                     </div>
                     <div className="add-form-acoes">
-                        <button
-                            className="btn add-btn-confirm"
-                            onClick={criarColab}
-                            disabled={salvando}
-                        >
+                        <button className="btn add-btn-confirm" onClick={criarColab} disabled={salvando}>
                             {salvando ? "Salvando..." : "✔ Criar"}
                         </button>
                         <button className="btn cancel-btn" onClick={() => setCriandoColab(false)}>
@@ -198,7 +186,7 @@ function Colaboradores({ setColabAberto }: ColabsProps) {
                 </div>
             )}
 
-            {/* ── Remover por nome (só aparece quando ativo) ── */}
+            {/* ── Remover por nome ── */}
             {removendoAtivo && (
                 <div className="colab-remover-bar">
                     <label className="add-label">Remover por nome:</label>
@@ -235,10 +223,7 @@ function Colaboradores({ setColabAberto }: ColabsProps) {
                             >
                                 {removendo ? "Removendo..." : "✔ Sim, remover"}
                             </button>
-                            <button
-                                className="btn cancel-btn"
-                                onClick={() => setConfirmRemoverId(null)}
-                            >
+                            <button className="btn cancel-btn" onClick={() => setConfirmRemoverId(null)}>
                                 Cancelar
                             </button>
                         </div>
@@ -247,25 +232,32 @@ function Colaboradores({ setColabAberto }: ColabsProps) {
             })()}
 
             {/* ── Lista de colaboradores ── */}
-            {listada && (
-                <div className="colab-lista">
-                    {colabs.length === 0 ? (
-                        <p className="add-vazio">Nenhum colaborador cadastrado.</p>
-                    ) : (
+            <div className="colab-lista">
+                {carregando ? (
+                    <p className="add-vazio">⏳ Carregando colaboradores...</p>
+                ) : colabs.length === 0 ? (
+                    <p className="add-vazio">Nenhum colaborador cadastrado.</p>
+                ) : (
+                    <>
+                        <div className="colab-lista-info">
+                            <span className="colab-total">Total: <strong>{colabs.length}</strong> colaborador(es)</span>
+                        </div>
                         <table className="colab-table">
                             <thead>
                                 <tr>
+                                    <th className="colab-th">#</th>
                                     <th className="colab-th">Nome</th>
                                     <th className="colab-th">Matrícula</th>
                                     <th className="colab-th">Ação</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {colabs.map(c => (
+                                {colabs.map((c, i) => (
                                     <tr
                                         key={c.id}
                                         className={confirmRemoverId === c.id ? "colab-row colab-row--selecionada" : "colab-row"}
                                     >
+                                        <td className="colab-td colab-td--num">{i + 1}</td>
                                         <td className="colab-td">{c.nome}</td>
                                         <td className="colab-td">{c.matricula}</td>
                                         <td className="colab-td">
@@ -281,9 +273,9 @@ function Colaboradores({ setColabAberto }: ColabsProps) {
                                 ))}
                             </tbody>
                         </table>
-                    )}
-                </div>
-            )}
+                    </>
+                )}
+            </div>
         </div>
     );
 }

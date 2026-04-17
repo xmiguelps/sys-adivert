@@ -34,6 +34,16 @@ function useDebounce(value: string, delay: number) {
     return debounced;
 }
 
+// Validação: todos os campos são obrigatórios
+function validarForm(form: Advertencia): string | null {
+    if (!form.Nome.trim())       return "O campo Colaborador é obrigatório.";
+    if (!form.matricula.trim())  return "O campo Matrícula é obrigatório.";
+    if (!form.data.trim())       return "O campo Data é obrigatório.";
+    if (!form.tipo.trim())       return "O campo Tipo é obrigatório.";
+    if (!form.motivo.trim())     return "O campo Motivo é obrigatório.";
+    return null;
+}
+
 function Add({ setAddAberto, getAdiverts}: AddProps) {
 
     const [lista, setLista] = useState<Advertencia[]>([]);
@@ -42,6 +52,7 @@ function Add({ setAddAberto, getAdiverts}: AddProps) {
     const [criandoNova, setCriandoNova] = useState(false);
     const [novaForm, setNovaForm] = useState<Advertencia>(campoVazio());
     const [salvando, setSalvando] = useState(false);
+    const [erroForm, setErroForm] = useState<string | null>(null);
 
     const [buscandoMatricula, setBuscandoMatricula] = useState<"nova" | number | null>(null);
 
@@ -91,10 +102,13 @@ function Add({ setAddAberto, getAdiverts}: AddProps) {
         prevNovoNomeRef.current = "";
         setCriandoNova(true);
         setEditandoIdx(null);
+        setErroForm(null);
     };
 
     const confirmarNova = () => {
-        if (!novaForm.Nome.trim()) return;
+        const erro = validarForm(novaForm);
+        if (erro) { setErroForm(erro); return; }
+        setErroForm(null);
         setLista(prev => [...prev, { ...novaForm }]);
         setCriandoNova(false);
     };
@@ -104,14 +118,18 @@ function Add({ setAddAberto, getAdiverts}: AddProps) {
         setEditForm({ ...lista[idx] });
         prevEditNomeRef.current = lista[idx].Nome;
         setCriandoNova(false);
+        setErroForm(null);
     };
 
     const salvarEdicao = (idx: number) => {
+        const erro = validarForm(editForm);
+        if (erro) { setErroForm(erro); return; }
+        setErroForm(null);
         setLista(prev => prev.map((a, i) => i === idx ? { ...editForm } : a));
         setEditandoIdx(null);
     };
 
-    const cancelarEdicao = () => setEditandoIdx(null);
+    const cancelarEdicao = () => { setEditandoIdx(null); setErroForm(null); };
 
     const excluir = (idx: number) => {
         setLista(prev => prev.filter((_, i) => i !== idx));
@@ -119,6 +137,10 @@ function Add({ setAddAberto, getAdiverts}: AddProps) {
     };
 
     const finalizarESalvar = async () => {
+        if (lista.length === 0) {
+            setErroForm("Adicione pelo menos uma advertência antes de salvar.");
+            return;
+        }
         setSalvando(true);
         try {
             await Promise.all(
@@ -147,13 +169,16 @@ function Add({ setAddAberto, getAdiverts}: AddProps) {
     ) => (
         <div className="add-form-box">
             <div className="add-form-row">
-                <label className="add-label">Colaborador:</label>
+                <label className="add-label">
+                    Colaborador: <span className="campo-obrigatorio">*</span>
+                </label>
                 <div className="add-input-wrapper">
                     <input
                         className="add-input"
                         value={form.Nome}
-                        onChange={e => onChange({ ...form, Nome: e.target.value })}
+                        onChange={e => { onChange({ ...form, Nome: e.target.value }); setErroForm(null); }}
                         placeholder="Digite o nome — matrícula será preenchida automaticamente"
+                        required
                     />
                     {buscandoMatricula === origemBusca && (
                         <span className="add-matricula-loading">⏳ buscando...</span>
@@ -162,41 +187,64 @@ function Add({ setAddAberto, getAdiverts}: AddProps) {
             </div>
 
             <div className="add-form-row">
-                <label className="add-label">Matrícula:</label>
+                <label className="add-label">
+                    Matrícula: <span className="campo-obrigatorio">*</span>
+                </label>
                 <input
                     className="add-input add-input--matricula"
                     value={form.matricula}
-                    onChange={e => onChange({ ...form, matricula: e.target.value })}
+                    onChange={e => { onChange({ ...form, matricula: e.target.value }); setErroForm(null); }}
+                    placeholder="Ex: 00123"
+                    required
                 />
-                <label className="add-label">Data:</label>
+                <label className="add-label">
+                    Data: <span className="campo-obrigatorio">*</span>
+                </label>
                 <input
                     type="date"
                     className="add-input add-input--data"
                     value={form.data}
-                    onChange={e => onChange({ ...form, data: e.target.value })}
+                    onChange={e => { onChange({ ...form, data: e.target.value }); setErroForm(null); }}
+                    required
                 />
-                <label className="add-label">Tipo:</label>
+                <label className="add-label">
+                    Tipo: <span className="campo-obrigatorio">*</span>
+                </label>
                 <select
                     className="add-input add-input--tipo"
                     value={form.tipo}
-                    onChange={e => onChange({ ...form, tipo: e.target.value })}
+                    onChange={e => { onChange({ ...form, tipo: e.target.value }); setErroForm(null); }}
+                    required
                 >
+                    <option value="">Selecione...</option>
                     <option value="Escrita">Escrita</option>
                     <option value="Verbal">Verbal</option>
                 </select>
             </div>
             <div className="add-form-row">
-                <label className="add-label">Motivo:</label>
+                <label className="add-label">
+                    Motivo: <span className="campo-obrigatorio">*</span>
+                </label>
                 <select
                     className="add-input add-input--motivo"
                     value={form.motivo}
-                    onChange={e => onChange({ ...form, motivo: e.target.value })}
+                    onChange={e => { onChange({ ...form, motivo: e.target.value }); setErroForm(null); }}
+                    required
                 >
+                    <option value="">Selecione um motivo...</option>
                     {motivos.map(m => (
                         <option key={m.motivo} value={m.motivo}>{m.motivo}</option>
                     ))}
                 </select>
             </div>
+
+            {/* Mensagem de erro de validação */}
+            {erroForm && (
+                <div className="add-erro-form">
+                    ⚠️ {erroForm}
+                </div>
+            )}
+
             <div className="add-form-acoes">
                 <button className="add-btn-confirm btn" onClick={onConfirm}>{labelConfirm}</button>
                 <button className="cancel-btn btn" onClick={onCancel}>Cancelar</button>
@@ -248,8 +296,15 @@ function Add({ setAddAberto, getAdiverts}: AddProps) {
                     </div>
                 ))}
 
-                {criandoNova && renderForm(novaForm, setNovaForm, confirmarNova, () => setCriandoNova(false), "Adicionar", "nova")}
+                {criandoNova && renderForm(novaForm, setNovaForm, confirmarNova, () => { setCriandoNova(false); setErroForm(null); }, "Adicionar", "nova")}
             </div>
+
+            {/* Erro geral no rodapé */}
+            {erroForm && !criandoNova && editandoIdx === null && (
+                <div className="add-erro-form">
+                    ⚠️ {erroForm}
+                </div>
+            )}
 
             <div className="add-rodape">
                 <button className="add-btn-nova btn" onClick={abrirNova}>
