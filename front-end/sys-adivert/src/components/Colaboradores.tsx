@@ -58,7 +58,6 @@ function Colaboradores({ setColabAberto }: ColabsProps) {
                 body: JSON.stringify({ nome: novoNome.trim(), matricula: novaMatricula.trim() }),
             });
             if (!res.ok) throw new Error("Erro ao criar colaborador");
-            alert(`Colaborador "${novoNome}" criado com sucesso!`);
             setNovoNome("");
             setNovaMatricula("");
             setCriandoColab(false);
