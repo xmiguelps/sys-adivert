@@ -1,5 +1,7 @@
 import motivos from "../context"
 import React, { useState } from "react";
+import MotivosSelect from "./MotivosSelect";
+import { showToast } from "./Toast";
 
 type UpdateProps = {
     setUpdateView: React.Dispatch<React.SetStateAction<boolean>>
@@ -28,15 +30,18 @@ function Update({ setUpdateView, getAdiverts, id, data, matricula, nome, tipo, m
         try {
             const response = await fetch(`${import.meta.env.VITE_API_URL}/api/Adiverts/${id}`, {
                 method: "PUT",
-                headers: { "Content-Type" : "application/json" },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(form)
             });
             if (!response.ok) {
-                console.error("Erro ao atualizar meninão: " + response.status)
+                showToast('Erro ao atualizar advertência.', 'error');
             } else {
                 await getAdiverts();
                 setUpdateView(false);
+                showToast('Advertência atualizada com sucesso!', 'success');
             }
+        } catch {
+            showToast('Erro ao atualizar advertência.', 'error');
         } finally {
             setSalvando(false);
         }
@@ -87,15 +92,11 @@ function Update({ setUpdateView, getAdiverts, id, data, matricula, nome, tipo, m
                     </div>
                     <div className="add-form-row">
                         <label className="add-label">Motivo:</label>
-                        <select
-                            className="add-input add-input--motivo"
+                        <MotivosSelect
                             value={form.motivo}
-                            onChange={e => setForm({ ...form, motivo: e.target.value })}
-                        >
-                            {motivos.map(m => (
-                                <option key={m.motivo} value={m.motivo}>{m.motivo}</option>
-                            ))}
-                        </select>
+                            onChange={v => setForm({ ...form, motivo: v })}
+                            className="add-input--motivo"
+                        />
                     </div>
                     <div className="add-form-acoes">
                         <button className="add-btn-confirm btn" onClick={handleSalvar} disabled={salvando}>

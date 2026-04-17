@@ -1,5 +1,7 @@
 import motivos from "../context"
 import React, { useState, useEffect, useRef } from "react";
+import MotivosSelect from "./MotivosSelect";
+import { showToast } from "./Toast";
 
 type Advertencia = {
     Nome: string;
@@ -34,7 +36,6 @@ function useDebounce(value: string, delay: number) {
     return debounced;
 }
 
-// Validação: todos os campos são obrigatórios
 function validarForm(form: Advertencia): string | null {
     if (!form.Nome.trim())       return "O campo Colaborador é obrigatório.";
     if (!form.matricula.trim())  return "O campo Matrícula é obrigatório.";
@@ -154,6 +155,14 @@ function Add({ setAddAberto, getAdiverts}: AddProps) {
             );
             await getAdiverts();
             setAddAberto(false);
+            showToast(
+                lista.length === 1
+                    ? 'Advertência salva com sucesso!'
+                    : `${lista.length} advertências salvas com sucesso!`,
+                'success'
+            );
+        } catch {
+            showToast('Erro ao salvar advertências.', 'error');
         } finally {
             setSalvando(false);
         }
@@ -225,20 +234,13 @@ function Add({ setAddAberto, getAdiverts}: AddProps) {
                 <label className="add-label">
                     Motivo: <span className="campo-obrigatorio">*</span>
                 </label>
-                <select
-                    className="add-input add-input--motivo"
+                <MotivosSelect
                     value={form.motivo}
-                    onChange={e => { onChange({ ...form, motivo: e.target.value }); setErroForm(null); }}
-                    required
-                >
-                    <option value="">Selecione um motivo...</option>
-                    {motivos.map(m => (
-                        <option key={m.motivo} value={m.motivo}>{m.motivo}</option>
-                    ))}
-                </select>
+                    onChange={v => { onChange({ ...form, motivo: v }); setErroForm(null); }}
+                    className="add-input--motivo"
+                />
             </div>
 
-            {/* Mensagem de erro de validação */}
             {erroForm && (
                 <div className="add-erro-form">
                     ⚠️ {erroForm}
@@ -299,7 +301,6 @@ function Add({ setAddAberto, getAdiverts}: AddProps) {
                 {criandoNova && renderForm(novaForm, setNovaForm, confirmarNova, () => { setCriandoNova(false); setErroForm(null); }, "Adicionar", "nova")}
             </div>
 
-            {/* Erro geral no rodapé */}
             {erroForm && !criandoNova && editandoIdx === null && (
                 <div className="add-erro-form">
                     ⚠️ {erroForm}
