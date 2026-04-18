@@ -377,7 +377,7 @@ button {
 .add-btn-salvar   { background: var(--green-primary); border-color: var(--green-primary); }
 .add-btn-salvar:hover { background: #fff; color: var(--green-primary); }
 
-.excluir-btn      { background: var(--red-primary); border-color: var(--red-primary); }
+.excluir-btn      {margin-left: 10px; background: var(--red-primary); border-color: var(--red-primary); }
 .excluir-btn:hover:not(:disabled) { background: #fff; color: var(--red-primary); }
 
 .cancel-btn       { background: var(--gray-600); border-color: var(--gray-600); }
