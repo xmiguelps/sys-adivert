@@ -4,9 +4,21 @@ import Add from './components/Add'
 import Colaboradores from './components/Colaboradores'
 import Excluir from './components/Excluir'
 import Update from './components/Update'
+import HistoricoMenu from './components/HistoricoMenu'
+import HistoricoColaborador from './components/HistoricoColaborador'
+import GerarHistoricoColaborador from './components/GerarHistoricoColaborador'
+import HistoricoMotivo from './components/HistoricoMotivo'
+import GerarHistoricoMotivo from './components/GerarHistoricoMotivo'
 import { ToastContainer, showToast } from './components/Toast'
-import jsPDF from 'jspdf'
-import autoTable from 'jspdf-autotable'
+import { downloadAdvertenciaPDF } from './utils/pdfAdvertencia'
+
+type HistView =
+    | null
+    | 'menu'
+    | 'colaborador'
+    | 'gerar-colaborador'
+    | 'motivo'
+    | 'gerar-motivo'
 
 function App() {
 
@@ -16,56 +28,42 @@ function App() {
     const [adiverts, setAdiverts] = useState<any[]>([])
     const [data, setData] = useState<any[]>([])
     const [carregando, setCarregando] = useState<boolean>(false)
-    const [baixando, setBaixando] = useState<boolean>(false)
 
     // Seleção de linha
     const [selectedId, setSelectedId] = useState<number | null>(null)
 
-    // Modais de ação (movidos de Tabela para cá)
+    // Modais de ação
     const [excluirView, setExcluirView] = useState<boolean>(false)
     const [updateView, setUpdateView] = useState<boolean>(false)
     const [inspecionarView, setInspecionarView] = useState<boolean>(false)
 
+    // Fluxo de histórico
+    const [histView, setHistView] = useState<HistView>(null)
+    const [histNomeColab, setHistNomeColab] = useState<string>('')
+    const [histMotivo, setHistMotivo] = useState<string>('')
+
     const selectedAdivert = adiverts.find(a => a.id === selectedId) ?? null
 
-    const downloadPDF = () => {
-        setBaixando(true);
-        try {
-            const doc = new jsPDF()
-            doc.text('Sistema de Advertências', 14, 16)
-            autoTable(doc, {
-                startY: 25,
-                head: [['Data', 'Matrícula', 'Nome', 'Tipo', 'Motivo']],
-                body: adiverts.map(a => [
-                    new Date(a.data).toLocaleDateString('pt-BR'),
-                    a.matricula,
-                    a.nome,
-                    a.tipo,
-                    a.motivo
-                ]),
-            })
-            doc.save('advertencias.pdf')
-        } finally {
-            setBaixando(false);
-        }
+    const fecharHistorico = () => {
+        setHistView(null)
+        setHistNomeColab('')
+        setHistMotivo('')
     }
 
+    // Baixa o PDF da advertência selecionada (formato modelo imagem 2)
     const downloadPDFLinha = (adivert: any) => {
-        const doc = new jsPDF()
-        doc.text('Sistema de Advertências', 14, 16)
-        autoTable(doc, {
-            startY: 25,
-            head: [['Data', 'Matrícula', 'Nome', 'Tipo', 'Motivo']],
-            body: [[
-                new Date(adivert.data).toLocaleDateString('pt-BR'),
-                adivert.matricula,
-                adivert.nome,
-                adivert.tipo,
-                adivert.motivo
-            ]],
-        })
-        doc.save('advertencia.pdf')
-        showToast('PDF gerado com sucesso!', 'success')
+        try {
+            downloadAdvertenciaPDF({
+                data: adivert.data,
+                nome: adivert.nome,
+                matricula: adivert.matricula,
+                motivo: adivert.motivo,
+                tipo: adivert.tipo,
+            })
+            showToast('PDF gerado com sucesso!', 'success')
+        } catch {
+            showToast('Erro ao gerar PDF.', 'error')
+        }
     }
 
     const getAdiverts = async () => {
@@ -229,11 +227,82 @@ function App() {
                 </div>
             )}
 
+            {/* ── Overlay: Histórico (fluxo completo) ── */}
+            {histView === 'menu' && (
+                <div className='overlay'>
+                    <div className='caixa caixa--hist'>
+                        <HistoricoMenu
+                            onFechar={fecharHistorico}
+                            onEscolherColaborador={() => setHistView('colaborador')}
+                            onEscolherMotivo={() => setHistView('motivo')}
+                        />
+                    </div>
+                </div>
+            )}
+
+            {histView === 'colaborador' && (
+                <div className='overlay'>
+                    <div className='caixa caixa--hist'>
+                        <HistoricoColaborador
+                            adiverts={adiverts}
+                            onVoltar={() => setHistView('menu')}
+                            onFechar={fecharHistorico}
+                            onGerar={(nomeColab) => {
+                                setHistNomeColab(nomeColab)
+                                setHistView('gerar-colaborador')
+                            }}
+                        />
+                    </div>
+                </div>
+            )}
+
+            {histView === 'gerar-colaborador' && (
+                <div className='overlay'>
+                    <div className='caixa caixa--hist'>
+                        <GerarHistoricoColaborador
+                            adiverts={adiverts}
+                            nomeColaborador={histNomeColab}
+                            onVoltar={() => setHistView('colaborador')}
+                            onFechar={fecharHistorico}
+                        />
+                    </div>
+                </div>
+            )}
+
+            {histView === 'motivo' && (
+                <div className='overlay'>
+                    <div className='caixa caixa--hist'>
+                        <HistoricoMotivo
+                            adiverts={adiverts}
+                            onVoltar={() => setHistView('menu')}
+                            onFechar={fecharHistorico}
+                            onGerar={(motivo) => {
+                                setHistMotivo(motivo)
+                                setHistView('gerar-motivo')
+                            }}
+                        />
+                    </div>
+                </div>
+            )}
+
+            {histView === 'gerar-motivo' && (
+                <div className='overlay'>
+                    <div className='caixa caixa--hist'>
+                        <GerarHistoricoMotivo
+                            adiverts={adiverts}
+                            motivoConfirmado={histMotivo}
+                            onVoltar={() => setHistView('motivo')}
+                            onFechar={fecharHistorico}
+                        />
+                    </div>
+                </div>
+            )}
+
             <div className='d-flex box-site'>
                 <div className='d-flex box-body flex-column'>
                     <div className='d-flex'>
                         <img className='logo' src="/danlex.png" alt="logo-empresa" />
-                        <h1>Sistema de Adivertencias</h1>
+                        <h1>Sistema de Advertências</h1>
                     </div>
                     <form className='box-search' onSubmit={e => { e.preventDefault(); getAdiverts(); }}>
                         <input type="text" className='search-input' name="search" id="search" onChange={e => { setNome(e.target.value) }} />
@@ -252,7 +321,7 @@ function App() {
                                         <thead>
                                             <tr>
                                                 <th className='adivert-column' id='data'>Data</th>
-                                                <th className='adivert-column' id='matricula'>Matricula</th>
+                                                <th className='adivert-column' id='matricula'>Matrícula</th>
                                                 <th className='adivert-column' id='nome'>Nome</th>
                                                 <th className='adivert-column' id='tipo'>Tipo</th>
                                                 <th className='adivert-column' id='motivo'>Motivo</th>
@@ -329,15 +398,15 @@ function App() {
                                 title="Gerenciar Colaboradores"
                                 className="btn-menu-colab"
                             >
-                                <span className="colab-menu-icon">👥</span>
+                                <img className='icon buttons-menu' src="/colab.png" alt="botão de colaboradores" />
                             </button>
 
-                            {/* Botão: Download PDF */}
-                            <button onClick={downloadPDF} title="Baixar PDF" disabled={baixando}>
-                                {baixando
-                                    ? <span style={{ color: '#fff', fontSize: '10px', fontWeight: 700 }}>...</span>
-                                    : <img className='icon buttons-menu' src="/download.png" alt="botão de download" />
-                                }
+                            {/* Botão: Histórico (abre o menu com as duas opções) */}
+                            <button
+                                onClick={() => setHistView('menu')}
+                                title="Histórico de advertências"
+                            >
+                                <img className='icon buttons-menu' src="/download.png" alt="botão de histórico" />
                             </button>
                         </div>
                     </div>
