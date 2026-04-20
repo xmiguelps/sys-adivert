@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import MotivosSelect from "./MotivosSelect";
+import TipoSelect from "./TipoSelect";
 import { showToast } from "./Toast";
 
 type UpdateProps = {
@@ -80,14 +81,10 @@ function Update({ setUpdateView, getAdiverts, id, data, matricula, nome, tipo, m
                             onChange={e => setForm({ ...form, data: e.target.value })}
                         />
                         <label className="add-label">Tipo:</label>
-                        <select
-                            className="add-input add-input--tipo"
+                        <TipoSelect
                             value={form.tipo}
-                            onChange={e => setForm({ ...form, tipo: e.target.value })}
-                        >
-                            <option value="Escrita">Escrita</option>
-                            <option value="Verbal">Verbal</option>
-                        </select>
+                            onChange={v => setForm({ ...form, tipo: v })}
+                        />
                     </div>
                     <div className="add-form-row">
                         <label className="add-label">Motivo:</label>

@@ -1119,6 +1119,29 @@ select:focus { border-color: var(--blue-primary); }
     font-weight: 600;
 }
 
+/* ── Empty state ── */
+.tabela-vazia {
+    text-align: center;
+    padding: 48px 24px;
+    background: #fff;
+    border-bottom: 1px solid #f0e0e0;
+}
+
+.tabela-vazia__icone {
+    display: block;
+    font-size: 2.8rem;
+    margin-bottom: 10px;
+    opacity: 0.45;
+}
+
+.tabela-vazia__texto {
+    display: block;
+    font-size: 1rem;
+    color: #aaa;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+}
+
 /* ══════════════════════════════════════════════════
    WRAPPER TABELA + AÇÕES
 ══════════════════════════════════════════════════ */

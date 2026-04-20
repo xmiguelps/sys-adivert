@@ -327,7 +327,16 @@ function App() {
                                                 <th className='adivert-column' id='motivo'>Motivo</th>
                                             </tr>
                                         </thead>
-                                        {adiverts.map(adivert => (
+                                        {adiverts.length === 0 ? (
+                                            <tbody>
+                                                <tr>
+                                                    <td colSpan={5} className="tabela-vazia">
+                                                        <span className="tabela-vazia__icone">📋</span>
+                                                        <span className="tabela-vazia__texto">Nenhuma advertência registrada</span>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        ) : adiverts.map(adivert => (
                                             <Tabela
                                                 key={adivert.id}
                                                 data={adivert.data}

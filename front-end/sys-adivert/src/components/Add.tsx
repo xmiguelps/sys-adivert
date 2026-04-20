@@ -1,6 +1,7 @@
 import motivos from "../context"
 import React, { useState, useEffect, useRef } from "react";
 import MotivosSelect from "./MotivosSelect";
+import TipoSelect from "./TipoSelect";
 import { showToast } from "./Toast";
 
 type Advertencia = {
@@ -219,16 +220,10 @@ function Add({ setAddAberto, getAdiverts}: AddProps) {
                 <label className="add-label">
                     Tipo: <span className="campo-obrigatorio">*</span>
                 </label>
-                <select
-                    className="add-input add-input--tipo"
+                <TipoSelect
                     value={form.tipo}
-                    onChange={e => { onChange({ ...form, tipo: e.target.value }); setErroForm(null); }}
-                    required
-                >
-                    <option value="">Selecione...</option>
-                    <option value="Escrita">Escrita</option>
-                    <option value="Verbal">Verbal</option>
-                </select>
+                    onChange={v => { onChange({ ...form, tipo: v }); setErroForm(null); }}
+                />
             </div>
             <div className="add-form-row">
                 <label className="add-label">
