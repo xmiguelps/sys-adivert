@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 const TIPOS_PADRAO = ["Escrita", "Verbal"];
 
@@ -12,8 +12,13 @@ function TipoSelect({ value, onChange, className }: TipoSelectProps) {
     const isCustom = value !== "" && !TIPOS_PADRAO.includes(value);
     const [mostrarCustom, setMostrarCustom] = useState(isCustom);
     const [customValue, setCustomValue] = useState(isCustom ? value : "");
+    const skipNextEffect = useRef(false);
 
     useEffect(() => {
+        if (skipNextEffect.current) {
+            skipNextEffect.current = false;
+            return;
+        }
         const custom = value !== "" && !TIPOS_PADRAO.includes(value);
         setMostrarCustom(custom);
         if (custom) setCustomValue(value);
@@ -22,6 +27,7 @@ function TipoSelect({ value, onChange, className }: TipoSelectProps) {
     const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const selected = e.target.value;
         if (selected === "__outro__") {
+            skipNextEffect.current = true;
             setMostrarCustom(true);
             setCustomValue("");
             onChange("");
@@ -47,7 +53,6 @@ function TipoSelect({ value, onChange, className }: TipoSelectProps) {
                 onChange={handleSelectChange}
                 required
             >
-                <option value="">Selecione...</option>
                 {TIPOS_PADRAO.map(t => (
                     <option key={t} value={t}>{t}</option>
                 ))}
