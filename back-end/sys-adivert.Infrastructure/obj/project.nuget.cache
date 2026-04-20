@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "VEqKChgWLnM=",
+  "dgSpecHash": "6HwBuELITf8=",
   "success": true,
-  "projectFilePath": "C:\\Users\\User\\Downloads\\sys-adivert_2\\sys-adivert\\back-end\\sys-adivert.Infrastructure\\sys-adivert.Infrastructure.csproj",
+  "projectFilePath": "C:\\Users\\User\\OneDrive\\Documentos\\DANLEX\\sys-adivert\\back-end\\sys-adivert.Infrastructure\\sys-adivert.Infrastructure.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\User\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\User\\.nuget\\packages\\microsoft.build.framework\\18.0.2\\microsoft.build.framework.18.0.2.nupkg.sha512",
