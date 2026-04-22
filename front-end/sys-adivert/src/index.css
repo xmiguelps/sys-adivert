@@ -1386,10 +1386,7 @@ select:focus { border-color: var(--blue-primary); }
 }
 
 .motivos-select__dropdown {
-    position: absolute;
-    top: calc(100% + 4px);
-    left: 0;
-    right: 0;
+    position: fixed;
     background: #fff;
     border: 1.5px solid var(--blue-primary);
     border-radius: var(--radius-sm);
@@ -1429,6 +1426,95 @@ select:focus { border-color: var(--blue-primary); }
 .motivos-select__option--empty {
     color: var(--gray-500);
     font-style: italic;
+}
+
+/* ══════════════════════════════════════════════════
+   CUSTOM SELECT (TIPO)
+══════════════════════════════════════════════════ */
+.tipo-select {
+    position: relative;
+    width: 140px;
+    flex: none;
+}
+
+.tipo-select__trigger {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    border: 1.5px solid var(--gray-300);
+    border-radius: var(--radius-sm);
+    padding: 6px 10px;
+    font-size: 13px;
+    background: #fff;
+    cursor: pointer;
+    text-align: left;
+    transition: border-color var(--transition);
+    font-family: inherit;
+    color: var(--gray-800);
+    min-height: 34px;
+}
+
+.tipo-select__trigger:focus,
+.tipo-select--open .tipo-select__trigger {
+    border-color: var(--blue-primary);
+    outline: none;
+}
+
+.tipo-select__value {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.tipo-select__arrow {
+    font-size: 11px;
+    color: var(--gray-500);
+    flex-shrink: 0;
+    transition: transform var(--transition);
+}
+
+.tipo-select--open .tipo-select__arrow {
+    transform: rotate(180deg);
+}
+
+.tipo-select__dropdown {
+    position: fixed;
+    width: max-content;
+    background: #fff;
+    border: 1.5px solid var(--blue-primary);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-md);
+    z-index: 9999;
+    max-height: 260px;
+    overflow-y: auto;
+}
+
+.tipo-select__option {
+    padding: 9px 14px;
+    font-size: 13px;
+    color: var(--gray-800);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background var(--transition);
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.tipo-select__option:last-child {
+    border-bottom: none;
+}
+
+.tipo-select__option:hover {
+    background: var(--red-light);
+    color: var(--red-dark);
+}
+
+.tipo-select__option--selected {
+    background: #ffeaea;
+    color: var(--red-dark);
+    font-weight: 600;
 }
 
 /* Ajuste no box-main para aceitar o wrapper */

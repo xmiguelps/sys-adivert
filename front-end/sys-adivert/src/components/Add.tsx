@@ -20,10 +20,13 @@ type AddProps = {
     getAdiverts: () => void;
 }
 
+const dataAtualBrasil = () =>
+    new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Sao_Paulo' }).format(new Date());
+
 const campoVazio = (): Advertencia => ({
     Nome: "",
     matricula: "",
-    data: new Date().toISOString().split('T')[0],
+    data: dataAtualBrasil(),
     tipo: "Escrita",
     motivo: motivos[0]?.motivo ?? "",
 });
