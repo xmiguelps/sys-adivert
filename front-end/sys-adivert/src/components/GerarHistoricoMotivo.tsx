@@ -184,7 +184,7 @@ const GerarHistoricoMotivo: React.FC<Props> = ({ adiverts, motivoConfirmado, onV
                             onClick={gerarMes}
                             disabled={baixando || futuroMes || doMes.length === 0}
                         >
-                            {baixando ? '⏳ Gerando...' : '📝 Gerar histórico Word'}
+                            {baixando ? '⏳ Gerando...' : '📝 Gerar Adivertencias por Motivo'}
                         </button>
                     </div>
                 </div>
@@ -258,7 +258,7 @@ const GerarHistoricoMotivo: React.FC<Props> = ({ adiverts, motivoConfirmado, onV
                             onClick={gerarDia}
                             disabled={baixando || futuroDia || doDia.length === 0}
                         >
-                            {baixando ? '⏳ Gerando...' : '📝 Gerar histórico Word'}
+                            {baixando ? '⏳ Gerando...' : '📝 Gerar Adivertencias por Motivo'}
                         </button>
                     </div>
                 </div>

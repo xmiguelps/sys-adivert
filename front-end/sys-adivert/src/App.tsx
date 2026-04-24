@@ -389,7 +389,7 @@ function App() {
                                             disabled={!selectedId}
                                             title="Baixar Word da advertência selecionada"
                                         >
-                                            📝 Baixar Word
+                                            📝 Baixar Arquivo
                                         </button>
                                     </div>
                                 </div>
