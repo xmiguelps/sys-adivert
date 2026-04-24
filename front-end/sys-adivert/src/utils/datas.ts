@@ -63,6 +63,15 @@ export function diasNoMes(ano: number, mes: number): number {
 }
 
 /**
+ * Parses a date string (ISO or YYYY-MM-DD) as a LOCAL date,
+ * avoiding the UTC-offset bug where "2026-04-21" becomes April 20 in UTC-3.
+ */
+export function parseDataLocal(iso: string): Date {
+    const [yyyy, mm, dd] = iso.slice(0, 10).split('-').map(Number)
+    return new Date(yyyy, mm - 1, dd)
+}
+
+/**
  * Filtra advertências por mês/ano (mes zero-based).
  */
 export function filtrarPorMes<T extends { data: string }>(
@@ -71,7 +80,7 @@ export function filtrarPorMes<T extends { data: string }>(
     mes: number
 ): T[] {
     return lista.filter(a => {
-        const d = new Date(a.data)
+        const d = parseDataLocal(a.data)
         return d.getFullYear() === ano && d.getMonth() === mes
     })
 }
@@ -86,7 +95,7 @@ export function filtrarPorDia<T extends { data: string }>(
     dia: number
 ): T[] {
     return lista.filter(a => {
-        const d = new Date(a.data)
+        const d = parseDataLocal(a.data)
         return d.getFullYear() === ano && d.getMonth() === mes && d.getDate() === dia
     })
 }

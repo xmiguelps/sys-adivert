@@ -10,7 +10,7 @@ import GerarHistoricoColaborador from './components/GerarHistoricoColaborador'
 import HistoricoMotivo from './components/HistoricoMotivo'
 import GerarHistoricoMotivo from './components/GerarHistoricoMotivo'
 import { ToastContainer, showToast } from './components/Toast'
-import { downloadAdvertenciaPDF } from './utils/pdfAdvertencia'
+import { downloadAdvertenciaWord } from './utils/wordAdvertencia'
 
 type HistView =
     | null
@@ -50,19 +50,19 @@ function App() {
         setHistMotivo('')
     }
 
-    // Baixa o PDF da advertência selecionada (formato modelo imagem 2)
-    const downloadPDFLinha = (adivert: any) => {
+    // Baixa o Word da advertência selecionada
+    const downloadWordLinha = async (adivert: any) => {
         try {
-            downloadAdvertenciaPDF({
+            await downloadAdvertenciaWord({
                 data: adivert.data,
                 nome: adivert.nome,
                 matricula: adivert.matricula,
                 motivo: adivert.motivo,
                 tipo: adivert.tipo,
             })
-            showToast('PDF gerado com sucesso!', 'success')
+            showToast('Documento Word gerado com sucesso!', 'success')
         } catch {
-            showToast('Erro ao gerar PDF.', 'error')
+            showToast('Erro ao gerar documento Word.', 'error')
         }
     }
 
@@ -101,7 +101,10 @@ function App() {
         getAdiverts();
     }, [])
 
-    const dataFormatada = (data: string) => new Date(data).toLocaleDateString('pt-BR')
+    const dataFormatada = (data: string) => {
+        const [yyyy, mm, dd] = data.slice(0, 10).split('-')
+        return `${dd}/${mm}/${yyyy}`
+    }
 
     return (
         <>
@@ -382,11 +385,11 @@ function App() {
                                         </button>
                                         <button
                                             className={`acoes-btn acoes-btn--pdf ${!selectedId ? 'acoes-btn--disabled' : ''}`}
-                                            onClick={() => selectedAdivert && downloadPDFLinha(selectedAdivert)}
+                                            onClick={() => selectedAdivert && downloadWordLinha(selectedAdivert)}
                                             disabled={!selectedId}
-                                            title="Baixar PDF da advertência selecionada"
+                                            title="Baixar Word da advertência selecionada"
                                         >
-                                            📄 Baixar PDF
+                                            📝 Baixar Word
                                         </button>
                                     </div>
                                 </div>

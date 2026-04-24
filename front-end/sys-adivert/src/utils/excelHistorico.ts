@@ -9,11 +9,8 @@ export type AdvertenciaExcel = {
 }
 
 function formatDataBR(iso: string): string {
-    const d = new Date(iso)
-    if (isNaN(d.getTime())) return iso
-    const dd = String(d.getDate()).padStart(2, '0')
-    const mm = String(d.getMonth() + 1).padStart(2, '0')
-    const yyyy = d.getFullYear()
+    const [yyyy, mm, dd] = iso.slice(0, 10).split('-')
+    if (!yyyy || !mm || !dd) return iso
     return `${dd}/${mm}/${yyyy}`
 }
 

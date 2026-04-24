@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useLayoutEffect } from 'react'
 import motivos from '../context'
 
 type Props = {
@@ -9,11 +9,18 @@ type Props = {
 
 function MotivosSelect({ value, onChange, className }: Props) {
     const [open, setOpen] = useState(false)
+    const [dropdownPos, setDropdownPos] = useState<{ top: number; left: number; width: number }>({ top: 0, left: 0, width: 0 })
     const containerRef = useRef<HTMLDivElement>(null)
+    const triggerRef = useRef<HTMLButtonElement>(null)
+    const dropdownRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
         const handler = (e: MouseEvent) => {
-            if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+            const target = e.target as Node
+            if (
+                containerRef.current && !containerRef.current.contains(target) &&
+                dropdownRef.current && !dropdownRef.current.contains(target)
+            ) {
                 setOpen(false)
             }
         }
@@ -21,12 +28,27 @@ function MotivosSelect({ value, onChange, className }: Props) {
         return () => document.removeEventListener('mousedown', handler)
     }, [])
 
-    // Close on Escape
     useEffect(() => {
         const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false) }
         document.addEventListener('keydown', handler)
         return () => document.removeEventListener('keydown', handler)
     }, [])
+
+    useLayoutEffect(() => {
+        if (!open || !triggerRef.current) return
+        const recalculate = () => {
+            if (!triggerRef.current) return
+            const rect = triggerRef.current.getBoundingClientRect()
+            setDropdownPos({ top: rect.bottom + 4, left: rect.left, width: rect.width })
+        }
+        recalculate()
+        window.addEventListener('resize', recalculate)
+        window.addEventListener('scroll', recalculate, true)
+        return () => {
+            window.removeEventListener('resize', recalculate)
+            window.removeEventListener('scroll', recalculate, true)
+        }
+    }, [open])
 
     return (
         <div
@@ -34,6 +56,7 @@ function MotivosSelect({ value, onChange, className }: Props) {
             className={`motivos-select ${className ?? ''} ${open ? 'motivos-select--open' : ''}`}
         >
             <button
+                ref={triggerRef}
                 type="button"
                 className="motivos-select__trigger"
                 onClick={() => setOpen(o => !o)}
@@ -47,7 +70,12 @@ function MotivosSelect({ value, onChange, className }: Props) {
             </button>
 
             {open && (
-                <div className="motivos-select__dropdown" role="listbox">
+                <div
+                    ref={dropdownRef}
+                    className="motivos-select__dropdown"
+                    role="listbox"
+                    style={{ top: dropdownPos.top, left: dropdownPos.left, width: dropdownPos.width }}
+                >
                     <div
                         className="motivos-select__option motivos-select__option--empty"
                         onClick={() => { onChange(''); setOpen(false) }}

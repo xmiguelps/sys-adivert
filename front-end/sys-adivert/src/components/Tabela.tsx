@@ -11,8 +11,11 @@ type TabelaProps = {
 
 function Tabela({ data, matricula, nome, tipo, motivo, id, selectedId, setSelectedId }: TabelaProps) {
 
+    // Parse as local date to avoid UTC-offset shifting the day (e.g. UTC-3 turns
+    // "2026-04-21T00:00:00Z" into "20/04/2026" instead of the correct "21/04/2026")
     const dataFormatada = (data: string) => {
-        return new Date(data).toLocaleDateString('pt-BR')
+        const [yyyy, mm, dd] = data.slice(0, 10).split('-')
+        return `${dd}/${mm}/${yyyy}`
     }
 
     const truncarNome = (nome: string) => {
