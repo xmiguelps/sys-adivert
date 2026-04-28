@@ -1,5 +1,8 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import { MESES_NOMES, getAnoMesAtual, listaAnos, isMesFuturo, filtrarPorMes } from '../utils/datas'
+import ColabSelect from './ColabSelect'
+
+type Colab = { id: number; nome: string; matricula: string }
 
 type Adivert = {
     id: number
@@ -18,8 +21,16 @@ type Props = {
 }
 
 const HistoricoColaborador: React.FC<Props> = ({ adiverts, onVoltar, onGerar, onFechar }) => {
+    const [colabs, setColabs] = useState<Colab[]>([])
     const [nomeInput, setNomeInput] = useState('')
     const [nomeConfirmado, setNomeConfirmado] = useState<string | null>(null)
+
+    useEffect(() => {
+        fetch(`${import.meta.env.VITE_API_URL}/api/Colabs`)
+            .then(r => r.ok ? r.json() : [])
+            .then(setColabs)
+            .catch(() => {})
+    }, [])
     const [filtroAno, setFiltroAno] = useState<number>(getAnoMesAtual().ano)
     const [filtroMes, setFiltroMes] = useState<number>(getAnoMesAtual().mes)
     const [filtroAtivo, setFiltroAtivo] = useState(false)
@@ -43,7 +54,9 @@ const HistoricoColaborador: React.FC<Props> = ({ adiverts, onVoltar, onGerar, on
 
     const confirmarBusca = () => {
         if (nomeInput.trim()) {
-            setNomeConfirmado(nomeInput.trim())
+            const nomeUpper = nomeInput.trim().toUpperCase()
+            setNomeInput(nomeUpper)
+            setNomeConfirmado(nomeUpper)
             setFiltroAtivo(false)
         }
     }
@@ -66,12 +79,17 @@ const HistoricoColaborador: React.FC<Props> = ({ adiverts, onVoltar, onGerar, on
             <div className="hist-busca-box">
                 <label className="add-label">Digite o nome do colaborador:</label>
                 <div className="hist-busca-row">
-                    <input
-                        className="add-input"
-                        value={nomeInput}
+                    <ColabSelect
+                        nome={nomeInput}
+                        colabs={colabs}
+                        onNomeChange={setNomeInput}
+                        onColabSelect={(nome) => {
+                            const upper = nome.toUpperCase()
+                            setNomeInput(upper)
+                            setNomeConfirmado(upper)
+                            setFiltroAtivo(false)
+                        }}
                         placeholder="Ex: THIAGO LUCIUS MARTINS"
-                        onChange={e => setNomeInput(e.target.value)}
-                        onKeyDown={e => { if (e.key === 'Enter') confirmarBusca() }}
                     />
                     <button className="btn add-btn-confirm" onClick={confirmarBusca} disabled={!nomeInput.trim()}>
                         Buscar

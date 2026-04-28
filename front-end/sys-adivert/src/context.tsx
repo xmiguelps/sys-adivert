@@ -1,4 +1,4 @@
-    const motivos = [
+    const motivos = ([
             { "motivo": "Ato de desídia: registro de ponto sem a devida presença no local de trabalho ou atendimento designado." },
             { "motivo": "Ato de Indisciplina – Por ausência de batidas e falta de comprometimento nas solicitações de ponto." },
             { "motivo": "Ato de Indisciplina – Por falta de atenção recorrente ao não realizar marcações de ponto e solicitações constantes de ajuste de ponto." },
@@ -49,5 +49,5 @@
             { "motivo": "Não cumprir com os procedimentos da empresa, afetando indicador. Colaborador realizou a baixa da O.S. fora da grade, ocasionando impacto negativo no indicador TEC1." },
             { "motivo": "Não cumprir com os procedimentos da empresa, não realizando o monitoramento da rota, afetando indicador TEC1." },
             { "motivo": "Por iniciar o primeiro atendimento após as 08h30, afetando indicador." }
-    ]
+    ] as { motivo: string }[]).sort((a, b) => a.motivo.localeCompare(b.motivo, 'pt-BR', { sensitivity: 'base' }))
 export default motivos;

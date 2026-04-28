@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import ColabSelect from "./ColabSelect";
 
 type Colab = {
     id: number;
@@ -189,11 +190,17 @@ function Colaboradores({ setColabAberto }: ColabsProps) {
             {removendoAtivo && (
                 <div className="colab-remover-bar">
                     <label className="add-label">Remover por nome:</label>
-                    <input
-                        className="add-input colab-input-remover"
+                    <ColabSelect
+                        nome={nomeRemover}
+                        colabs={colabs}
+                        onNomeChange={v => { setNomeRemover(v); setConfirmRemoverId(null); }}
+                        onColabSelect={(nome, _matricula) => {
+                            setNomeRemover(nome)
+                            const encontrado = colabs.find(c => c.nome === nome)
+                            if (encontrado) setConfirmRemoverId(encontrado.id)
+                        }}
                         placeholder="Nome do colaborador"
-                        value={nomeRemover}
-                        onChange={e => { setNomeRemover(e.target.value); setConfirmRemoverId(null); }}
+                        className="colab-input-remover"
                     />
                     <button
                         className="btn colab-btn-remover-exec"

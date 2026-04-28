@@ -9,8 +9,11 @@ import HistoricoColaborador from './components/HistoricoColaborador'
 import GerarHistoricoColaborador from './components/GerarHistoricoColaborador'
 import HistoricoMotivo from './components/HistoricoMotivo'
 import GerarHistoricoMotivo from './components/GerarHistoricoMotivo'
+import ColabSelect from './components/ColabSelect'
 import { ToastContainer, showToast } from './components/Toast'
 import { downloadAdvertenciaWord } from './utils/wordAdvertencia'
+
+type Colab = { id: number; nome: string; matricula: string }
 
 type HistView =
     | null
@@ -23,6 +26,7 @@ type HistView =
 function App() {
 
     const [nome, setNome] = useState<string>('')
+    const [colabs, setColabs] = useState<Colab[]>([])
     const [addAberto, setAddAberto] = useState<boolean>(false)
     const [colabAberto, setColabAberto] = useState<boolean>(false)
     const [adiverts, setAdiverts] = useState<any[]>([])
@@ -66,10 +70,11 @@ function App() {
         }
     }
 
-    const getAdiverts = async () => {
+    const getAdiverts = async (nomeParam?: string) => {
+        const buscaNome = nomeParam !== undefined ? nomeParam : nome
         setCarregando(true);
         try {
-            if (nome === '') {
+            if (buscaNome === '') {
                 const response = await fetch(
                     `${import.meta.env.VITE_API_URL}/api/Adiverts`,
                     {
@@ -82,7 +87,7 @@ function App() {
                 setAdiverts(data);
             } else {
                 const response = await fetch(
-                    `${import.meta.env.VITE_API_URL}/api/Adiverts?nome=${nome}`,
+                    `${import.meta.env.VITE_API_URL}/api/Adiverts?nome=${buscaNome}`,
                     {
                         method: "GET",
                         headers: { "Accept": "application/json" }
@@ -99,6 +104,10 @@ function App() {
 
     useEffect(() => {
         getAdiverts();
+        fetch(`${import.meta.env.VITE_API_URL}/api/Colabs`)
+            .then(r => r.ok ? r.json() : [])
+            .then(setColabs)
+            .catch(() => {})
     }, [])
 
     const dataFormatada = (data: string) => {
@@ -307,8 +316,24 @@ function App() {
                         <img className='logo' src="/danlex.png" alt="logo-empresa" />
                         <h1>Sistema de Advertências</h1>
                     </div>
-                    <form className='box-search' onSubmit={e => { e.preventDefault(); getAdiverts(); }}>
-                        <input type="text" className='search-input' name="search" id="search" onChange={e => { setNome(e.target.value) }} />
+                    <form className='box-search' onSubmit={e => {
+                        e.preventDefault();
+                        const nomeUpper = nome.toUpperCase();
+                        setNome(nomeUpper);
+                        getAdiverts(nomeUpper);
+                    }}>
+                        <ColabSelect
+                            nome={nome}
+                            colabs={colabs}
+                            onNomeChange={setNome}
+                            onColabSelect={(nomeColab) => {
+                                const upper = nomeColab.toUpperCase()
+                                setNome(upper)
+                                getAdiverts(upper)
+                            }}
+                            placeholder="Digite um colaborador para filtragem"
+                            className="search-colab-select"
+                        />
                         <button className='search-buttom' disabled={carregando}>
                             {carregando
                                 ? <span className="search-loading">...</span>

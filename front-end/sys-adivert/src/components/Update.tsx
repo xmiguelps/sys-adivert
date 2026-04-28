@@ -1,7 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import MotivosSelect from "./MotivosSelect";
 import TipoSelect from "./TipoSelect";
+import ColabSelect from "./ColabSelect";
 import { showToast } from "./Toast";
+
+type Colab = { id: number; nome: string; matricula: string }
 
 type UpdateProps = {
     setUpdateView: React.Dispatch<React.SetStateAction<boolean>>
@@ -16,6 +19,7 @@ type UpdateProps = {
 
 function Update({ setUpdateView, getAdiverts, id, data, matricula, nome, tipo, motivo }: UpdateProps) {
 
+    const [colabs, setColabs] = useState<Colab[]>([])
     const [form, setForm] = useState({
         Nome: nome,
         matricula: matricula,
@@ -24,6 +28,13 @@ function Update({ setUpdateView, getAdiverts, id, data, matricula, nome, tipo, m
         motivo: motivo,
     });
     const [salvando, setSalvando] = useState(false);
+
+    useEffect(() => {
+        fetch(`${import.meta.env.VITE_API_URL}/api/Colabs`)
+            .then(r => r.ok ? r.json() : [])
+            .then(setColabs)
+            .catch(() => {})
+    }, [])
 
     const handleSalvar = async () => {
         setSalvando(true);
@@ -60,10 +71,11 @@ function Update({ setUpdateView, getAdiverts, id, data, matricula, nome, tipo, m
                 <div className="add-form-box">
                     <div className="add-form-row">
                         <label className="add-label">Colaborador:</label>
-                        <input
-                            className="add-input"
-                            value={form.Nome}
-                            onChange={e => setForm({ ...form, Nome: e.target.value })}
+                        <ColabSelect
+                            nome={form.Nome}
+                            colabs={colabs}
+                            onNomeChange={v => setForm({ ...form, Nome: v })}
+                            onColabSelect={(nome, matricula) => setForm({ ...form, Nome: nome, matricula })}
                         />
                     </div>
                     <div className="add-form-row">

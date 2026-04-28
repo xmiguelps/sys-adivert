@@ -107,6 +107,18 @@ body {
     max-width: 640px;
 }
 
+.search-colab-select {
+    flex: 1;
+}
+
+.search-colab-select .add-input {
+    width: 100%;
+    height: 43px;
+    border-radius: 8px 0 0 8px;
+    border-right: none;
+    font-size: 14px;
+}
+
 .search-input {
     flex: 1;
     padding: 9px 14px;
@@ -1429,6 +1441,78 @@ select:focus { border-color: var(--blue-primary); }
 }
 
 /* ══════════════════════════════════════════════════
+   AUTOCOMPLETE COLABORADOR
+══════════════════════════════════════════════════ */
+.colab-select {
+    position: relative;
+    flex: 1;
+    min-width: 200px;
+}
+
+.colab-select__input {
+    width: 100%;
+}
+
+.colab-select__dropdown {
+    position: fixed;
+    background: #fff;
+    border: 1.5px solid var(--blue-primary);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-md);
+    z-index: 9999;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.colab-select__option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 12px;
+    font-size: 13px;
+    color: var(--gray-800);
+    cursor: pointer;
+    border-bottom: 1px solid var(--gray-200);
+    transition: background var(--transition);
+}
+
+.colab-select__option:last-child {
+    border-bottom: none;
+}
+
+.colab-select__option:hover {
+    background: #e8f0fe;
+    color: var(--blue-primary);
+}
+
+.colab-select__option--selected {
+    background: #ddeafd;
+    color: var(--blue-primary);
+    font-weight: 600;
+}
+
+.colab-select__option--vazio {
+    color: var(--gray-500);
+    font-style: italic;
+    cursor: default;
+    justify-content: center;
+}
+
+.colab-select__option-nome {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.colab-select__option-matricula {
+    font-size: 11px;
+    color: var(--gray-500);
+    flex-shrink: 0;
+}
+
+/* ══════════════════════════════════════════════════
    CUSTOM SELECT (TIPO)
 ══════════════════════════════════════════════════ */
 .tipo-select {
@@ -1952,4 +2036,198 @@ select:focus { border-color: var(--blue-primary); }
 .hist-tabela-wrap {
     scrollbar-color: var(--red-primary) rgba(0, 0, 0, 0.08);
     scrollbar-width: thin;
+}
+
+/* ── Motivos Select: opção "Outro" e textarea customizada ── */
+.motivos-select__option--outro {
+    border-top: 1px solid var(--border-color, #e0e0e0);
+    margin-top: 4px;
+    padding-top: 10px;
+    font-style: italic;
+    color: var(--blue-primary, #1565c0);
+    font-weight: 500;
+}
+
+.motivos-custom-textarea {
+    width: 100%;
+    resize: vertical;
+    min-height: 80px;
+    font-family: inherit;
+    font-size: 0.93rem;
+    line-height: 1.5;
+    border-radius: 6px;
+    box-sizing: border-box;
+}
+
+/* ── Modo Múltiplos Colaboradores ── */
+.add-modo-toggle-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 12px;
+    background: rgba(var(--blue-primary-rgb, 21, 101, 192), 0.07);
+    border: 1px solid rgba(var(--blue-primary-rgb, 21, 101, 192), 0.18);
+    border-radius: 8px;
+    margin-bottom: 14px;
+}
+
+.add-btn-modo-toggle {
+    background: var(--blue-primary) !important;
+    border-color: var(--blue-primary) !important;
+    font-size: 0.82rem !important;
+    padding: 5px 14px !important;
+    white-space: nowrap;
+}
+.add-btn-modo-toggle:hover {
+    background: #fff !important;
+    color: var(--blue-primary) !important;
+}
+
+.add-modo-label {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--blue-primary);
+}
+
+.add-btn-modo-voltar {
+    background: transparent !important;
+    border-color: var(--blue-primary) !important;
+    color: var(--blue-primary) !important;
+    font-size: 0.8rem !important;
+    padding: 4px 12px !important;
+}
+.add-btn-modo-voltar:hover {
+    background: var(--blue-primary) !important;
+    color: #fff !important;
+}
+
+.add-form-box--multiplo {
+    gap: 0 !important;
+}
+
+/* Seções internas do modo múltiplo */
+.add-multiplo-secao {
+    border: 1px solid var(--border-color, #e0e0e0);
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+    background: rgba(0,0,0,0.015);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.add-multiplo-secao-header {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 2px;
+}
+
+.add-multiplo-secao-titulo {
+    font-weight: 600;
+    font-size: 0.88rem;
+    color: var(--text-primary, #222);
+}
+
+.add-multiplo-hint {
+    font-size: 0.75rem;
+    color: var(--text-muted, #888);
+    font-style: italic;
+}
+
+/* Header das colunas */
+.add-multiplo-cols-header {
+    display: grid;
+    grid-template-columns: 1fr 140px 28px;
+    gap: 8px;
+    padding: 0 2px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted, #888);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+/* Lista de linhas de colaborador */
+.add-colabs-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 230px;
+    overflow-y: auto;
+    padding-right: 2px;
+}
+
+/* Linha individual de colaborador no modo múltiplo */
+.add-colab-row {
+    display: grid;
+    grid-template-columns: 1fr 140px 28px;
+    gap: 8px;
+    align-items: center;
+}
+
+.add-colab-nome-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.add-colab-nome-wrapper .add-input {
+    width: 100%;
+}
+
+.add-colab-nome-wrapper .add-matricula-loading {
+    position: absolute;
+    right: 8px;
+    font-size: 0.75rem;
+    pointer-events: none;
+}
+
+/* Botão remover colaborador */
+.add-btn-remover-colab {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 1px solid #ccc;
+    background: transparent;
+    color: #999;
+    cursor: pointer;
+    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: all 0.15s;
+    flex-shrink: 0;
+}
+.add-btn-remover-colab:hover {
+    background: #fee;
+    border-color: var(--red-primary);
+    color: var(--red-primary);
+}
+
+/* Botão adicionar mais colaboradores */
+.add-btn-mais-colab {
+    align-self: flex-start;
+    background: transparent !important;
+    border-color: var(--green-primary) !important;
+    color: var(--green-primary) !important;
+    font-size: 0.8rem !important;
+    padding: 5px 12px !important;
+    margin-top: 2px;
+}
+.add-btn-mais-colab:hover {
+    background: var(--green-primary) !important;
+    color: #fff !important;
+}
+
+/* Scrollbar na lista de colabs */
+.add-colabs-lista::-webkit-scrollbar {
+    width: 4px;
+}
+.add-colabs-lista::-webkit-scrollbar-thumb {
+    background: var(--red-primary);
+    border-radius: 4px;
 }
