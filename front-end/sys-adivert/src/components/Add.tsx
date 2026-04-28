@@ -112,7 +112,7 @@ function Add({ setAddAberto, getAdiverts }: AddProps) {
     const [novaForm, setNovaForm] = useState<Advertencia>(campoVazio());
     const [salvando, setSalvando] = useState(false);
     const [erroForm, setErroForm] = useState<string | null>(null);
-    const [buscandoMatricula, setBuscandoMatricula] = useState<"nova" | number | null>(null);
+    const [_buscandoMatricula, setBuscandoMatricula] = useState<"nova" | number | null>(null);
 
     useEffect(() => {
         fetch(`${import.meta.env.VITE_API_URL}/api/Colabs`)
@@ -136,6 +136,7 @@ function Add({ setAddAberto, getAdiverts }: AddProps) {
 
     /* Modo único — nova: uppercase + busca matrícula via debounce */
     useEffect(() => {
+        
         if (!debouncedNovoNome || debouncedNovoNome === prevNovoNomeRef.current || !criandoNova) return;
         const upper = debouncedNovoNome.toUpperCase();
         prevNovoNomeRef.current = upper;
@@ -291,7 +292,7 @@ function Add({ setAddAberto, getAdiverts }: AddProps) {
         onConfirm: () => void,
         onCancel: () => void,
         labelConfirm: string,
-        origemBusca: "nova" | number,
+        _origemBusca: "nova" | number,
         mostrarToggle: boolean
     ) => (
         <div className="add-form-box">
