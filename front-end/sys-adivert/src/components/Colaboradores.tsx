@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from "react";
 import ColabSelect from "./ColabSelect";
 
+function normalizar(s: string) {
+    return s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+}
+
 type Colab = {
     id: number;
     nome: string;
@@ -14,6 +18,14 @@ type ColabsProps = {
 function Colaboradores({ setColabAberto }: ColabsProps) {
     const [colabs, setColabs] = useState<Colab[]>([]);
     const [carregando, setCarregando] = useState(false);
+    const [busca, setBusca] = useState("");
+
+    const colabsFiltrados = busca.trim()
+        ? colabs.filter(c =>
+            normalizar(c.nome).includes(normalizar(busca)) ||
+            c.matricula.toLowerCase().includes(busca.trim().toLowerCase())
+        )
+        : colabs;
 
     const [criandoColab, setCriandoColab] = useState(false);
     const [novoNome, setNovoNome] = useState("");
@@ -237,16 +249,34 @@ function Colaboradores({ setColabAberto }: ColabsProps) {
                 ) : null;
             })()}
 
+            {/* ── Busca na lista ── */}
+            {!carregando && colabs.length > 0 && (
+                <div className="lista-busca">
+                    <input
+                        className="add-input"
+                        placeholder="🔍 Pesquisar por nome ou matrícula..."
+                        value={busca}
+                        onChange={e => setBusca(e.target.value)}
+                    />
+                </div>
+            )}
+
             {/* ── Lista de colaboradores ── */}
             <div className="colab-lista">
                 {carregando ? (
                     <p className="add-vazio">⏳ Carregando colaboradores...</p>
                 ) : colabs.length === 0 ? (
                     <p className="add-vazio">Nenhum colaborador cadastrado.</p>
+                ) : colabsFiltrados.length === 0 ? (
+                    <p className="add-vazio">Nenhum colaborador encontrado para "{busca}".</p>
                 ) : (
                     <>
                         <div className="colab-lista-info">
-                            <span className="colab-total">Total: <strong>{colabs.length}</strong> colaborador(es)</span>
+                            <span className="colab-total">
+                                {busca.trim()
+                                    ? <><strong>{colabsFiltrados.length}</strong> de {colabs.length} colaborador(es)</>
+                                    : <>Total: <strong>{colabs.length}</strong> colaborador(es)</>}
+                            </span>
                         </div>
                         <table className="colab-table">
                             <thead>
@@ -258,7 +288,7 @@ function Colaboradores({ setColabAberto }: ColabsProps) {
                                 </tr>
                             </thead>
                             <tbody>
-                                {colabs.map((c, i) => (
+                                {colabsFiltrados.map((c, i) => (
                                     <tr
                                         key={c.id}
                                         className={confirmRemoverId === c.id ? "colab-row colab-row--selecionada" : "colab-row"}

@@ -1,0 +1,11 @@
+# Saída de build do .NET
+bin/
+obj/
+
+# Arquivos de usuário / IDE
+*.user
+*.suo
+.vs/
+
+# Logs e temporários
+*.log

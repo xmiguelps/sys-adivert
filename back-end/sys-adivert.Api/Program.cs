@@ -3,6 +3,7 @@ using sys_adivert.Application.Repository;
 using sys_adivert.Application.Service;
 using sys_adivert.Infrastructure.Adiverts.Repository;
 using sys_adivert.Infrastructure.Colabs.Repository;
+using sys_adivert.Infrastructure.Motivos.Repository;
 using sys_adivert.Infrastructure.AppDb;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -28,6 +29,10 @@ builder.Services.AddScoped<IAdivertService, AdivertService>();
 // Colab
 builder.Services.AddScoped<IColabRepository, ColabRepository>();
 builder.Services.AddScoped<IColabService, ColabService>();
+
+// Motivo
+builder.Services.AddScoped<IMotivoRepository, MotivoRepository>();
+builder.Services.AddScoped<IMotivoService, MotivoService>();
 
 builder.Services.AddCors(options => {
     options.AddPolicy("PublicPolicy", policy => {

@@ -10,6 +10,7 @@ import GerarHistoricoColaborador from './components/GerarHistoricoColaborador'
 import HistoricoMotivo from './components/HistoricoMotivo'
 import GerarHistoricoMotivo from './components/GerarHistoricoMotivo'
 import ColabSelect from './components/ColabSelect'
+import Configuracoes from './components/Configuracoes'
 import { ToastContainer, showToast } from './components/Toast'
 import { downloadAdvertenciaWord } from './utils/wordAdvertencia'
 
@@ -29,6 +30,7 @@ function App() {
     const [colabs, setColabs] = useState<Colab[]>([])
     const [addAberto, setAddAberto] = useState<boolean>(false)
     const [colabAberto, setColabAberto] = useState<boolean>(false)
+    const [configAberto, setConfigAberto] = useState<boolean>(false)
     const [adiverts, setAdiverts] = useState<any[]>([])
     const [data, setData] = useState<any[]>([])
     const [carregando, setCarregando] = useState<boolean>(false)
@@ -140,6 +142,15 @@ function App() {
                 <div className='overlay'>
                     <div className='caixa caixa--colab'>
                         <Colaboradores setColabAberto={setColabAberto} />
+                    </div>
+                </div>
+            )}
+
+            {/* ── Overlay: Configurações ── */}
+            {configAberto && (
+                <div className='overlay'>
+                    <div className='caixa caixa--config'>
+                        <Configuracoes setConfigAberto={setConfigAberto} />
                     </div>
                 </div>
             )}
@@ -444,6 +455,14 @@ function App() {
                                 title="Histórico de advertências"
                             >
                                 <img className='icon buttons-menu' src="/download.png" alt="botão de histórico" />
+                            </button>
+
+                            {/* Botão: Configurações (sempre o último) */}
+                            <button
+                                onClick={() => { setConfigAberto(true); setAddAberto(false); setColabAberto(false); }}
+                                title="Configurações"
+                            >
+                                <img className='icon buttons-menu' src="/settings.png" alt="botão de configurações" />
                             </button>
                         </div>
                     </div>

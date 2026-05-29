@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import MotivosSelect from './MotivosSelect'
 import { 
     MESES_NOMES, 
@@ -30,6 +30,14 @@ type Props = {
 const HistoricoMotivo: React.FC<Props> = ({ adiverts, onVoltar, onGerar, onFechar }) => {
     const [motivoSelect, setMotivoSelect] = useState('')
     const [motivoConfirmado, setMotivoConfirmado] = useState<string | null>(null)
+    const [motivos, setMotivos] = useState<string[]>([])
+
+    useEffect(() => {
+        fetch(`${import.meta.env.VITE_API_URL}/api/Motivos`)
+            .then(r => r.ok ? r.json() : [])
+            .then((data: { id: number; descricao: string }[]) => setMotivos(data.map(m => m.descricao)))
+            .catch(() => {})
+    }, [])
     
     const atual = getAnoMesDiaAtual()
     const [filtroAno, setFiltroAno] = useState<number>(atual.ano)
@@ -83,6 +91,7 @@ const HistoricoMotivo: React.FC<Props> = ({ adiverts, onVoltar, onGerar, onFecha
                     <div style={{ flex: 1 }}>
                         <MotivosSelect
                             value={motivoSelect}
+                            motivos={motivos}
                             onChange={v => setMotivoSelect(v)}
                         />
                     </div>

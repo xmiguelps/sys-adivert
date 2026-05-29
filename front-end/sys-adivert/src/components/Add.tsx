@@ -1,4 +1,3 @@
-import motivos from "../context"
 import React, { useState, useEffect, useRef } from "react";
 import MotivosSelect from "./MotivosSelect";
 import TipoSelect from "./TipoSelect";
@@ -37,7 +36,7 @@ const campoVazio = (): Advertencia => ({
     matricula: "",
     data: dataAtualBrasil(),
     tipo: "Escrita",
-    motivo: motivos[0]?.motivo ?? "",
+    motivo: "",
 });
 
 function useDebounce(value: string, delay: number) {
@@ -105,6 +104,7 @@ function ColaboradorRow({ entry, onChange, onRemove, canRemove, colabs }: ColabR
 function Add({ setAddAberto, getAdiverts }: AddProps) {
 
     const [colabs, setColabs] = useState<Colab[]>([]);
+    const [motivos, setMotivos] = useState<string[]>([]);
     const [lista, setLista] = useState<Advertencia[]>([]);
     const [editandoIdx, setEditandoIdx] = useState<number | null>(null);
     const [editForm, setEditForm] = useState<Advertencia>(campoVazio());
@@ -118,6 +118,10 @@ function Add({ setAddAberto, getAdiverts }: AddProps) {
         fetch(`${import.meta.env.VITE_API_URL}/api/Colabs`)
             .then(r => r.ok ? r.json() : [])
             .then(setColabs)
+            .catch(() => {});
+        fetch(`${import.meta.env.VITE_API_URL}/api/Motivos`)
+            .then(r => r.ok ? r.json() : [])
+            .then((data: { id: number; descricao: string }[]) => setMotivos(data.map(m => m.descricao)))
             .catch(() => {});
     }, []);
 
@@ -359,6 +363,7 @@ function Add({ setAddAberto, getAdiverts }: AddProps) {
                 </label>
                 <MotivosSelect
                     value={form.motivo}
+                    motivos={motivos}
                     onChange={v => { onChange({ ...form, motivo: v }); setErroForm(null); }}
                     className="add-input--motivo"
                 />
@@ -452,6 +457,7 @@ function Add({ setAddAberto, getAdiverts }: AddProps) {
                     </label>
                     <MotivosSelect
                         value={novaForm.motivo}
+                        motivos={motivos}
                         onChange={v => { setNovaForm(prev => ({ ...prev, motivo: v })); setErroForm(null); }}
                         className="add-input--motivo"
                     />

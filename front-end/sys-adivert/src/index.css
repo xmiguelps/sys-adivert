@@ -41,13 +41,20 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-    width: 100vw;
+    width: 100%;
     min-height: 100vh;
+    overflow-x: hidden;
     display: flex;
     justify-content: center;
     background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
     font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
     color: var(--gray-800);
+}
+
+#root {
+    width: 100%;
+    display: flex;
+    justify-content: center;
 }
 
 /* ══════════════════════════════════════════════════
@@ -70,7 +77,8 @@ body {
     box-shadow: var(--shadow-lg);
     width: 100%;
     max-width: 1120px;
-    min-height: calc(100vh - 40px);
+    height: calc(100vh - 40px);
+    overflow: hidden;
     display: flex;
     flex-direction: column;
     gap: 16px;
@@ -189,11 +197,11 @@ body {
 
 .box-main {
     flex: 1;
+    align-self: stretch;
     display: flex;
     align-items: stretch;
     gap: 16px;
-    min-height: 350px;
-    max-height: calc(100vh - 220px);
+    min-height: 0;
 }
 
 /* ── Tabela de advertências ── */
@@ -205,20 +213,27 @@ body {
     box-shadow: var(--shadow-sm);
     display: block;
     overflow-y: auto;
-    overflow-x: auto;
-    height: fit-content;
-    max-height: calc(100vh - 260px);
+    overflow-x: hidden;
     min-height: 120px;
+    min-width: 0;
     margin-top: 0;
     scrollbar-gutter: stable;
 }
 
 .adivert {
     width: 100%;
+    table-layout: fixed;
     border-collapse: collapse;
     font-size: 13px;
     background: #fff;
 }
+
+/* Larguras das colunas (table-layout: fixed) */
+#data      { width: 95px; }
+#matricula { width: 105px; }
+#tipo      { width: 90px; }
+#nome      { width: 23%; }
+/* #motivo ocupa o restante automaticamente */
 
 .adivert thead {
     position: sticky;
@@ -447,6 +462,49 @@ button {
 .caixa--colab {
     width: 880px;
     height: auto;
+}
+
+.caixa--config {
+    width: 880px;
+    height: auto;
+}
+
+/* ── Abas do painel de Configurações ── */
+.config-tabs {
+    display: flex;
+    gap: 6px;
+    border-bottom: 2px solid var(--gray-200);
+    margin-bottom: 14px;
+}
+
+.config-tab {
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--gray-600);
+    cursor: pointer;
+    transition: color .15s, border-color .15s;
+}
+
+.config-tab:hover {
+    color: var(--red-primary);
+}
+
+.config-tab--ativa {
+    color: var(--red-primary);
+    border-bottom-color: var(--red-primary);
+}
+
+/* ── Campo de busca acima das listas (Motivos / Colaboradores) ── */
+.lista-busca {
+    margin-bottom: 10px;
+}
+
+.lista-busca .add-input {
+    width: 100%;
 }
 
 /* ══════════════════════════════════════════════════
@@ -1179,6 +1237,7 @@ select:focus { border-color: var(--blue-primary); }
     align-items: center;
     gap: 12px;
     flex-wrap: wrap;
+    flex-shrink: 0;
     background: #fff;
     border: 1px solid var(--gray-300);
     border-top: none;
@@ -1404,13 +1463,42 @@ select:focus { border-color: var(--blue-primary); }
     border-radius: var(--radius-sm);
     box-shadow: var(--shadow-md);
     z-index: 9999;
-    max-height: 340px;
+    max-height: 260px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.motivos-select__search-wrap {
+    padding: 6px;
+    border-bottom: 1px solid var(--gray-200);
+    background: #fff;
+    flex-shrink: 0;
+}
+
+.motivos-select__search {
+    width: 100%;
+    border: 1.5px solid var(--gray-300);
+    border-radius: var(--radius-sm);
+    padding: 6px 10px;
+    font-size: 12.5px;
+    font-family: inherit;
+    color: var(--gray-800);
+    outline: none;
+}
+
+.motivos-select__search:focus {
+    border-color: var(--blue-primary);
+}
+
+.motivos-select__lista {
+    flex: 1;
     overflow-y: auto;
 }
 
 .motivos-select__option {
-    padding: 9px 12px;
-    font-size: 13px;
+    padding: 8px 11px;
+    font-size: 12px;
     color: var(--gray-800);
     cursor: pointer;
     white-space: normal;
@@ -2036,27 +2124,6 @@ select:focus { border-color: var(--blue-primary); }
 .hist-tabela-wrap {
     scrollbar-color: var(--red-primary) rgba(0, 0, 0, 0.08);
     scrollbar-width: thin;
-}
-
-/* ── Motivos Select: opção "Outro" e textarea customizada ── */
-.motivos-select__option--outro {
-    border-top: 1px solid var(--border-color, #e0e0e0);
-    margin-top: 4px;
-    padding-top: 10px;
-    font-style: italic;
-    color: var(--blue-primary, #1565c0);
-    font-weight: 500;
-}
-
-.motivos-custom-textarea {
-    width: 100%;
-    resize: vertical;
-    min-height: 80px;
-    font-family: inherit;
-    font-size: 0.93rem;
-    line-height: 1.5;
-    border-radius: 6px;
-    box-sizing: border-box;
 }
 
 /* ── Modo Múltiplos Colaboradores ── */

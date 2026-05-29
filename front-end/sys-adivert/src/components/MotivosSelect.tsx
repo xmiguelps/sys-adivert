@@ -1,39 +1,28 @@
-import React, { useState, useRef, useEffect, useLayoutEffect } from 'react'
-import motivosRaw from '../context'
-
-// Já vem ordenado do context, mas garantimos aqui também
-const motivosPadrao = [...motivosRaw].sort((a, b) =>
-    a.motivo.localeCompare(b.motivo, 'pt-BR', { sensitivity: 'base' })
-).map(m => m.motivo)
+import { useState, useRef, useEffect, useLayoutEffect } from 'react'
 
 type Props = {
     value: string
     onChange: (v: string) => void
+    motivos: string[]
     className?: string
 }
 
-function MotivosSelect({ value, onChange, className }: Props) {
-    const isCustomValue = (v: string) => v !== '' && !motivosPadrao.includes(v)
+function normalizar(s: string) {
+    return s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
+}
 
+function MotivosSelect({ value, onChange, motivos, className }: Props) {
     const [open, setOpen] = useState(false)
-    const [mostrarCustom, setMostrarCustom] = useState(() => isCustomValue(value))
-    const [customValue, setCustomValue] = useState(() => isCustomValue(value) ? value : '')
+    const [query, setQuery] = useState('')
     const [dropdownPos, setDropdownPos] = useState<{ top: number; left: number; width: number }>({ top: 0, left: 0, width: 0 })
     const containerRef = useRef<HTMLDivElement>(null)
     const triggerRef = useRef<HTMLButtonElement>(null)
     const dropdownRef = useRef<HTMLDivElement>(null)
-    const skipNextEffect = useRef(false)
+    const searchRef = useRef<HTMLInputElement>(null)
 
-    useEffect(() => {
-        if (skipNextEffect.current) {
-            skipNextEffect.current = false
-            return
-        }
-        const custom = isCustomValue(value)
-        setMostrarCustom(custom)
-        if (custom) setCustomValue(value)
-        else if (!custom && value !== '') setCustomValue('')
-    }, [value])
+    const filtrados = query.trim()
+        ? motivos.filter(m => normalizar(m).includes(normalizar(query)))
+        : motivos
 
     useEffect(() => {
         const handler = (e: MouseEvent) => {
@@ -41,17 +30,22 @@ function MotivosSelect({ value, onChange, className }: Props) {
             if (
                 containerRef.current && !containerRef.current.contains(target) &&
                 dropdownRef.current && !dropdownRef.current.contains(target)
-            ) setOpen(false)
+            ) { setOpen(false); setQuery('') }
         }
         document.addEventListener('mousedown', handler)
         return () => document.removeEventListener('mousedown', handler)
     }, [])
 
     useEffect(() => {
-        const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false) }
+        const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') { setOpen(false); setQuery('') } }
         document.addEventListener('keydown', handler)
         return () => document.removeEventListener('keydown', handler)
     }, [])
+
+    // Foca o campo de busca ao abrir
+    useEffect(() => {
+        if (open) searchRef.current?.focus()
+    }, [open])
 
     useLayoutEffect(() => {
         if (!open || !triggerRef.current) return
@@ -70,27 +64,12 @@ function MotivosSelect({ value, onChange, className }: Props) {
     }, [open])
 
     const handleSelect = (m: string) => {
+        onChange(m)
         setOpen(false)
-        if (m === '__outro__') {
-            skipNextEffect.current = true
-            setMostrarCustom(true)
-            setCustomValue('')
-            onChange('')
-        } else {
-            setMostrarCustom(false)
-            setCustomValue('')
-            onChange(m)
-        }
+        setQuery('')
     }
 
-    const handleCustomChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-        setCustomValue(e.target.value)
-        onChange(e.target.value)
-    }
-
-    const triggerLabel = mostrarCustom
-        ? '✏️ Outro (digitar motivo)...'
-        : (value || 'Selecione um motivo...')
+    const triggerLabel = value || 'Selecione um motivo...'
 
     return (
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '6px' }}>
@@ -106,7 +85,7 @@ function MotivosSelect({ value, onChange, className }: Props) {
                     aria-haspopup="listbox"
                     aria-expanded={open}
                 >
-                    <span className={value && !mostrarCustom ? 'motivos-select__value' : 'motivos-select__placeholder'}>
+                    <span className={value ? 'motivos-select__value' : 'motivos-select__placeholder'}>
                         {triggerLabel}
                     </span>
                     <span className="motivos-select__arrow">▾</span>
@@ -119,47 +98,47 @@ function MotivosSelect({ value, onChange, className }: Props) {
                         role="listbox"
                         style={{ top: dropdownPos.top, left: dropdownPos.left, width: dropdownPos.width }}
                     >
-                        <div
-                            className="motivos-select__option motivos-select__option--empty"
-                            onClick={() => { onChange(''); setMostrarCustom(false); setCustomValue(''); setOpen(false) }}
-                            role="option"
-                        >
-                            Selecione um motivo...
+                        <div className="motivos-select__search-wrap">
+                            <input
+                                ref={searchRef}
+                                type="text"
+                                className="motivos-select__search"
+                                value={query}
+                                onChange={e => setQuery(e.target.value)}
+                                placeholder="🔍 Pesquisar motivo..."
+                                autoComplete="off"
+                            />
                         </div>
-                        {motivosPadrao.map(m => (
-                            <div
-                                key={m}
-                                className={`motivos-select__option ${m === value ? 'motivos-select__option--selected' : ''}`}
-                                onClick={() => handleSelect(m)}
-                                role="option"
-                                aria-selected={m === value}
-                            >
-                                {m}
-                            </div>
-                        ))}
-                        {/* Opção "Outro" sempre por último */}
-                        <div
-                            className={`motivos-select__option motivos-select__option--outro ${mostrarCustom ? 'motivos-select__option--selected' : ''}`}
-                            onClick={() => handleSelect('__outro__')}
-                            role="option"
-                            aria-selected={mostrarCustom}
-                        >
-                            ✏️ Outro (digitar motivo)...
+
+                        <div className="motivos-select__lista">
+                            {!query.trim() && (
+                                <div
+                                    className="motivos-select__option motivos-select__option--empty"
+                                    onClick={() => { onChange(''); setOpen(false); setQuery('') }}
+                                    role="option"
+                                >
+                                    Selecione um motivo...
+                                </div>
+                            )}
+                            {filtrados.length === 0 ? (
+                                <div className="motivos-select__option motivos-select__option--empty">
+                                    {motivos.length === 0 ? 'Nenhum motivo cadastrado.' : 'Nenhum motivo encontrado.'}
+                                </div>
+                            ) : filtrados.map(m => (
+                                <div
+                                    key={m}
+                                    className={`motivos-select__option ${m === value ? 'motivos-select__option--selected' : ''}`}
+                                    onClick={() => handleSelect(m)}
+                                    role="option"
+                                    aria-selected={m === value}
+                                >
+                                    {m}
+                                </div>
+                            ))}
                         </div>
                     </div>
                 )}
             </div>
-
-            {mostrarCustom && (
-                <textarea
-                    className="add-input motivos-custom-textarea"
-                    value={customValue}
-                    onChange={handleCustomChange}
-                    placeholder="Digite o motivo personalizado..."
-                    rows={3}
-                    autoFocus
-                />
-            )}
         </div>
     )
 }

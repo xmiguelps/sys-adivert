@@ -20,6 +20,7 @@ type UpdateProps = {
 function Update({ setUpdateView, getAdiverts, id, data, matricula, nome, tipo, motivo }: UpdateProps) {
 
     const [colabs, setColabs] = useState<Colab[]>([])
+    const [motivos, setMotivos] = useState<string[]>([])
     const [form, setForm] = useState({
         Nome: nome,
         matricula: matricula,
@@ -33,6 +34,10 @@ function Update({ setUpdateView, getAdiverts, id, data, matricula, nome, tipo, m
         fetch(`${import.meta.env.VITE_API_URL}/api/Colabs`)
             .then(r => r.ok ? r.json() : [])
             .then(setColabs)
+            .catch(() => {})
+        fetch(`${import.meta.env.VITE_API_URL}/api/Motivos`)
+            .then(r => r.ok ? r.json() : [])
+            .then((data: { id: number; descricao: string }[]) => setMotivos(data.map(m => m.descricao)))
             .catch(() => {})
     }, [])
 
@@ -102,6 +107,7 @@ function Update({ setUpdateView, getAdiverts, id, data, matricula, nome, tipo, m
                         <label className="add-label">Motivo:</label>
                         <MotivosSelect
                             value={form.motivo}
+                            motivos={motivos}
                             onChange={v => setForm({ ...form, motivo: v })}
                             className="add-input--motivo"
                         />
