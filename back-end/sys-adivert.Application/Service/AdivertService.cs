@@ -21,7 +21,7 @@ public class AdivertService : IAdivertService
             Adiverts = await _repository.GetByColabAsync(nome);
         }
 
-        return Adiverts.Select(a => new AdivertReadDto(a.Data, a.Matricula, a.Nome, a.Tipo, a.Motivo, a.Id));
+        return Adiverts.Select(a => new AdivertReadDto(a.Data, a.Matricula, a.Nome, a.Tipo, a.Motivo, a.Assinada, a.Id));
     }
 
     public async Task<AdivertReadDto?> GetByIdAsync(int id)
@@ -31,7 +31,7 @@ public class AdivertService : IAdivertService
         {
             return null;
         }
-        return new AdivertReadDto(adivert.Data, adivert.Matricula, adivert.Nome, adivert.Tipo, adivert.Motivo, adivert.Id);
+        return new AdivertReadDto(adivert.Data, adivert.Matricula, adivert.Nome, adivert.Tipo, adivert.Motivo, adivert.Assinada, adivert.Id);
     }
 
     public async Task<bool> CreateAsync(AdivertCreateDto dto) {
@@ -48,6 +48,16 @@ public class AdivertService : IAdivertService
         if (adivert is null) return false;
 
         adivert.Update(dto.Data, dto.Matricula, dto.Nome, dto.Tipo, dto.Motivo);
+        await _repository.UpdateAsync(adivert);
+
+        return true;
+    }
+
+    public async Task<bool> SetAssinaturaAsync(int id, bool assinada) {
+        var adivert = await _repository.GetByIdAsync(id);
+        if (adivert is null) return false;
+
+        adivert.MarcarAssinatura(assinada);
         await _repository.UpdateAsync(adivert);
 
         return true;

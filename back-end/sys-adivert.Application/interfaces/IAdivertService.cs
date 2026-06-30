@@ -14,5 +14,7 @@ public interface IAdivertService
 
     Task<bool> UpdateAsync(int id, AdivertUpdateDto dto);
 
+    Task<bool> SetAssinaturaAsync(int id, bool assinada);
+
     Task<bool> DeleteAsync(int id);
 }

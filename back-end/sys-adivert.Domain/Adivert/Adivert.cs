@@ -12,6 +12,8 @@ public class Adivert
 
     public string Motivo {get; set;}
 
+    public bool Assinada {get; set;}
+
     public int Id {get; set;}
 
     public Adivert(DateOnly data, string matricula, string motivo, string nome, string tipo)
@@ -21,6 +23,12 @@ public class Adivert
         Motivo = motivo;
         Nome = nome;
         Tipo = tipo;
+        Assinada = false;
+    }
+
+    public void MarcarAssinatura(bool assinada)
+    {
+        Assinada = assinada;
     }
 
     public void Update(DateOnly data, string? matricula, string? nome, string? tipo, string? motivo)

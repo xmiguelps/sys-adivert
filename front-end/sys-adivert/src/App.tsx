@@ -72,6 +72,28 @@ function App() {
         }
     }
 
+    // Marca/desmarca uma advertência como assinada (persiste no backend)
+    const toggleAssinatura = async (id: number, assinada: boolean) => {
+        try {
+            const response = await fetch(
+                `${import.meta.env.VITE_API_URL}/api/Adiverts/${id}/assinatura`,
+                {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ assinada })
+                }
+            );
+            if (!response.ok) throw new Error(`Erro: ${response.status}`);
+            await getAdiverts();
+            showToast(
+                assinada ? 'Advertência marcada como assinada.' : 'Marcação de assinatura removida.',
+                'success'
+            );
+        } catch {
+            showToast('Erro ao atualizar a assinatura.', 'error');
+        }
+    }
+
     const getAdiverts = async (nomeParam?: string) => {
         const buscaNome = nomeParam !== undefined ? nomeParam : nome
         setCarregando(true);
@@ -229,6 +251,13 @@ function App() {
                                 <span className="inspecionar-label">⚠️ Motivo</span>
                                 <span className="inspecionar-motivo">{selectedAdivert.motivo}</span>
                             </div>
+                            <div className="inspecionar-divider" />
+                            <div className="inspecionar-campo">
+                                <span className="inspecionar-label">✍️ Assinatura</span>
+                                <span className={`assinada-badge ${selectedAdivert.assinada ? 'assinada-badge--sim' : 'assinada-badge--nao'}`}>
+                                    {selectedAdivert.assinada ? '✅ Assinada' : '⬜ Pendente'}
+                                </span>
+                            </div>
                         </div>
 
                         <div className="inspecionar-rodape">
@@ -364,12 +393,13 @@ function App() {
                                                 <th className='adivert-column' id='nome'>Nome</th>
                                                 <th className='adivert-column' id='tipo'>Tipo</th>
                                                 <th className='adivert-column' id='motivo'>Motivo</th>
+                                                <th className='adivert-column' id='assinada'>Assinada</th>
                                             </tr>
                                         </thead>
                                         {adiverts.length === 0 ? (
                                             <tbody>
                                                 <tr>
-                                                    <td colSpan={5} className="tabela-vazia">
+                                                    <td colSpan={6} className="tabela-vazia">
                                                         <span className="tabela-vazia__icone">📋</span>
                                                         <span className="tabela-vazia__texto">Nenhuma advertência registrada</span>
                                                     </td>
@@ -383,9 +413,11 @@ function App() {
                                                 nome={adivert.nome}
                                                 tipo={adivert.tipo}
                                                 motivo={adivert.motivo}
+                                                assinada={!!adivert.assinada}
                                                 id={adivert.id}
                                                 selectedId={selectedId}
                                                 setSelectedId={setSelectedId}
+                                                onToggleAssinatura={toggleAssinatura}
                                             />
                                         ))}
                                     </table>

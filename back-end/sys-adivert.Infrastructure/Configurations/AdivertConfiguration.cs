@@ -15,5 +15,6 @@ public class AdivertConfiguration : IEntityTypeConfiguration<Adivert>
         builder.Property(c => c.Nome).HasMaxLength(255);
         builder.Property(c => c.Motivo).HasMaxLength(455);
         builder.Property(c => c.Tipo).HasMaxLength(100);
+        builder.Property(c => c.Assinada).HasDefaultValue(false);
     }
 }

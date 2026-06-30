@@ -882,6 +882,7 @@ select:focus { border-color: var(--blue-primary); }
 .adivert thead th#nome       { width: 20%;   }
 .adivert thead th#tipo       { width: 75px;  }
 .adivert thead th#motivo     { width: 32%;   }
+.adivert thead th#assinada   { width: 104px; }
 .adivert thead th#actions    { width: 140px; }
 
 /* Colunas de dados — evitar overflow com ellipsis */
@@ -895,6 +896,13 @@ select:focus { border-color: var(--blue-primary); }
 
 .tipo-dado {
     white-space: nowrap;
+}
+
+/* Coluna "Assinada" da tabela inicial — compacta e centralizada */
+.assinada-dado {
+    text-align: center;
+    padding-left: 4px;
+    padding-right: 4px;
 }
 
 /* ══════════════════════════════════════════════════
@@ -1013,6 +1021,58 @@ select:focus { border-color: var(--blue-primary); }
     background: #fff3e0;
     color: var(--orange);
     border: 1px solid #ffcc80;
+}
+
+/* ── Marcação de assinatura ── */
+
+/* Toggle clicável na tabela principal */
+.assinada-toggle {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 999px;
+    cursor: pointer;
+    letter-spacing: 0.2px;
+    white-space: nowrap;
+    transition: filter 0.15s ease, transform 0.05s ease;
+}
+
+.assinada-toggle:hover { filter: brightness(0.96); }
+.assinada-toggle:active { transform: scale(0.97); }
+
+.assinada-toggle--sim {
+    background: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #a5d6a7;
+}
+
+.assinada-toggle--nao {
+    background: #f5f5f5;
+    color: #757575;
+    border: 1px solid #d6d6d6;
+}
+
+/* Badge somente-leitura (Inspecionar e Históricos) */
+.assinada-badge {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 999px;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+}
+
+.assinada-badge--sim {
+    background: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #a5d6a7;
+}
+
+.assinada-badge--nao {
+    background: #f5f5f5;
+    color: #757575;
+    border: 1px solid #d6d6d6;
 }
 
 .inspecionar-rodape {

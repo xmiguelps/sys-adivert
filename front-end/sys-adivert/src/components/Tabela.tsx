@@ -4,12 +4,14 @@ type TabelaProps = {
     nome: string;
     tipo: string;
     motivo: string;
+    assinada: boolean;
     id: number;
     selectedId: number | null;
     setSelectedId: (id: number | null) => void;
+    onToggleAssinatura: (id: number, assinada: boolean) => void;
 }
 
-function Tabela({ data, matricula, nome, tipo, motivo, id, selectedId, setSelectedId }: TabelaProps) {
+function Tabela({ data, matricula, nome, tipo, motivo, assinada, id, selectedId, setSelectedId, onToggleAssinatura }: TabelaProps) {
 
     // Parse as local date to avoid UTC-offset shifting the day (e.g. UTC-3 turns
     // "2026-04-21T00:00:00Z" into "20/04/2026" instead of the correct "21/04/2026")
@@ -42,6 +44,20 @@ function Tabela({ data, matricula, nome, tipo, motivo, id, selectedId, setSelect
                 <td className='adivert-dado tipo-dado'>{tipo}</td>
                 <td className='adivert-dado motivo-dado' title={motivo}>
                     {motivo}
+                </td>
+                <td
+                    className='adivert-dado assinada-dado'
+                    onClick={e => e.stopPropagation()}
+                >
+                    <button
+                        type='button'
+                        className={`assinada-toggle ${assinada ? 'assinada-toggle--sim' : 'assinada-toggle--nao'}`}
+                        onClick={() => onToggleAssinatura(id, !assinada)}
+                        aria-pressed={assinada}
+                        title={assinada ? 'Assinada — clique para desmarcar' : 'Pendente — clique para marcar como assinada'}
+                    >
+                        {assinada ? '✅ Assinada' : '⬜ Pendente'}
+                    </button>
                 </td>
             </tr>
         </tbody>

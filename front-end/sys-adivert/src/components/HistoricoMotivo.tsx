@@ -18,6 +18,7 @@ type Adivert = {
     nome: string
     tipo: string
     motivo: string
+    assinada?: boolean
 }
 
 type Props = {
@@ -128,12 +129,13 @@ const HistoricoMotivo: React.FC<Props> = ({ adiverts, onVoltar, onGerar, onFecha
                                             <th>Nome</th>
                                             <th>Tipo</th>
                                             <th>Motivo</th>
+                                            <th>Assinada</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {historicoFiltrado.length === 0 ? (
                                             <tr>
-                                                <td colSpan={5} className="hist-td-vazio">
+                                                <td colSpan={6} className="hist-td-vazio">
                                                     Nenhuma advertência no período selecionado.
                                                 </td>
                                             </tr>
@@ -144,6 +146,11 @@ const HistoricoMotivo: React.FC<Props> = ({ adiverts, onVoltar, onGerar, onFecha
                                                 <td>{a.nome}</td>
                                                 <td>{a.tipo}</td>
                                                 <td className="hist-td-motivo" title={a.motivo}>{a.motivo}</td>
+                                                <td>
+                                                    <span className={`assinada-badge ${a.assinada ? 'assinada-badge--sim' : 'assinada-badge--nao'}`}>
+                                                        {a.assinada ? '✅ Assinada' : '⬜ Pendente'}
+                                                    </span>
+                                                </td>
                                             </tr>
                                         ))}
                                     </tbody>

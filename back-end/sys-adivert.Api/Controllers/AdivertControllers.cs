@@ -44,6 +44,14 @@ public class AdivertsController : ControllerBase
         return Ok();
     }
 
+    [HttpPatch("{id}/assinatura")]
+    public async Task<IActionResult> SetAssinatura(int id, [FromBody] AdivertAssinaturaDto dto)
+    {
+        bool validacao = await _adivertService.SetAssinaturaAsync(id, dto.Assinada);
+        if (validacao == false) return NotFound();
+        return Ok();
+    }
+
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
