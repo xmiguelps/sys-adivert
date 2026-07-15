@@ -4,8 +4,8 @@ import {
     isMesFuturo, isDataFutura, diasNoMes,
     filtrarPorMes, filtrarPorDia,
 } from '../utils/datas'
-import { downloadAdvertenciasMultiWord } from '../utils/wordAdvertencia'
-import type { AdvertenciaDoc } from '../utils/wordAdvertencia'
+import { downloadAdvertenciasMultiPdf } from '../utils/pdfAdvertencia'
+import type { AdvertenciaDoc } from '../utils/pdfAdvertencia'
 import { showToast } from './Toast'
 
 type Adivert = {
@@ -15,6 +15,7 @@ type Adivert = {
     nome: string
     tipo: string
     motivo: string
+    complemento?: string | null
 }
 
 type Props = {
@@ -59,6 +60,7 @@ const GerarHistoricoMotivo: React.FC<Props> = ({ adiverts, motivoConfirmado, onV
         matricula: a.matricula,
         motivo: a.motivo,
         tipo: a.tipo,
+        complemento: a.complemento ?? null,
     })
 
     const gerarMes = async () => {
@@ -69,11 +71,11 @@ const GerarHistoricoMotivo: React.FC<Props> = ({ adiverts, motivoConfirmado, onV
         }
         setBaixando(true)
         try {
-            const filename = `historico_motivo_${MESES_NOMES[mes]}_${ano}.docx`
-            await downloadAdvertenciasMultiWord(doMes.map(toDoc), filename)
-            showToast(`${doMes.length} advertência(s) gerada(s) em Word!`, 'success')
+            const filename = `historico_motivo_${MESES_NOMES[mes]}_${ano}.pdf`
+            await downloadAdvertenciasMultiPdf(doMes.map(toDoc), filename)
+            showToast(`${doMes.length} advertência(s) gerada(s) em PDF!`, 'success')
         } catch {
-            showToast('Erro ao gerar documentos Word.', 'error')
+            showToast('Erro ao gerar o PDF.', 'error')
         } finally {
             setBaixando(false)
         }
@@ -89,11 +91,11 @@ const GerarHistoricoMotivo: React.FC<Props> = ({ adiverts, motivoConfirmado, onV
         try {
             const ddStr = String(dia).padStart(2, '0')
             const mmStr = String(mes + 1).padStart(2, '0')
-            const filename = `historico_motivo_${ddStr}-${mmStr}-${ano}.docx`
-            await downloadAdvertenciasMultiWord(doDia.map(toDoc), filename)
-            showToast(`${doDia.length} advertência(s) gerada(s) em Word!`, 'success')
+            const filename = `historico_motivo_${ddStr}-${mmStr}-${ano}.pdf`
+            await downloadAdvertenciasMultiPdf(doDia.map(toDoc), filename)
+            showToast(`${doDia.length} advertência(s) gerada(s) em PDF!`, 'success')
         } catch {
-            showToast('Erro ao gerar documentos Word.', 'error')
+            showToast('Erro ao gerar o PDF.', 'error')
         } finally {
             setBaixando(false)
         }
@@ -184,7 +186,7 @@ const GerarHistoricoMotivo: React.FC<Props> = ({ adiverts, motivoConfirmado, onV
                             onClick={gerarMes}
                             disabled={baixando || futuroMes || doMes.length === 0}
                         >
-                            {baixando ? '⏳ Gerando...' : '📝 Gerar Adivertencias por Motivo'}
+                            {baixando ? '⏳ Gerando...' : '📄 Gerar Advertências em PDF'}
                         </button>
                     </div>
                 </div>
@@ -258,7 +260,7 @@ const GerarHistoricoMotivo: React.FC<Props> = ({ adiverts, motivoConfirmado, onV
                             onClick={gerarDia}
                             disabled={baixando || futuroDia || doDia.length === 0}
                         >
-                            {baixando ? '⏳ Gerando...' : '📝 Gerar Adivertencias por Motivo'}
+                            {baixando ? '⏳ Gerando...' : '📄 Gerar Advertências em PDF'}
                         </button>
                     </div>
                 </div>

@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import MotivosSelect from "./MotivosSelect";
 import TipoSelect from "./TipoSelect";
 import ColabSelect from "./ColabSelect";
+import EvidenciasUploader from "./EvidenciasUploader";
+import type { EvidenciaLocal } from "../utils/imagem";
 import { showToast } from "./Toast";
 
 type Advertencia = {
@@ -10,12 +12,16 @@ type Advertencia = {
     data: string;
     tipo: string;
     motivo: string;
+    complemento: string;
+    evidencias: EvidenciaLocal[];
 }
 
 type ColabEntry = {
     id: number;
     Nome: string;
     matricula: string;
+    complemento: string;
+    evidencias: EvidenciaLocal[];
 }
 
 type Colab = { id: number; nome: string; matricula: string }
@@ -37,6 +43,24 @@ const campoVazio = (): Advertencia => ({
     data: dataAtualBrasil(),
     tipo: "Escrita",
     motivo: "",
+    complemento: "",
+    evidencias: [],
+});
+
+// Monta o corpo do POST a partir do form (remove o previewUrl das evidencias
+// para nao duplicar os dados da imagem no envio).
+const toCreatePayload = (adv: Advertencia) => ({
+    data: adv.data,
+    matricula: adv.matricula,
+    nome: adv.Nome,
+    tipo: adv.tipo,
+    motivo: adv.motivo,
+    complemento: adv.complemento.trim() ? adv.complemento : null,
+    evidencias: adv.evidencias.map(e => ({
+        contentType: e.contentType,
+        base64: e.base64,
+        nomeArquivo: e.nomeArquivo,
+    })),
 });
 
 function useDebounce(value: string, delay: number) {
@@ -60,41 +84,62 @@ function validarForm(form: Advertencia): string | null {
 /* Sub-componente para linha de colaborador no modo múltiplo */
 type ColabRowProps = {
     entry: ColabEntry;
-    onChange: (id: number, field: "Nome" | "matricula", value: string) => void;
+    onChangeCampo: (id: number, field: "Nome" | "matricula" | "complemento", value: string) => void;
+    onColabSelect: (id: number, nome: string, matricula: string) => void;
+    onChangeEvidencias: (id: number, evs: EvidenciaLocal[]) => void;
     onRemove: (id: number) => void;
     canRemove: boolean;
     colabs: Colab[];
+    individual: boolean;
 }
 
-function ColaboradorRow({ entry, onChange, onRemove, canRemove, colabs }: ColabRowProps) {
+function ColaboradorRow({
+    entry, onChangeCampo, onColabSelect, onChangeEvidencias, onRemove, canRemove, colabs, individual,
+}: ColabRowProps) {
     return (
-        <div className="add-colab-row">
-            <div className="add-colab-nome-wrapper">
-                <ColabSelect
-                    nome={entry.Nome}
-                    colabs={colabs}
-                    onNomeChange={v => onChange(entry.id, "Nome", v)}
-                    onColabSelect={(nome, matricula) => {
-                        onChange(entry.id, "Nome", nome);
-                        onChange(entry.id, "matricula", matricula);
-                    }}
-                    placeholder="Nome do colaborador"
+        <div className={`add-colab-row ${individual ? "add-colab-row--individual" : ""}`}>
+            <div className="add-colab-linha-principal">
+                <div className="add-colab-nome-wrapper">
+                    <ColabSelect
+                        nome={entry.Nome}
+                        colabs={colabs}
+                        onNomeChange={v => onChangeCampo(entry.id, "Nome", v)}
+                        onColabSelect={(nome, matricula) => onColabSelect(entry.id, nome, matricula)}
+                        placeholder="Nome do colaborador"
+                    />
+                </div>
+                <input
+                    className="add-input add-input--matricula"
+                    value={entry.matricula}
+                    onChange={e => onChangeCampo(entry.id, "matricula", e.target.value)}
+                    placeholder="Matrícula"
                 />
+                {canRemove && (
+                    <button
+                        className="add-btn-remover-colab"
+                        onClick={() => onRemove(entry.id)}
+                        title="Remover colaborador"
+                    >
+                        ✕
+                    </button>
+                )}
             </div>
-            <input
-                className="add-input add-input--matricula"
-                value={entry.matricula}
-                onChange={e => onChange(entry.id, "matricula", e.target.value)}
-                placeholder="Matrícula"
-            />
-            {canRemove && (
-                <button
-                    className="add-btn-remover-colab"
-                    onClick={() => onRemove(entry.id)}
-                    title="Remover colaborador"
-                >
-                    ✕
-                </button>
+
+            {individual && (
+                <div className="add-colab-individual-extra">
+                    <textarea
+                        className="add-input add-textarea"
+                        value={entry.complemento}
+                        onChange={e => onChangeCampo(entry.id, "complemento", e.target.value)}
+                        placeholder="Complemento (opcional) — deste colaborador"
+                        rows={3}
+                    />
+                    <EvidenciasUploader
+                        novas={entry.evidencias}
+                        onChangeNovas={evs => onChangeEvidencias(entry.id, evs)}
+                        label="Evidências (opcional) — deste colaborador:"
+                    />
+                </div>
             )}
         </div>
     );
@@ -127,8 +172,9 @@ function Add({ setAddAberto, getAdiverts }: AddProps) {
 
     /* Modo múltiplos colaboradores */
     const [modoMultiplo, setModoMultiplo] = useState(false);
+    const [loteMesmoParaTodos, setLoteMesmoParaTodos] = useState(true);
     const [colabsMultiplo, setColabsMultiplo] = useState<ColabEntry[]>([
-        { id: 1, Nome: "", matricula: "" }
+        { id: 1, Nome: "", matricula: "", complemento: "", evidencias: [] }
     ]);
     const nextId = useRef(2);
 
@@ -140,7 +186,7 @@ function Add({ setAddAberto, getAdiverts }: AddProps) {
 
     /* Modo único — nova: uppercase + busca matrícula via debounce */
     useEffect(() => {
-        
+
         if (!debouncedNovoNome || debouncedNovoNome === prevNovoNomeRef.current || !criandoNova) return;
         const upper = debouncedNovoNome.toUpperCase();
         prevNovoNomeRef.current = upper;
@@ -186,7 +232,8 @@ function Add({ setAddAberto, getAdiverts }: AddProps) {
         setEditandoIdx(null);
         setErroForm(null);
         setModoMultiplo(false);
-        setColabsMultiplo([{ id: nextId.current++, Nome: "", matricula: "" }]);
+        setLoteMesmoParaTodos(true);
+        setColabsMultiplo([{ id: nextId.current++, Nome: "", matricula: "", complemento: "", evidencias: [] }]);
     };
 
     const confirmarNova = () => {
@@ -221,12 +268,20 @@ function Add({ setAddAberto, getAdiverts }: AddProps) {
     };
 
     /* Ações modo múltiplo */
-    const alterarColab = (id: number, field: "Nome" | "matricula", value: string) => {
+    const alterarColabCampo = (id: number, field: "Nome" | "matricula" | "complemento", value: string) => {
         setColabsMultiplo(prev => prev.map(c => c.id === id ? { ...c, [field]: value } : c));
     };
 
+    const selecionarColab = (id: number, nome: string, matricula: string) => {
+        setColabsMultiplo(prev => prev.map(c => c.id === id ? { ...c, Nome: nome, matricula } : c));
+    };
+
+    const alterarColabEvidencias = (id: number, evs: EvidenciaLocal[]) => {
+        setColabsMultiplo(prev => prev.map(c => c.id === id ? { ...c, evidencias: evs } : c));
+    };
+
     const adicionarColab = () => {
-        setColabsMultiplo(prev => [...prev, { id: nextId.current++, Nome: "", matricula: "" }]);
+        setColabsMultiplo(prev => [...prev, { id: nextId.current++, Nome: "", matricula: "", complemento: "", evidencias: [] }]);
     };
 
     const removerColab = (id: number) => {
@@ -250,11 +305,13 @@ function Add({ setAddAberto, getAdiverts }: AddProps) {
             data: novaForm.data,
             tipo: novaForm.tipo,
             motivo: novaForm.motivo,
+            complemento: loteMesmoParaTodos ? novaForm.complemento : c.complemento,
+            evidencias: [...(loteMesmoParaTodos ? novaForm.evidencias : c.evidencias)],
         }));
         setLista(prev => [...prev, ...novas]);
         setCriandoNova(false);
         setModoMultiplo(false);
-        setColabsMultiplo([{ id: nextId.current++, Nome: "", matricula: "" }]);
+        setColabsMultiplo([{ id: nextId.current++, Nome: "", matricula: "", complemento: "", evidencias: [] }]);
     };
 
     /* Salvar tudo na API */
@@ -270,7 +327,7 @@ function Add({ setAddAberto, getAdiverts }: AddProps) {
                     fetch(`${import.meta.env.VITE_API_URL}/api/Adiverts`, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(adv),
+                        body: JSON.stringify(toCreatePayload(adv)),
                     })
                 )
             );
@@ -289,6 +346,37 @@ function Add({ setAddAberto, getAdiverts }: AddProps) {
         }
     };
 
+    /* Seletor de modo: deixa claro que há duas formas de criar */
+    const renderModoSeletor = (ativo: "individual" | "multiplo") => (
+        <div className="add-modo-seletor">
+            <span className="add-modo-seletor-titulo">Selecione um modo</span>
+            <div className="add-modo-tabs">
+                <button
+                    type="button"
+                    className={`add-modo-tab ${ativo === "individual" ? "add-modo-tab--ativo" : ""}`}
+                    onClick={() => { setModoMultiplo(false); setErroForm(null); }}
+                >
+                    <span className="add-modo-tab-icone">👤</span>
+                    <span className="add-modo-tab-texto">
+                        <strong>Individual</strong>
+                        <small>Um colaborador</small>
+                    </span>
+                </button>
+                <button
+                    type="button"
+                    className={`add-modo-tab ${ativo === "multiplo" ? "add-modo-tab--ativo" : ""}`}
+                    onClick={() => { setModoMultiplo(true); setErroForm(null); }}
+                >
+                    <span className="add-modo-tab-icone">👥</span>
+                    <span className="add-modo-tab-texto">
+                        <strong>Vários colaboradores</strong>
+                        <small>Aplica a mesma advertência a vários de uma vez</small>
+                    </span>
+                </button>
+            </div>
+        </div>
+    );
+
     /* Render: form modo único */
     const renderFormUnico = (
         form: Advertencia,
@@ -300,17 +388,7 @@ function Add({ setAddAberto, getAdiverts }: AddProps) {
         mostrarToggle: boolean
     ) => (
         <div className="add-form-box">
-            {mostrarToggle && (
-                <div className="add-modo-toggle-bar">
-                    <button
-                        className="add-btn-modo-toggle btn"
-                        onClick={() => { setModoMultiplo(true); setErroForm(null); }}
-                        title="Ativar modo múltiplos colaboradores"
-                    >
-                        👥 Múltiplos Colaboradores
-                    </button>
-                </div>
-            )}
+            {mostrarToggle && renderModoSeletor("individual")}
 
             <div className="add-form-row">
                 <label className="add-label">
@@ -369,6 +447,22 @@ function Add({ setAddAberto, getAdiverts }: AddProps) {
                 />
             </div>
 
+            <div className="add-form-row add-form-row--coluna">
+                <label className="add-label">Complemento (opcional):</label>
+                <textarea
+                    className="add-input add-textarea"
+                    value={form.complemento}
+                    onChange={e => { onChange({ ...form, complemento: e.target.value }); setErroForm(null); }}
+                    placeholder="Texto complementar — aparece abaixo do motivo, na 1ª página do PDF"
+                    rows={4}
+                />
+            </div>
+
+            <EvidenciasUploader
+                novas={form.evidencias}
+                onChangeNovas={evs => onChange({ ...form, evidencias: evs })}
+            />
+
             {erroForm && <div className="add-erro-form">⚠️ {erroForm}</div>}
 
             <div className="add-form-acoes">
@@ -383,15 +477,27 @@ function Add({ setAddAberto, getAdiverts }: AddProps) {
 
     const renderFormMultiplo = () => (
         <div className="add-form-box add-form-box--multiplo">
-            <div className="add-modo-toggle-bar">
-                <span className="add-modo-label">👥 Múltiplos Colaboradores</span>
-                <button
-                    className="add-btn-modo-voltar btn"
-                    onClick={() => { setModoMultiplo(false); setErroForm(null); }}
-                    title="Voltar para modo individual"
-                >
-                    ← Modo Individual
-                </button>
+            {renderModoSeletor("multiplo")}
+
+            {/* Como aplicar complemento/evidências */}
+            <div className="add-lote-toggle">
+                <span className="add-lote-toggle-label">Complemento e evidências:</span>
+                <div className="add-lote-toggle-botoes">
+                    <button
+                        type="button"
+                        className={`add-lote-opcao ${loteMesmoParaTodos ? "add-lote-opcao--ativo" : ""}`}
+                        onClick={() => setLoteMesmoParaTodos(true)}
+                    >
+                        Iguais para todos
+                    </button>
+                    <button
+                        type="button"
+                        className={`add-lote-opcao ${!loteMesmoParaTodos ? "add-lote-opcao--ativo" : ""}`}
+                        onClick={() => setLoteMesmoParaTodos(false)}
+                    >
+                        Individuais por colaborador
+                    </button>
+                </div>
             </div>
 
             {/* Lista de colaboradores */}
@@ -401,20 +507,24 @@ function Add({ setAddAberto, getAdiverts }: AddProps) {
                     <span className="add-multiplo-hint">Nome preenchido → matrícula automática</span>
                 </div>
 
-                <div className="add-multiplo-cols-header">
-                    <span>Nome <span className="campo-obrigatorio">*</span></span>
-                    <span>Matrícula <span className="campo-obrigatorio">*</span></span>
-                </div>
+                {!loteMesmoParaTodos && (
+                    <div className="add-multiplo-cols-header">
+                        <span>Nome <span className="campo-obrigatorio">*</span> / Matrícula <span className="campo-obrigatorio">*</span> + complemento e evidências</span>
+                    </div>
+                )}
 
                 <div className="add-colabs-lista">
                     {colabsMultiplo.map(entry => (
                         <ColaboradorRow
                             key={entry.id}
                             entry={entry}
-                            onChange={alterarColab}
+                            onChangeCampo={alterarColabCampo}
+                            onColabSelect={selecionarColab}
+                            onChangeEvidencias={alterarColabEvidencias}
                             onRemove={removerColab}
                             canRemove={colabsMultiplo.length > 1}
                             colabs={colabs}
+                            individual={!loteMesmoParaTodos}
                         />
                     ))}
                 </div>
@@ -462,6 +572,26 @@ function Add({ setAddAberto, getAdiverts }: AddProps) {
                         className="add-input--motivo"
                     />
                 </div>
+
+                {loteMesmoParaTodos && (
+                    <>
+                        <div className="add-form-row add-form-row--coluna">
+                            <label className="add-label">Complemento (opcional):</label>
+                            <textarea
+                                className="add-input add-textarea"
+                                value={novaForm.complemento}
+                                onChange={e => { setNovaForm(prev => ({ ...prev, complemento: e.target.value })); setErroForm(null); }}
+                                placeholder="Texto complementar — aplicado a todos os colaboradores"
+                                rows={4}
+                            />
+                        </div>
+                        <EvidenciasUploader
+                            novas={novaForm.evidencias}
+                            onChangeNovas={evs => setNovaForm(prev => ({ ...prev, evidencias: evs }))}
+                            label="Evidências (opcional) — aplicadas a todos:"
+                        />
+                    </>
+                )}
             </div>
 
             {erroForm && <div className="add-erro-form">⚠️ {erroForm}</div>}
@@ -507,6 +637,8 @@ function Add({ setAddAberto, getAdiverts }: AddProps) {
                                         <span className="add-card-nome">{adv.Nome || "—"}</span>
                                         <span className="add-card-sub">
                                             Mat: {adv.matricula} &nbsp;|&nbsp; {adv.data} &nbsp;|&nbsp; {adv.tipo}
+                                            {adv.evidencias.length > 0 && <> &nbsp;|&nbsp; 📎 {adv.evidencias.length}</>}
+                                            {adv.complemento.trim() && <> &nbsp;|&nbsp; 📝</>}
                                         </span>
                                         <span className="add-card-motivo" title={adv.motivo}>
                                             {adv.motivo.length > 85 ? adv.motivo.substring(0, 85) + "…" : adv.motivo}

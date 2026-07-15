@@ -12,7 +12,8 @@ import GerarHistoricoMotivo from './components/GerarHistoricoMotivo'
 import ColabSelect from './components/ColabSelect'
 import Configuracoes from './components/Configuracoes'
 import { ToastContainer, showToast } from './components/Toast'
-import { downloadAdvertenciaWord } from './utils/wordAdvertencia'
+import { downloadAdvertenciaPdf, getAdvertenciaPdfBlob } from './utils/pdfAdvertencia'
+import JSZip from 'jszip'
 
 type Colab = { id: number; nome: string; matricula: string }
 
@@ -23,6 +24,22 @@ type HistView =
     | 'gerar-colaborador'
     | 'motivo'
     | 'gerar-motivo'
+
+// Dispara o download de um Blob no navegador
+const baixarBlob = (blob: Blob, filename: string) => {
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = filename
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+    URL.revokeObjectURL(url)
+}
+
+// Nome de arquivo seguro a partir do nome do colaborador
+const sanitizeNome = (nome: string) =>
+    (nome || 'advertencia').trim().replace(/\s+/g, '_').replace(/[\\/:*?"<>|]+/g, '')
 
 function App() {
 
@@ -35,13 +52,29 @@ function App() {
     const [data, setData] = useState<any[]>([])
     const [carregando, setCarregando] = useState<boolean>(false)
 
-    // Seleção de linha
-    const [selectedId, setSelectedId] = useState<number | null>(null)
+    // Seleção de linha (múltipla — segure Ctrl para selecionar várias)
+    const [selectedIds, setSelectedIds] = useState<number[]>([])
+    const selectedId = selectedIds.length === 1 ? selectedIds[0] : null
+
+    const onRowSelect = (id: number, ctrl: boolean) => {
+        setSelectedIds(prev => {
+            if (ctrl) {
+                return prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+            }
+            // clique simples: seleciona só essa (ou desmarca se já era a única)
+            return prev.length === 1 && prev[0] === id ? [] : [id]
+        })
+    }
 
     // Modais de ação
     const [excluirView, setExcluirView] = useState<boolean>(false)
     const [updateView, setUpdateView] = useState<boolean>(false)
     const [inspecionarView, setInspecionarView] = useState<boolean>(false)
+    const [inspDetalhe, setInspDetalhe] = useState<{ complemento?: string | null; evidencias?: any[] } | null>(null)
+    const [inspCarregando, setInspCarregando] = useState<boolean>(false)
+    const [lightboxUrl, setLightboxUrl] = useState<string | null>(null)
+    const [baixarLoteView, setBaixarLoteView] = useState<boolean>(false)
+    const [baixandoLote, setBaixandoLote] = useState<boolean>(false)
 
     // Fluxo de histórico
     const [histView, setHistView] = useState<HistView>(null)
@@ -56,19 +89,92 @@ function App() {
         setHistMotivo('')
     }
 
-    // Baixa o Word da advertência selecionada
-    const downloadWordLinha = async (adivert: any) => {
+    // Baixa o PDF da advertência selecionada (com complemento e evidências)
+    const downloadPdfLinha = async (adivert: any) => {
         try {
-            await downloadAdvertenciaWord({
+            const resp = await fetch(
+                `${import.meta.env.VITE_API_URL}/api/Adiverts/${adivert.id}`,
+                { headers: { Accept: 'application/json' } }
+            )
+            const detalhe = resp.ok ? await resp.json() : null
+            await downloadAdvertenciaPdf({
                 data: adivert.data,
                 nome: adivert.nome,
                 matricula: adivert.matricula,
                 motivo: adivert.motivo,
                 tipo: adivert.tipo,
+                complemento: detalhe?.complemento ?? adivert.complemento ?? null,
+                evidencias: (detalhe?.evidencias ?? []).map((e: any) => ({
+                    contentType: e.contentType,
+                    base64: e.base64,
+                })),
             })
-            showToast('Documento Word gerado com sucesso!', 'success')
+            showToast('PDF gerado com sucesso!', 'success')
         } catch {
-            showToast('Erro ao gerar documento Word.', 'error')
+            showToast('Erro ao gerar o PDF.', 'error')
+        }
+    }
+
+    // Baixa TODAS as advertências selecionadas — um PDF por advertência, tudo em um .zip
+    const confirmarDownloadLote = async () => {
+        setBaixandoLote(true)
+        try {
+            const zip = new JSZip()
+            const usados = new Set<string>()
+            let adicionados = 0
+
+            for (const id of selectedIds) {
+                const base = adiverts.find(a => a.id === id)
+                if (!base) continue
+
+                let det: any = null
+                try {
+                    const resp = await fetch(
+                        `${import.meta.env.VITE_API_URL}/api/Adiverts/${id}`,
+                        { headers: { Accept: 'application/json' } }
+                    )
+                    det = resp.ok ? await resp.json() : null
+                } catch {
+                    det = null
+                }
+
+                const blob = await getAdvertenciaPdfBlob({
+                    data: base.data,
+                    nome: base.nome,
+                    matricula: base.matricula,
+                    motivo: base.motivo,
+                    tipo: base.tipo,
+                    complemento: det?.complemento ?? base.complemento ?? null,
+                    evidencias: (det?.evidencias ?? []).map((e: any) => ({
+                        contentType: e.contentType,
+                        base64: e.base64,
+                    })),
+                })
+
+                const baseNome = `advertencia-${sanitizeNome(base.nome)}-${base.matricula}`
+                let nomeArq = `${baseNome}.pdf`
+                let n = 2
+                while (usados.has(nomeArq)) { nomeArq = `${baseNome}-${n}.pdf`; n++ }
+                usados.add(nomeArq)
+
+                zip.file(nomeArq, blob)
+                adicionados++
+            }
+
+            if (adicionados === 0) {
+                setBaixarLoteView(false)
+                showToast('Nenhuma advertência para baixar.', 'error')
+                return
+            }
+
+            const zipBlob = await zip.generateAsync({ type: 'blob' })
+            baixarBlob(zipBlob, `advertencias_${adicionados}.zip`)
+            setBaixarLoteView(false)
+            showToast(`${adicionados} advertências geradas (arquivo .zip)!`, 'success')
+        } catch {
+            showToast('Erro ao gerar o arquivo.', 'error')
+        } finally {
+            setBaixandoLote(false)
         }
     }
 
@@ -134,6 +240,31 @@ function App() {
             .catch(() => {})
     }, [])
 
+    // Ao abrir a inspeção, busca o detalhe (complemento + evidências/imagens)
+    useEffect(() => {
+        if (!inspecionarView || selectedId == null) {
+            setInspDetalhe(null)
+            return
+        }
+        let cancelado = false
+        setInspCarregando(true)
+        fetch(`${import.meta.env.VITE_API_URL}/api/Adiverts/${selectedId}`, { headers: { Accept: 'application/json' } })
+            .then(r => r.ok ? r.json() : null)
+            .then(det => { if (!cancelado) setInspDetalhe(det) })
+            .catch(() => { if (!cancelado) setInspDetalhe(null) })
+            .finally(() => { if (!cancelado) setInspCarregando(false) })
+        return () => { cancelado = true }
+    }, [inspecionarView, selectedId])
+
+    // Mantém a seleção coerente com a lista visível: remove ids que sumiram
+    // (após busca/filtro/atualização/exclusão) para não sobrar "seleção fantasma".
+    useEffect(() => {
+        setSelectedIds(prev => {
+            const filtrado = prev.filter(id => adiverts.some(a => a.id === id))
+            return filtrado.length === prev.length ? prev : filtrado
+        })
+    }, [adiverts])
+
     const dataFormatada = (data: string) => {
         const [yyyy, mm, dd] = data.slice(0, 10).split('-')
         return `${dd}/${mm}/${yyyy}`
@@ -178,15 +309,45 @@ function App() {
             )}
 
             {/* ── Overlay: Excluir ── */}
-            {excluirView && selectedAdivert && (
+            {excluirView && selectedIds.length > 0 && (
                 <div className='overlay'>
                     <div className='caixa'>
                         <Excluir
                             getAdiverts={getAdiverts}
                             setExcluirView={setExcluirView}
-                            id={selectedAdivert.id}
-                            setSelectedId={setSelectedId}
+                            ids={selectedIds}
                         />
+                    </div>
+                </div>
+            )}
+
+            {/* ── Overlay: Confirmar download em lote ── */}
+            {baixarLoteView && selectedIds.length > 0 && (
+                <div className='overlay' onClick={() => !baixandoLote && setBaixarLoteView(false)}>
+                    <div className='caixa' onClick={e => e.stopPropagation()}>
+                        <div className="d-flex justify-content-center align-itens-center h-100">
+                            <div className="d-flex flex-column justify-content-center h-75">
+                                <h5>
+                                    Você vai baixar <strong>{selectedIds.length}</strong> advertências — um PDF por advertência, em um arquivo <strong>.zip</strong>.
+                                </h5>
+                                <div className="d-flex justify-content-center modal-confirm-acoes">
+                                    <button
+                                        className="cancel-btn btn"
+                                        onClick={() => setBaixarLoteView(false)}
+                                        disabled={baixandoLote}
+                                    >
+                                        Cancelar
+                                    </button>
+                                    <button
+                                        className="btn add-btn-confirm"
+                                        onClick={confirmarDownloadLote}
+                                        disabled={baixandoLote}
+                                    >
+                                        {baixandoLote ? 'Gerando...' : `Baixar ${selectedIds.length}`}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             )}
@@ -204,6 +365,7 @@ function App() {
                             tipo={selectedAdivert.tipo}
                             motivo={selectedAdivert.motivo}
                             data={selectedAdivert.data}
+                            complemento={selectedAdivert.complemento}
                         />
                     </div>
                 </div>
@@ -258,6 +420,45 @@ function App() {
                                     {selectedAdivert.assinada ? '✅ Assinada' : '⬜ Pendente'}
                                 </span>
                             </div>
+
+                            {(inspDetalhe?.complemento ?? selectedAdivert.complemento) && (
+                                <>
+                                    <div className="inspecionar-divider" />
+                                    <div className="inspecionar-campo inspecionar-campo--coluna">
+                                        <span className="inspecionar-label">🗒️ Complemento</span>
+                                        <span className="inspecionar-motivo">
+                                            {inspDetalhe?.complemento ?? selectedAdivert.complemento}
+                                        </span>
+                                    </div>
+                                </>
+                            )}
+
+                            <div className="inspecionar-divider" />
+                            <div className="inspecionar-campo inspecionar-campo--coluna">
+                                <span className="inspecionar-label">📎 Evidências</span>
+                                {inspCarregando ? (
+                                    <span className="inspecionar-valor">Carregando…</span>
+                                ) : (inspDetalhe?.evidencias && inspDetalhe.evidencias.length > 0) ? (
+                                    <div className="evid-grid inspecionar-evid-grid">
+                                        {inspDetalhe.evidencias.map((e: any) => {
+                                            const url = `data:${e.contentType || 'image/jpeg'};base64,${e.base64}`
+                                            return (
+                                                <button
+                                                    key={e.id}
+                                                    type="button"
+                                                    className="evid-thumb inspecionar-evid-thumb"
+                                                    onClick={() => setLightboxUrl(url)}
+                                                    title="Ampliar imagem"
+                                                >
+                                                    <img src={url} alt={e.nomeArquivo ?? 'evidência'} />
+                                                </button>
+                                            )
+                                        })}
+                                    </div>
+                                ) : (
+                                    <span className="inspecionar-valor inspecionar-sem-evid">Nenhuma evidência anexada.</span>
+                                )}
+                            </div>
                         </div>
 
                         <div className="inspecionar-rodape">
@@ -276,6 +477,19 @@ function App() {
                             </button>
                         </div>
                     </div>
+                </div>
+            )}
+
+            {/* ── Lightbox: imagem de evidência ampliada ── */}
+            {lightboxUrl && (
+                <div className="lightbox-overlay" onClick={() => setLightboxUrl(null)}>
+                    <button className="lightbox-fechar" onClick={() => setLightboxUrl(null)} title="Fechar">✕</button>
+                    <img
+                        className="lightbox-img"
+                        src={lightboxUrl}
+                        alt="evidência ampliada"
+                        onClick={e => e.stopPropagation()}
+                    />
                 </div>
             )}
 
@@ -384,6 +598,12 @@ function App() {
                     <div className='d-flex box-content'>
                         <div className='d-flex box-main'>
                             <div className='box-adiverts-wrapper'>
+                                <div className="tabela-hint">
+                                    💡 Segure <kbd>Ctrl</kbd> para selecionar mais de uma advertência.
+                                    {selectedIds.length > 1 && (
+                                        <strong className="tabela-hint__count"> · {selectedIds.length} selecionadas</strong>
+                                    )}
+                                </div>
                                 <div className='box-adiverts'>
                                     <table className='adivert'>
                                         <thead>
@@ -415,8 +635,8 @@ function App() {
                                                 motivo={adivert.motivo}
                                                 assinada={!!adivert.assinada}
                                                 id={adivert.id}
-                                                selectedId={selectedId}
-                                                setSelectedId={setSelectedId}
+                                                selected={selectedIds.includes(adivert.id)}
+                                                onRowSelect={onRowSelect}
                                                 onToggleAssinatura={toggleAssinatura}
                                             />
                                         ))}
@@ -428,36 +648,39 @@ function App() {
                                     <span className='acoes-bar__label'>AÇÕES:</span>
                                     <div className='acoes-bar__buttons'>
                                         <button
-                                            className={`acoes-btn ${!selectedId ? 'acoes-btn--disabled' : ''}`}
-                                            onClick={() => selectedId && setInspecionarView(true)}
-                                            disabled={!selectedId}
-                                            title="Inspecionar advertência selecionada"
+                                            className={`acoes-btn ${selectedIds.length !== 1 ? 'acoes-btn--disabled' : ''}`}
+                                            onClick={() => selectedIds.length === 1 && setInspecionarView(true)}
+                                            disabled={selectedIds.length !== 1}
+                                            title="Inspecionar (selecione uma advertência)"
                                         >
                                             🔍 Inspecionar
                                         </button>
                                         <button
-                                            className={`acoes-btn acoes-btn--excluir ${!selectedId ? 'acoes-btn--disabled' : ''}`}
-                                            onClick={() => selectedId && setExcluirView(true)}
-                                            disabled={!selectedId}
-                                            title="Excluir advertência selecionada"
+                                            className={`acoes-btn acoes-btn--excluir ${selectedIds.length === 0 ? 'acoes-btn--disabled' : ''}`}
+                                            onClick={() => selectedIds.length > 0 && setExcluirView(true)}
+                                            disabled={selectedIds.length === 0}
+                                            title="Excluir advertência(s) selecionada(s)"
                                         >
-                                            🗑️ Excluir
+                                            🗑️ Excluir{selectedIds.length > 1 ? ` (${selectedIds.length})` : ''}
                                         </button>
                                         <button
-                                            className={`acoes-btn acoes-btn--editar ${!selectedId ? 'acoes-btn--disabled' : ''}`}
-                                            onClick={() => selectedId && setUpdateView(true)}
-                                            disabled={!selectedId}
-                                            title="Editar advertência selecionada"
+                                            className={`acoes-btn acoes-btn--editar ${selectedIds.length !== 1 ? 'acoes-btn--disabled' : ''}`}
+                                            onClick={() => selectedIds.length === 1 && setUpdateView(true)}
+                                            disabled={selectedIds.length !== 1}
+                                            title="Editar (selecione uma advertência)"
                                         >
                                             ✏️ Editar
                                         </button>
                                         <button
-                                            className={`acoes-btn acoes-btn--pdf ${!selectedId ? 'acoes-btn--disabled' : ''}`}
-                                            onClick={() => selectedAdivert && downloadWordLinha(selectedAdivert)}
-                                            disabled={!selectedId}
-                                            title="Baixar Word da advertência selecionada"
+                                            className={`acoes-btn acoes-btn--pdf ${selectedIds.length === 0 ? 'acoes-btn--disabled' : ''}`}
+                                            onClick={() => {
+                                                if (selectedIds.length === 1 && selectedAdivert) downloadPdfLinha(selectedAdivert)
+                                                else if (selectedIds.length > 1) setBaixarLoteView(true)
+                                            }}
+                                            disabled={selectedIds.length === 0}
+                                            title="Baixar PDF da(s) advertência(s) selecionada(s)"
                                         >
-                                            📝 Baixar Arquivo
+                                            📄 Baixar PDF{selectedIds.length > 1 ? ` (${selectedIds.length})` : ''}
                                         </button>
                                     </div>
                                 </div>

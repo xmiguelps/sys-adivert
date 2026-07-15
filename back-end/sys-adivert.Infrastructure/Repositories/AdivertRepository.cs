@@ -27,6 +27,13 @@ public class AdivertRepository : IAdivertRepository
         return await _db.Adiverts.FindAsync([id], cancellationToken);
     }
 
+    public async Task<Adivert?> GetByIdWithEvidenciasAsync(int id, CancellationToken cancellationToken = default)
+    {
+        return await _db.Adiverts
+            .Include(a => a.Evidencias)
+            .FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
+    }
+
     public async Task<IEnumerable<Adivert>> GetByColabAsync(string nome, CancellationToken cancellationToken = default)
     {
         return await _db.Adiverts
@@ -49,7 +56,9 @@ public class AdivertRepository : IAdivertRepository
 
     public async Task UpdateAsync(Adivert adivert, CancellationToken cancellationToken = default)
     {
-        _db.Update(adivert);
+        // 'adivert' ja vem rastreado (GetByIdAsync/GetByIdWithEvidenciasAsync).
+        // Salvar direto preserva delecoes/adicoes da colecao de evidencias e
+        // evita reescrever os bytes das imagens que nao mudaram.
         await _db.SaveChangesAsync(cancellationToken);
     }
 }

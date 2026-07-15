@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import MotivosSelect from "./MotivosSelect";
 import TipoSelect from "./TipoSelect";
 import ColabSelect from "./ColabSelect";
+import EvidenciasUploader from "./EvidenciasUploader";
+import type { EvidenciaExistente } from "./EvidenciasUploader";
+import type { EvidenciaLocal } from "../utils/imagem";
 import { showToast } from "./Toast";
 
 type Colab = { id: number; nome: string; matricula: string }
@@ -15,9 +18,10 @@ type UpdateProps = {
     nome: string;
     tipo: string;
     motivo: string;
+    complemento?: string | null;
 }
 
-function Update({ setUpdateView, getAdiverts, id, data, matricula, nome, tipo, motivo }: UpdateProps) {
+function Update({ setUpdateView, getAdiverts, id, data, matricula, nome, tipo, motivo, complemento }: UpdateProps) {
 
     const [colabs, setColabs] = useState<Colab[]>([])
     const [motivos, setMotivos] = useState<string[]>([])
@@ -27,8 +31,14 @@ function Update({ setUpdateView, getAdiverts, id, data, matricula, nome, tipo, m
         data: data,
         tipo: tipo,
         motivo: motivo,
+        complemento: complemento ?? "",
     });
     const [salvando, setSalvando] = useState(false);
+
+    // Evidencias ja salvas (do servidor), novas (a adicionar) e ids a remover
+    const [existentes, setExistentes] = useState<EvidenciaExistente[]>([]);
+    const [novasEvidencias, setNovasEvidencias] = useState<EvidenciaLocal[]>([]);
+    const [removerIds, setRemoverIds] = useState<number[]>([]);
 
     useEffect(() => {
         fetch(`${import.meta.env.VITE_API_URL}/api/Colabs`)
@@ -39,15 +49,50 @@ function Update({ setUpdateView, getAdiverts, id, data, matricula, nome, tipo, m
             .then(r => r.ok ? r.json() : [])
             .then((data: { id: number; descricao: string }[]) => setMotivos(data.map(m => m.descricao)))
             .catch(() => {})
-    }, [])
+
+        // Carrega detalhe (complemento autoritativo + evidencias existentes)
+        fetch(`${import.meta.env.VITE_API_URL}/api/Adiverts/${id}`, { headers: { Accept: "application/json" } })
+            .then(r => r.ok ? r.json() : null)
+            .then((det: any) => {
+                if (!det) return
+                // Nao sobrescreve complemento: a lista (prop) ja traz o valor autoritativo,
+                // e um overwrite tardio apagaria o que o usuario ja tivesse digitado.
+                const evs: EvidenciaExistente[] = (det.evidencias ?? []).map((e: any) => ({
+                    id: e.id,
+                    url: `data:${e.contentType || "image/jpeg"};base64,${e.base64}`,
+                    nome: e.nomeArquivo,
+                }))
+                setExistentes(evs)
+            })
+            .catch(() => {})
+    }, [id])
+
+    const removerExistente = (evId: number) => {
+        setExistentes(prev => prev.filter(e => e.id !== evId))
+        setRemoverIds(prev => prev.includes(evId) ? prev : [...prev, evId])
+    }
 
     const handleSalvar = async () => {
         setSalvando(true);
         try {
+            const body = {
+                data: form.data,
+                matricula: form.matricula,
+                nome: form.Nome,
+                tipo: form.tipo,
+                motivo: form.motivo,
+                complemento: form.complemento.trim() ? form.complemento : null,
+                evidenciasParaAdicionar: novasEvidencias.map(e => ({
+                    contentType: e.contentType,
+                    base64: e.base64,
+                    nomeArquivo: e.nomeArquivo,
+                })),
+                evidenciasParaRemoverIds: removerIds,
+            }
             const response = await fetch(`${import.meta.env.VITE_API_URL}/api/Adiverts/${id}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(form)
+                body: JSON.stringify(body)
             });
             if (!response.ok) {
                 showToast('Erro ao atualizar advertência.', 'error');
@@ -112,6 +157,24 @@ function Update({ setUpdateView, getAdiverts, id, data, matricula, nome, tipo, m
                             className="add-input--motivo"
                         />
                     </div>
+                    <div className="add-form-row add-form-row--coluna">
+                        <label className="add-label">Complemento (opcional):</label>
+                        <textarea
+                            className="add-input add-textarea"
+                            value={form.complemento}
+                            onChange={e => setForm({ ...form, complemento: e.target.value })}
+                            placeholder="Texto complementar — aparece abaixo do motivo, na 1ª página do PDF"
+                            rows={4}
+                        />
+                    </div>
+
+                    <EvidenciasUploader
+                        novas={novasEvidencias}
+                        onChangeNovas={setNovasEvidencias}
+                        existentes={existentes}
+                        onRemoverExistente={removerExistente}
+                    />
+
                     <div className="add-form-acoes">
                         <button className="add-btn-confirm btn" onClick={handleSalvar} disabled={salvando}>
                             {salvando ? "Salvando..." : "Salvar"}

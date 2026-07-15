@@ -12,6 +12,8 @@ public interface IAdivertRepository
 
     Task<Adivert?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
 
+    Task<Adivert?> GetByIdWithEvidenciasAsync(int id, CancellationToken cancellationToken = default);
+
     Task CreateAsync(Adivert adivert ,CancellationToken cancellationToken = default);
 
     Task DeleteAsync(Adivert adivert ,CancellationToken cancellationToken = default);

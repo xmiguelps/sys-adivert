@@ -2358,3 +2358,294 @@ select:focus { border-color: var(--blue-primary); }
     background: var(--red-primary);
     border-radius: 4px;
 }
+
+/* ══════════════════════════════════════════════════
+   COMPLEMENTO + EVIDÊNCIAS (Add / Update)
+══════════════════════════════════════════════════ */
+
+/* Linha de formulário em coluna (label em cima, campo embaixo) */
+.add-form-row--coluna {
+    flex-direction: column;
+    align-items: stretch;
+}
+
+/* Textarea de complemento */
+.add-textarea {
+    width: 100%;
+    flex: 1 1 auto;
+    min-height: 72px;
+    resize: vertical;
+    font-family: inherit;
+    line-height: 1.4;
+}
+
+/* Uploader de evidências */
+.evid-uploader {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 4px;
+}
+
+.evid-uploader-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.evid-add-btn {
+    background: var(--blue-primary) !important;
+    color: #fff !important;
+    border: none !important;
+    padding: 6px 14px !important;
+    font-size: 13px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+}
+.evid-add-btn:hover:not(:disabled) { background: var(--blue-dark) !important; }
+.evid-add-btn:disabled { opacity: .6; cursor: default; }
+
+.evid-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+    gap: 10px;
+}
+
+.evid-thumb {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    border: 1.5px solid var(--gray-300);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    background: var(--gray-100, #f5f5f5);
+    box-shadow: var(--shadow-sm);
+}
+
+.evid-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.evid-thumb-remover {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    width: 22px;
+    height: 22px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(168, 21, 21, .92);
+    color: #fff;
+    font-size: 13px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-sm);
+}
+.evid-thumb-remover:hover { background: var(--red-dark); }
+
+/* Toggle "iguais para todos" / "individuais" no modo lote */
+.add-lote-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 8px 10px;
+    background: var(--gray-100, #f5f5f5);
+    border-radius: var(--radius-sm);
+}
+
+.add-lote-toggle-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--gray-700);
+}
+
+.add-lote-toggle-botoes {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.add-lote-opcao {
+    border: 1.5px solid var(--gray-300);
+    background: #fff;
+    color: var(--gray-700);
+    border-radius: var(--radius-sm);
+    padding: 5px 12px;
+    font-size: 12.5px;
+    cursor: pointer;
+    transition: all var(--transition);
+}
+.add-lote-opcao--ativo {
+    background: var(--red-primary);
+    border-color: var(--red-primary);
+    color: #fff;
+    font-weight: 600;
+}
+
+/* Linha de colaborador (modo lote) com extras individuais */
+.add-colab-row {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.add-colab-linha-principal {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.add-colab-row--individual {
+    padding: 10px;
+    border: 1px dashed var(--gray-300);
+    border-radius: var(--radius-sm);
+    background: #fff;
+}
+
+.add-colab-individual-extra {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-left: 2px;
+}
+
+/* Evidências na tela de inspeção + lightbox */
+.inspecionar-evid-grid {
+    margin-top: 6px;
+}
+
+.inspecionar-evid-thumb {
+    padding: 0;
+    cursor: pointer;
+    background: var(--gray-100, #f5f5f5);
+}
+
+.inspecionar-sem-evid {
+    color: var(--gray-500);
+    font-style: italic;
+}
+
+.lightbox-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, .85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 24px;
+}
+
+.lightbox-img {
+    max-width: 92vw;
+    max-height: 92vh;
+    object-fit: contain;
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-lg);
+    cursor: default;
+}
+
+.lightbox-fechar {
+    position: fixed;
+    top: 16px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .15);
+    color: #fff;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.lightbox-fechar:hover { background: rgba(255, 255, 255, .3); }
+
+/* Seletor de modo de criação (Individual x Vários colaboradores) */
+.add-modo-seletor {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+    background: var(--gray-100, #f5f5f5);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-md);
+    margin-bottom: 4px;
+}
+
+.add-modo-seletor-titulo {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--gray-700);
+}
+
+.add-modo-tabs {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.add-modo-tab {
+    flex: 1 1 200px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border: 2px solid var(--gray-300);
+    border-radius: var(--radius-md);
+    background: #fff;
+    cursor: pointer;
+    text-align: left;
+    transition: border-color var(--transition), background var(--transition);
+}
+.add-modo-tab:hover { border-color: var(--red-primary); }
+
+.add-modo-tab-icone { font-size: 22px; line-height: 1; }
+
+.add-modo-tab-texto { display: flex; flex-direction: column; }
+.add-modo-tab-texto strong { font-size: 14px; color: var(--gray-900); }
+.add-modo-tab-texto small { font-size: 11.5px; color: var(--gray-500); }
+
+.add-modo-tab--ativo {
+    border-color: var(--red-primary);
+    background: var(--red-light);
+    box-shadow: var(--shadow-sm);
+}
+.add-modo-tab--ativo .add-modo-tab-texto strong { color: var(--red-dark); }
+
+/* Dica de seleção múltipla acima da tabela */
+.tabela-hint {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    font-size: 12.5px;
+    color: var(--gray-700);
+    padding: 4px 2px 8px;
+}
+.tabela-hint kbd {
+    background: var(--gray-200);
+    border: 1px solid var(--gray-300);
+    border-bottom-width: 2px;
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-size: 11px;
+    font-family: monospace;
+    color: var(--gray-900);
+}
+.tabela-hint__count { color: var(--red-primary); }
+
+/* Espaçamento dos botões nos modais de confirmação (excluir / baixar em lote) */
+.modal-confirm-acoes {
+    gap: 12px;
+    margin-top: 16px;
+}

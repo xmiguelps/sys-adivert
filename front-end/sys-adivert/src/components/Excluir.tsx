@@ -4,29 +4,47 @@ import { showToast } from "./Toast"
 type ExcluirProps = {
     setExcluirView: React.Dispatch<React.SetStateAction<boolean>>
     getAdiverts: () => void;
-    id: number
-    setSelectedId: (id: number | null) => void;
+    ids: number[]
 }
 
-function Excluir({ setExcluirView, id, getAdiverts, setSelectedId }: ExcluirProps) {
+function Excluir({ setExcluirView, ids, getAdiverts }: ExcluirProps) {
     const [excluindo, setExcluindo] = useState(false);
+    const qtd = ids.length;
 
     const ExcluirAdivert = async () => {
         setExcluindo(true);
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/Adiverts/${id}`, {
-                method: "DELETE"
-            });
-            if (!response.ok) {
-                throw new Error(`Erro: ${response.status}`)
-            } else {
-                await getAdiverts();
-                setSelectedId(null);
+            const resultados = await Promise.allSettled(
+                ids.map(id =>
+                    fetch(`${import.meta.env.VITE_API_URL}/api/Adiverts/${id}`, { method: "DELETE" })
+                )
+            );
+            const sucessos = resultados.filter(r => r.status === "fulfilled" && r.value.ok).length;
+            const falhas = ids.length - sucessos;
+
+            // Atualiza a lista; no App a seleção é podada automaticamente
+            // (ids que deixaram de existir saem da seleção; os que falharam permanecem).
+            await getAdiverts();
+
+            if (falhas === 0) {
                 setExcluirView(false);
-                showToast('Advertência excluída com sucesso!', 'success');
+                showToast(
+                    sucessos === 1
+                        ? "Advertência excluída com sucesso!"
+                        : `${sucessos} advertências excluídas com sucesso!`,
+                    "success"
+                );
+            } else if (sucessos === 0) {
+                showToast("Não foi possível excluir. Tente novamente.", "error");
+            } else {
+                showToast(
+                    `${sucessos} excluída(s), ${falhas} não excluída(s). Tente as restantes novamente.`,
+                    "error"
+                );
             }
         } catch {
-            showToast('Erro ao excluir advertência.', 'error');
+            try { await getAdiverts(); } catch { /* ignora */ }
+            showToast("Erro ao excluir advertência(s).", "error");
         } finally {
             setExcluindo(false);
         }
@@ -35,13 +53,20 @@ function Excluir({ setExcluirView, id, getAdiverts, setSelectedId }: ExcluirProp
     return (
         <div className="d-flex justify-content-center align-itens-center h-100">
             <div className="d-flex flex-column justify-content-center h-75">
-                <h5>Tem certeza que quer <strong>apagar</strong> essa advertência?</h5>
-                <div className="d-flex justify-content-center">
+                <h5>
+                    Tem certeza que quer <strong>apagar</strong>{" "}
+                    {qtd === 1
+                        ? "essa advertência"
+                        : <>essas <strong>{qtd}</strong> advertências</>}?
+                </h5>
+                <div className="d-flex justify-content-center modal-confirm-acoes">
                     <button className="cancel-btn btn" onClick={() => setExcluirView(false)} title="Fechar">
                         Cancelar
                     </button>
                     <button className="btn excluir-btn" onClick={ExcluirAdivert} disabled={excluindo}>
-                        {excluindo ? "Excluindo..." : "Excluir"}
+                        {excluindo
+                            ? "Excluindo..."
+                            : (qtd === 1 ? "Excluir" : `Excluir ${qtd}`)}
                     </button>
                 </div>
             </div>

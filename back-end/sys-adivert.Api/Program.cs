@@ -8,6 +8,12 @@ using sys_adivert.Infrastructure.AppDb;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.WebHost.ConfigureKestrel(options =>
+{
+    // Permite payloads maiores: imagens de evidencia trafegam como base64 no JSON.
+    options.Limits.MaxRequestBodySize = 52_428_800; // 50 MB
+});
+
 builder.Services.AddOpenApi();
 
 builder.Services.AddAuthorization();
@@ -41,6 +47,13 @@ builder.Services.AddCors(options => {
 });
 
 var app = builder.Build();
+
+// Aplica migrations pendentes automaticamente no startup (idempotente).
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+}
 
 if (app.Environment.IsDevelopment())
 {

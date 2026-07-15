@@ -16,13 +16,18 @@ public class Adivert
 
     public int Id {get; set;}
 
-    public Adivert(DateOnly data, string matricula, string motivo, string nome, string tipo)
+    public string? Complemento {get; set;}
+
+    public ICollection<AdivertEvidencia> Evidencias {get; set;} = new List<AdivertEvidencia>();
+
+    public Adivert(DateOnly data, string matricula, string motivo, string nome, string tipo, string? complemento = null)
     {
         Data = data;
         Matricula = matricula;
         Motivo = motivo;
         Nome = nome;
         Tipo = tipo;
+        Complemento = complemento;
         Assinada = false;
     }
 
@@ -31,7 +36,7 @@ public class Adivert
         Assinada = assinada;
     }
 
-    public void Update(DateOnly data, string? matricula, string? nome, string? tipo, string? motivo)
+    public void Update(DateOnly data, string? matricula, string? nome, string? tipo, string? motivo, string? complemento)
     {
         Data = data;
         if (!string.IsNullOrWhiteSpace(matricula)) Matricula = matricula;
@@ -41,5 +46,7 @@ public class Adivert
         if (!string.IsNullOrWhiteSpace(tipo)) Tipo = tipo;
 
         if (!string.IsNullOrWhiteSpace(motivo)) Motivo = motivo;
+
+        Complemento = string.IsNullOrWhiteSpace(complemento) ? null : complemento;
     }
 }

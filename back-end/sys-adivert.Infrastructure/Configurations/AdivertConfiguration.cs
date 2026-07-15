@@ -16,5 +16,11 @@ public class AdivertConfiguration : IEntityTypeConfiguration<Adivert>
         builder.Property(c => c.Motivo).HasMaxLength(455);
         builder.Property(c => c.Tipo).HasMaxLength(100);
         builder.Property(c => c.Assinada).HasDefaultValue(false);
+        builder.Property(c => c.Complemento).HasColumnType("text");
+
+        builder.HasMany(a => a.Evidencias)
+            .WithOne(e => e.Adivert!)
+            .HasForeignKey(e => e.AdivertId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

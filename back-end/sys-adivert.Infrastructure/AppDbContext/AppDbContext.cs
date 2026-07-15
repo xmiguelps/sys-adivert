@@ -11,6 +11,8 @@ public class AppDbContext : DbContext
 
     public DbSet<Adivert> Adiverts => Set<Adivert>();
 
+    public DbSet<AdivertEvidencia> AdivertEvidencias => Set<AdivertEvidencia>();
+
     public DbSet<Colab> Colabs => Set<Colab>();
 
     public DbSet<Motivo> Motivos => Set<Motivo>();
