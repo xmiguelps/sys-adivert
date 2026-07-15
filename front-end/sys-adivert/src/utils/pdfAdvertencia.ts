@@ -98,7 +98,7 @@ function buildAdvertenciaContent(adv: AdvertenciaDoc, incluirEvidencias: boolean
     // ── Complemento (opcional), logo abaixo do motivo ──
     const complemento = (adv.complemento ?? '').trim()
     if (complemento) {
-        content.push({ text: complemento })
+        content.push({ text: complemento, bold: true })
         content.push(blank())
     }
 
