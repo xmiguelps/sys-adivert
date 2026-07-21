@@ -17,6 +17,7 @@ type Adivert = {
     tipo: string
     motivo: string
     complemento?: string | null
+    assinada?: boolean
 }
 
 type Props = {

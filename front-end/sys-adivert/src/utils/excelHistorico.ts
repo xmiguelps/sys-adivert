@@ -6,6 +6,7 @@ export type AdvertenciaExcel = {
     nome: string
     tipo: string
     motivo: string
+    assinada?: boolean
 }
 
 function formatDataBR(iso: string): string {
@@ -16,19 +17,20 @@ function formatDataBR(iso: string): string {
 
 /**
  * Gera e baixa um arquivo XLSX no modelo:
- * | Data | Matrícula | Nome | Tipo | Motivo |
+ * | Data | Matrícula | Nome | Tipo | Motivo | Assinada |
  */
 export function downloadHistoricoExcel(
     advertencias: AdvertenciaExcel[],
     filename: string
 ) {
-    const header = ['Data', 'Matrícula', 'Nome', 'Tipo', 'Motivo']
+    const header = ['Data', 'Matrícula', 'Nome', 'Tipo', 'Motivo', 'Assinada']
     const body = advertencias.map(a => [
         formatDataBR(a.data),
         a.matricula,
         a.nome,
         a.tipo,
         a.motivo,
+        a.assinada ? 'Sim' : 'Não',
     ])
 
     const aoa = [header, ...body]
@@ -41,6 +43,7 @@ export function downloadHistoricoExcel(
         { wch: 36 },  // Nome
         { wch: 10 },  // Tipo
         { wch: 60 },  // Motivo
+        { wch: 10 },  // Assinada
     ]
 
     const wb = XLSX.utils.book_new()

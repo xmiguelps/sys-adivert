@@ -10,6 +10,7 @@ type Adivert = {
     nome: string
     tipo: string
     motivo: string
+    assinada?: boolean
 }
 
 type Props = {
