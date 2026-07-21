@@ -212,7 +212,7 @@ body {
     padding: 0;
     box-shadow: var(--shadow-sm);
     display: block;
-    overflow-y: auto;
+    overflow-y: scroll;
     overflow-x: hidden;
     min-height: 120px;
     min-width: 0;
@@ -261,15 +261,9 @@ body {
 
 #actions { border-right: none; }
 
-/* scroll no tbody */
-.box-adiverts > table,
+/* Barra vertical sempre visível na lista de advertências */
 .box-adiverts {
-    overflow-y: auto;
-}
-
-/* wrapper para scroll */
-.box-adiverts {
-    overflow-y: auto;
+    overflow-y: scroll;
 }
 
 .adivert tbody tr {
@@ -1767,14 +1761,14 @@ select:focus { border-color: var(--blue-primary); }
     width: 960px;
     max-width: 100%;
     max-height: 95vh;
-    overflow: visible;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .hist-popup {
     display: flex;
     flex-direction: column;
     gap: 16px;
-    height: 100%;
     overflow: visible;
 }
 
@@ -2149,40 +2143,66 @@ select:focus { border-color: var(--blue-primary); }
     padding: 10px 20px;
 }
 
+/* Botão "Gerar PDF" (variante vermelha) — ao lado do "Gerar Excel" (verde) */
+.hist-btn-pdf {
+    background: var(--red-primary);
+    border-color: var(--red-primary);
+    color: #fff;
+}
+.hist-btn-pdf:hover:not(:disabled) {
+    background: #fff;
+    color: var(--red-primary);
+}
+
 /* ══════════════════════════════════════════════════
-   SCROLLBARS CUSTOMIZADAS — TABELA DE ADVERTÊNCIAS
+   SCROLLBARS CUSTOMIZADAS — cinza discreto, sempre visível
 ══════════════════════════════════════════════════ */
 .box-adiverts::-webkit-scrollbar,
-.hist-tabela-wrap::-webkit-scrollbar {
+.hist-tabela-wrap::-webkit-scrollbar,
+.caixa::-webkit-scrollbar,
+.add-lista::-webkit-scrollbar,
+.colab-lista::-webkit-scrollbar {
     width: 10px;
     height: 10px;
 }
 
 .box-adiverts::-webkit-scrollbar-track,
-.hist-tabela-wrap::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.08);
-    border-radius: 6px;
+.hist-tabela-wrap::-webkit-scrollbar-track,
+.caixa::-webkit-scrollbar-track,
+.add-lista::-webkit-scrollbar-track,
+.colab-lista::-webkit-scrollbar-track {
+    background: var(--gray-200);
+    border-radius: 8px;
 }
 
 .box-adiverts::-webkit-scrollbar-thumb,
-.hist-tabela-wrap::-webkit-scrollbar-thumb {
-    background: var(--red-primary);
-    border-radius: 6px;
-    border: 2px solid transparent;
+.hist-tabela-wrap::-webkit-scrollbar-thumb,
+.caixa::-webkit-scrollbar-thumb,
+.add-lista::-webkit-scrollbar-thumb,
+.colab-lista::-webkit-scrollbar-thumb {
+    background: var(--gray-500);
+    border-radius: 8px;
+    border: 2px solid var(--gray-200);
     background-clip: padding-box;
 }
 
 .box-adiverts::-webkit-scrollbar-thumb:hover,
-.hist-tabela-wrap::-webkit-scrollbar-thumb:hover {
-    background: var(--red-dark);
-    border: 2px solid transparent;
+.hist-tabela-wrap::-webkit-scrollbar-thumb:hover,
+.caixa::-webkit-scrollbar-thumb:hover,
+.add-lista::-webkit-scrollbar-thumb:hover,
+.colab-lista::-webkit-scrollbar-thumb:hover {
+    background: var(--gray-600);
+    border: 2px solid var(--gray-200);
     background-clip: padding-box;
 }
 
 /* Firefox */
 .box-adiverts,
-.hist-tabela-wrap {
-    scrollbar-color: var(--red-primary) rgba(0, 0, 0, 0.08);
+.hist-tabela-wrap,
+.caixa,
+.add-lista,
+.colab-lista {
+    scrollbar-color: var(--gray-500) var(--gray-200);
     scrollbar-width: thin;
 }
 
@@ -2648,4 +2668,62 @@ select:focus { border-color: var(--blue-primary); }
 .modal-confirm-acoes {
     gap: 12px;
     margin-top: 16px;
+}
+
+/* ══════════════════════════════════════════════════
+   NOTEBOOKS PEQUENOS — compactação por ALTURA
+   Mantém o visual em telas grandes; só ativa em telas baixas
+   (ex.: 1366×768, 1280×720). Garante que nada fique cortado.
+══════════════════════════════════════════════════ */
+@media (max-height: 850px) {
+    /* ── Tela principal: enxuga o cabeçalho e sobra mais área p/ a lista ── */
+    .box-body {
+        padding: 16px 20px;
+        gap: 10px;
+    }
+    .box-body > .d-flex:first-child {
+        padding-bottom: 10px;
+    }
+    .logo { height: 50px; }
+    .box-body h1 { font-size: 18px; }
+
+    .search-colab-select .add-input,
+    .search-buttom { height: 38px; }
+
+    .tabela-hint {
+        padding: 2px 2px 6px;
+        font-size: 11.5px;
+    }
+
+    .box-main { min-height: 200px; }
+
+    /* ── Modais: mais área útil + rolagem interna garantida ── */
+    .caixa { padding: 18px 20px; }
+    .caixa--hist { max-height: 94vh; }
+
+    .hist-popup { gap: 12px; }
+    .hist-header { padding-bottom: 10px; }
+    .hist-titulo { font-size: 17px; }
+    .hist-gerar-box { gap: 12px; padding: 12px 14px; }
+    .hist-tabela-wrap { max-height: 200px; }
+
+    /* Menu de histórico (2 cards) mais baixo */
+    .hist-menu-card { min-height: 120px; padding: 18px 16px; }
+    .hist-menu-icon { font-size: 34px; }
+
+    /* Listas dos modais grandes acompanham a altura da tela */
+    .add-lista { max-height: 46vh; }
+    .colab-lista { max-height: 42vh; }
+    .add-colabs-lista { max-height: 30vh; }
+}
+
+/* Notebooks bem baixos (≤ 700px de altura): compacta um pouco mais */
+@media (max-height: 700px) {
+    .logo { height: 42px; }
+    .box-body h1 { font-size: 16px; }
+    .box-body { padding: 12px 16px; gap: 8px; }
+    .hist-tabela-wrap { max-height: 150px; }
+    .hist-menu-card { min-height: 104px; }
+    .add-lista { max-height: 40vh; }
+    .colab-lista { max-height: 38vh; }
 }

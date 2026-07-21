@@ -6,6 +6,7 @@ import {
 } from '../utils/datas'
 import { downloadAdvertenciasMultiPdf } from '../utils/pdfAdvertencia'
 import type { AdvertenciaDoc } from '../utils/pdfAdvertencia'
+import { downloadHistoricoExcel } from '../utils/excelHistorico'
 import { showToast } from './Toast'
 
 type Adivert = {
@@ -101,6 +102,44 @@ const GerarHistoricoMotivo: React.FC<Props> = ({ adiverts, motivoConfirmado, onV
         }
     }
 
+    const gerarMesExcel = () => {
+        if (futuroMes) return
+        if (doMes.length === 0) {
+            showToast('Não há advertências nesse período para esse motivo.', 'info')
+            return
+        }
+        setBaixando(true)
+        try {
+            const filename = `historico_motivo_${MESES_NOMES[mes]}_${ano}.xlsx`
+            downloadHistoricoExcel(doMes, filename)
+            showToast(`${doMes.length} advertência(s) exportada(s) em Excel!`, 'success')
+        } catch {
+            showToast('Erro ao gerar o Excel.', 'error')
+        } finally {
+            setBaixando(false)
+        }
+    }
+
+    const gerarDiaExcel = () => {
+        if (futuroDia) return
+        if (doDia.length === 0) {
+            showToast('Não há advertências nesse dia para esse motivo.', 'info')
+            return
+        }
+        setBaixando(true)
+        try {
+            const ddStr = String(dia).padStart(2, '0')
+            const mmStr = String(mes + 1).padStart(2, '0')
+            const filename = `historico_motivo_${ddStr}-${mmStr}-${ano}.xlsx`
+            downloadHistoricoExcel(doDia, filename)
+            showToast(`${doDia.length} advertência(s) exportada(s) em Excel!`, 'success')
+        } catch {
+            showToast('Erro ao gerar o Excel.', 'error')
+        } finally {
+            setBaixando(false)
+        }
+    }
+
     return (
         <div className="hist-popup">
             <div className="hist-header">
@@ -182,11 +221,18 @@ const GerarHistoricoMotivo: React.FC<Props> = ({ adiverts, motivoConfirmado, onV
 
                     <div className="hist-rodape">
                         <button
-                            className="btn add-btn-confirm hist-btn-gerar"
+                            className="btn hist-btn-pdf hist-btn-gerar"
                             onClick={gerarMes}
                             disabled={baixando || futuroMes || doMes.length === 0}
                         >
-                            {baixando ? '⏳ Gerando...' : '📄 Gerar Advertências em PDF'}
+                            {baixando ? '⏳ Gerando...' : '📄 Gerar PDF'}
+                        </button>
+                        <button
+                            className="btn add-btn-confirm hist-btn-gerar"
+                            onClick={gerarMesExcel}
+                            disabled={baixando || futuroMes || doMes.length === 0}
+                        >
+                            {baixando ? '⏳ Gerando...' : '📊 Gerar Excel'}
                         </button>
                     </div>
                 </div>
@@ -256,11 +302,18 @@ const GerarHistoricoMotivo: React.FC<Props> = ({ adiverts, motivoConfirmado, onV
 
                     <div className="hist-rodape">
                         <button
-                            className="btn add-btn-confirm hist-btn-gerar"
+                            className="btn hist-btn-pdf hist-btn-gerar"
                             onClick={gerarDia}
                             disabled={baixando || futuroDia || doDia.length === 0}
                         >
-                            {baixando ? '⏳ Gerando...' : '📄 Gerar Advertências em PDF'}
+                            {baixando ? '⏳ Gerando...' : '📄 Gerar PDF'}
+                        </button>
+                        <button
+                            className="btn add-btn-confirm hist-btn-gerar"
+                            onClick={gerarDiaExcel}
+                            disabled={baixando || futuroDia || doDia.length === 0}
+                        >
+                            {baixando ? '⏳ Gerando...' : '📊 Gerar Excel'}
                         </button>
                     </div>
                 </div>
