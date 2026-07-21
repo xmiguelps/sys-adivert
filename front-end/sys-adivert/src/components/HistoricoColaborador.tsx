@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react'
-import { MESES_NOMES, getAnoMesAtual, listaAnos, isMesFuturo, filtrarPorMes } from '../utils/datas'
+import { MESES_NOMES, getAnoMesAtual, listaAnos, isMesFuturo, filtrarPorMes, parseDataLocal } from '../utils/datas'
 import ColabSelect from './ColabSelect'
 
 type Colab = { id: number; nome: string; matricula: string }
@@ -37,7 +37,9 @@ const HistoricoColaborador: React.FC<Props> = ({ adiverts, onVoltar, onGerar, on
     const [filtroAtivo, setFiltroAtivo] = useState(false)
 
     const formatDataBR = (iso: string) => {
-        const d = new Date(iso)
+        // Usa parseDataLocal (mesmo helper dos filtros) para evitar o off-by-one
+        // de fuso: new Date("2026-07-20T00:00:00Z") vira 19/07 em UTC-3.
+        const d = parseDataLocal(iso)
         return isNaN(d.getTime()) ? iso :
             `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`
     }

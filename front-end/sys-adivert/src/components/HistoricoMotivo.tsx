@@ -8,7 +8,8 @@ import {
     isDataFutura,
     diasNoMes,
     filtrarPorMes,
-    filtrarPorDia
+    filtrarPorDia,
+    parseDataLocal
 } from '../utils/datas'
 
 type Adivert = {
@@ -48,7 +49,9 @@ const HistoricoMotivo: React.FC<Props> = ({ adiverts, onVoltar, onGerar, onFecha
     const [tipoFiltro, setTipoFiltro] = useState<'nenhum' | 'mes' | 'dia'>('nenhum')
 
     const formatDataBR = (iso: string) => {
-        const d = new Date(iso)
+        // Usa parseDataLocal (mesmo helper dos filtros) para evitar o off-by-one
+        // de fuso: new Date("2026-07-20T00:00:00Z") vira 19/07 em UTC-3.
+        const d = parseDataLocal(iso)
         return isNaN(d.getTime()) ? iso :
             `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`
     }
