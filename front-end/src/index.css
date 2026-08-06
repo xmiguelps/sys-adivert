@@ -1830,8 +1830,8 @@ select:focus {
 }
 
 .hist-menu-icon {
-    font-size: 44px;
-    line-height: 1;
+    display: flex;
+    color: var(--red-primary);
 }
 
 .hist-menu-label {
@@ -1912,6 +1912,9 @@ select:focus {
 .hist-filtro-check input { cursor: pointer; }
 
 .hist-aviso {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
     color: var(--orange);
     font-weight: 600;
     font-size: 12px;

@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react'
+import { X, ArrowLeft, User, CheckCircle, Square, Warning, DownloadSimple } from '@phosphor-icons/react'
 import { MESES_NOMES, getAnoMesAtual, listaAnos, isMesFuturo, filtrarPorMes, parseDataLocal } from '../utils/datas'
 import ColabSelect from './ColabSelect'
 
@@ -69,12 +70,15 @@ const HistoricoColaborador: React.FC<Props> = ({ adiverts, onVoltar, onGerar, on
             <div className="hist-header">
                 <div className="hist-header-left">
                     <button className="hist-btn-voltar" onClick={onVoltar} title="Voltar">
-                        ← Voltar
+                        <ArrowLeft size={16} /> Voltar
                     </button>
-                    <h2 className="hist-titulo">👤 Advertências por Colaborador</h2>
+                    <span className="titulo-com-icone">
+                        <User size={20} />
+                        <h2 className="hist-titulo">Advertências por Colaborador</h2>
+                    </span>
                 </div>
                 <button className="add-btn-fechar" onClick={onFechar} title="Fechar">
-                    <img className="icon" src="close.png" alt="fechar" />
+                    <X size={20} />
                 </button>
             </div>
 
@@ -111,7 +115,7 @@ const HistoricoColaborador: React.FC<Props> = ({ adiverts, onVoltar, onGerar, on
                         <>
                             <div className="hist-resultado-header">
                                 <span className="hist-resultado-nome">
-                                    📌 {historicoColaborador[0].nome} — {historicoColaborador.length} advertência(s)
+                                    {historicoColaborador[0].nome}: {historicoColaborador.length} advertência(s)
                                 </span>
                             </div>
 
@@ -144,7 +148,9 @@ const HistoricoColaborador: React.FC<Props> = ({ adiverts, onVoltar, onGerar, on
                                                 <td className="hist-td-motivo" title={a.motivo}>{a.motivo}</td>
                                                 <td>
                                                     <span className={`assinada-badge ${a.assinada ? 'assinada-badge--sim' : 'assinada-badge--nao'}`}>
-                                                        {a.assinada ? '✅ Assinada' : '⬜ Pendente'}
+                                                        {a.assinada
+                                                            ? <><CheckCircle size={14} weight="fill" /> Assinada</>
+                                                            : <><Square size={14} /> Pendente</>}
                                                     </span>
                                                 </td>
                                             </tr>
@@ -184,19 +190,19 @@ const HistoricoColaborador: React.FC<Props> = ({ adiverts, onVoltar, onGerar, on
                                             ))}
                                         </select>
                                         {isMesFuturo(filtroAno, filtroMes) && (
-                                            <span className="hist-aviso">⚠️ Mês futuro</span>
+                                            <span className="hist-aviso"><Warning size={14} /> Mês futuro</span>
                                         )}
                                     </>
                                 )}
                             </div>
 
-                            {/* Botão "Gerar histórico de [nome]" — só aparece depois do histórico gerado */}
+                            {/* Botão "Gerar histórico de [nome]" - só aparece depois do histórico gerado */}
                             <div className="hist-rodape">
                                 <button
                                     className="btn add-btn-confirm hist-btn-gerar"
                                     onClick={() => onGerar(historicoColaborador[0].nome)}
                                 >
-                                    📥 Gerar histórico de {historicoColaborador[0].nome}
+                                    <DownloadSimple size={16} /> Gerar histórico de {historicoColaborador[0].nome}
                                 </button>
                             </div>
                         </>
