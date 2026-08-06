@@ -1,4 +1,8 @@
 import { useEffect, useState } from 'react'
+import {
+    Plus, X, MagnifyingGlass, PencilSimple, Trash, Users, Gear,
+    DownloadSimple, FilePdf, CheckCircle, Square,
+} from '@phosphor-icons/react'
 import Tabela from './components/Tabela'
 import Add from './components/Add'
 import Colaboradores from './components/Colaboradores'
@@ -328,7 +332,7 @@ function App() {
                         <div className="d-flex justify-content-center align-itens-center h-100">
                             <div className="d-flex flex-column justify-content-center h-75">
                                 <h5>
-                                    Você vai baixar <strong>{selectedIds.length}</strong> advertências — um PDF por advertência, em um arquivo <strong>.zip</strong>.
+                                    Você vai baixar <strong>{selectedIds.length}</strong> advertências: um PDF por advertência, em um arquivo <strong>.zip</strong>.
                                 </h5>
                                 <div className="d-flex justify-content-center modal-confirm-acoes">
                                     <button
@@ -376,48 +380,53 @@ function App() {
                 <div className="overlay" onClick={() => setInspecionarView(false)}>
                     <div className="caixa inspecionar-caixa" onClick={e => e.stopPropagation()}>
                         <div className="inspecionar-header">
-                            <h2 className="inspecionar-titulo">🔍 Detalhes da Advertência</h2>
+                            <span className="titulo-com-icone">
+                                <MagnifyingGlass size={20} />
+                                <h2 className="inspecionar-titulo">Detalhes da Advertência</h2>
+                            </span>
                             <button
                                 className="add-btn-fechar"
                                 onClick={() => setInspecionarView(false)}
                                 title="Fechar"
                             >
-                                <img className="icon" src="close.png" alt="fechar" />
+                                <X size={20} />
                             </button>
                         </div>
 
                         <div className="inspecionar-body">
                             <div className="inspecionar-campo">
-                                <span className="inspecionar-label">📅 Data</span>
+                                <span className="inspecionar-label">Data</span>
                                 <span className="inspecionar-valor">{dataFormatada(selectedAdivert.data)}</span>
                             </div>
                             <div className="inspecionar-divider" />
                             <div className="inspecionar-campo">
-                                <span className="inspecionar-label">👤 Nome do Colaborador</span>
+                                <span className="inspecionar-label">Nome do Colaborador</span>
                                 <span className="inspecionar-valor">{selectedAdivert.nome}</span>
                             </div>
                             <div className="inspecionar-divider" />
                             <div className="inspecionar-campo">
-                                <span className="inspecionar-label">🪪 Matrícula</span>
+                                <span className="inspecionar-label">Matrícula</span>
                                 <span className="inspecionar-valor">{selectedAdivert.matricula}</span>
                             </div>
                             <div className="inspecionar-divider" />
                             <div className="inspecionar-campo">
-                                <span className="inspecionar-label">📝 Tipo</span>
+                                <span className="inspecionar-label">Tipo</span>
                                 <span className={`inspecionar-badge ${selectedAdivert.tipo === 'Escrita' ? 'badge-escrita' : 'badge-verbal'}`}>
                                     {selectedAdivert.tipo}
                                 </span>
                             </div>
                             <div className="inspecionar-divider" />
                             <div className="inspecionar-campo inspecionar-campo--coluna">
-                                <span className="inspecionar-label">⚠️ Motivo</span>
+                                <span className="inspecionar-label">Motivo</span>
                                 <span className="inspecionar-motivo">{selectedAdivert.motivo}</span>
                             </div>
                             <div className="inspecionar-divider" />
                             <div className="inspecionar-campo">
-                                <span className="inspecionar-label">✍️ Assinatura</span>
+                                <span className="inspecionar-label">Assinatura</span>
                                 <span className={`assinada-badge ${selectedAdivert.assinada ? 'assinada-badge--sim' : 'assinada-badge--nao'}`}>
-                                    {selectedAdivert.assinada ? '✅ Assinada' : '⬜ Pendente'}
+                                    {selectedAdivert.assinada
+                                        ? <><CheckCircle size={14} weight="fill" /> Assinada</>
+                                        : <><Square size={14} /> Pendente</>}
                                 </span>
                             </div>
 
@@ -435,7 +444,7 @@ function App() {
 
                             <div className="inspecionar-divider" />
                             <div className="inspecionar-campo inspecionar-campo--coluna">
-                                <span className="inspecionar-label">📎 Evidências</span>
+                                <span className="inspecionar-label">Evidências</span>
                                 {inspCarregando ? (
                                     <span className="inspecionar-valor">Carregando…</span>
                                 ) : (inspDetalhe?.evidencias && inspDetalhe.evidencias.length > 0) ? (
@@ -467,7 +476,7 @@ function App() {
                                 onClick={() => { setInspecionarView(false); setUpdateView(true); }}
                                 title="Editar esta advertência"
                             >
-                                ✏️ Editar
+                                <PencilSimple size={16} /> Editar
                             </button>
                             <button
                                 className="btn cancel-btn"
@@ -483,7 +492,9 @@ function App() {
             {/* ── Lightbox: imagem de evidência ampliada ── */}
             {lightboxUrl && (
                 <div className="lightbox-overlay" onClick={() => setLightboxUrl(null)}>
-                    <button className="lightbox-fechar" onClick={() => setLightboxUrl(null)} title="Fechar">✕</button>
+                    <button className="lightbox-fechar" onClick={() => setLightboxUrl(null)} title="Fechar">
+                        <X size={20} />
+                    </button>
                     <img
                         className="lightbox-img"
                         src={lightboxUrl}
@@ -591,7 +602,7 @@ function App() {
                         <button className='search-buttom' disabled={carregando}>
                             {carregando
                                 ? <span className="search-loading">...</span>
-                                : <img className='icon' src="/search.png" alt="botão de pesquisa" />
+                                : <MagnifyingGlass size={20} color="#fff" />
                             }
                         </button>
                     </form>
@@ -653,7 +664,7 @@ function App() {
                                             disabled={selectedIds.length !== 1}
                                             title="Inspecionar (selecione uma advertência)"
                                         >
-                                            🔍 Inspecionar
+                                            <MagnifyingGlass size={16} /> Inspecionar
                                         </button>
                                         <button
                                             className={`acoes-btn acoes-btn--excluir ${selectedIds.length === 0 ? 'acoes-btn--disabled' : ''}`}
@@ -661,7 +672,7 @@ function App() {
                                             disabled={selectedIds.length === 0}
                                             title="Excluir advertência(s) selecionada(s)"
                                         >
-                                            🗑️ Excluir{selectedIds.length > 1 ? ` (${selectedIds.length})` : ''}
+                                            <Trash size={16} /> Excluir{selectedIds.length > 1 ? ` (${selectedIds.length})` : ''}
                                         </button>
                                         <button
                                             className={`acoes-btn ${selectedIds.length !== 1 ? 'acoes-btn--disabled' : ''}`}
@@ -669,7 +680,7 @@ function App() {
                                             disabled={selectedIds.length !== 1}
                                             title="Editar (selecione uma advertência)"
                                         >
-                                            ✏️ Editar
+                                            <PencilSimple size={16} /> Editar
                                         </button>
                                         <button
                                             className={`acoes-btn ${selectedIds.length === 0 ? 'acoes-btn--disabled' : ''}`}
@@ -680,7 +691,7 @@ function App() {
                                             disabled={selectedIds.length === 0}
                                             title="Baixar PDF da(s) advertência(s) selecionada(s)"
                                         >
-                                            📄 Baixar PDF{selectedIds.length > 1 ? ` (${selectedIds.length})` : ''}
+                                            <FilePdf size={16} /> Baixar PDF{selectedIds.length > 1 ? ` (${selectedIds.length})` : ''}
                                         </button>
                                     </div>
                                 </div>
@@ -692,7 +703,7 @@ function App() {
                                 onClick={() => { setAddAberto(true); setColabAberto(false); }}
                                 title="Nova Advertência"
                             >
-                                <img className='icon buttons-menu' src="/plus.png" alt="botão de adicionar" />
+                                <Plus size={22} color="#fff" />
                             </button>
 
                             {/* Botão: Gerenciar Colaboradores */}
@@ -701,7 +712,7 @@ function App() {
                                 title="Gerenciar Colaboradores"
                                 className="btn-menu-colab"
                             >
-                                <img className='icon buttons-menu' src="/colab.png" alt="botão de colaboradores" />
+                                <Users size={22} color="#fff" />
                             </button>
 
                             {/* Botão: Histórico (abre o menu com as duas opções) */}
@@ -709,7 +720,7 @@ function App() {
                                 onClick={() => setHistView('menu')}
                                 title="Histórico de advertências"
                             >
-                                <img className='icon buttons-menu' src="/download.png" alt="botão de histórico" />
+                                <DownloadSimple size={22} color="#fff" />
                             </button>
 
                             {/* Botão: Configurações (sempre o último) */}
@@ -717,7 +728,7 @@ function App() {
                                 onClick={() => { setConfigAberto(true); setAddAberto(false); setColabAberto(false); }}
                                 title="Configurações"
                             >
-                                <img className='icon buttons-menu' src="/settings.png" alt="botão de configurações" />
+                                <Gear size={22} color="#fff" />
                             </button>
                         </div>
                     </div>

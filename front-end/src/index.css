@@ -313,10 +313,6 @@ body {
     line-height: 1;
 }
 
-.buttons-menu {
-    filter: brightness(0) invert(1);
-}
-
 /* ══════════════════════════════════════════════════
    UTILITÁRIOS
 ══════════════════════════════════════════════════ */
@@ -327,6 +323,17 @@ body {
     width: 22px;
     height: 22px;
     display: block;
+}
+
+/* Ícone + título lado a lado em cabeçalhos de modal — usado com uma
+   classe de título existente (add-titulo-principal, colab-titulo,
+   hist-titulo) ou envolvendo [ícone, h2] quando o próprio título
+   precisa manter seu próprio overflow/ellipsis (hist-titulo). */
+.titulo-com-icone {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
 }
 
 button {
@@ -510,6 +517,9 @@ button {
     font-weight: 700;
     color: var(--gray-900);
     margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .add-btn-fechar {
@@ -746,6 +756,9 @@ select:focus {
     font-size: 20px;
     font-weight: 700;
     color: var(--gray-900);
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .colab-acoes-bar {
@@ -1024,6 +1037,9 @@ select:focus {
 
 /* Toggle clicável na tabela principal */
 .assinada-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
     font-size: 11px;
     font-weight: 700;
     padding: 4px 8px;
@@ -1051,7 +1067,9 @@ select:focus {
 
 /* Badge somente-leitura (Inspecionar e Históricos) */
 .assinada-badge {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
     font-size: 12px;
     font-weight: 700;
     padding: 4px 12px;
@@ -1741,6 +1759,7 @@ select:focus {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    min-width: 0;
 }
 
 .hist-nome-destaque {
