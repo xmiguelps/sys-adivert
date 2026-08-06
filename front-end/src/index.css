@@ -373,8 +373,8 @@ button {
 .add-btn-confirm  { background: var(--green-primary); border-color: var(--green-primary); }
 .add-btn-confirm:hover:not(:disabled) { background: #fff; color: var(--green-primary); }
 
-.add-btn-nova     { background: var(--blue-primary); border-color: var(--blue-primary); }
-.add-btn-nova:hover { background: #fff; color: var(--blue-primary); }
+.add-btn-nova     { background: var(--gray-700); border-color: var(--gray-700); }
+.add-btn-nova:hover { background: #fff; color: var(--gray-700); }
 
 .add-btn-salvar   { background: var(--green-primary); border-color: var(--green-primary); }
 .add-btn-salvar:hover { background: #fff; color: var(--green-primary); }
@@ -828,7 +828,7 @@ select:focus { border-color: var(--blue-primary); }
 .colab-row:hover { background: var(--red-light); }
 
 .colab-row--selecionada {
-    background: #fff8e1 !important;
+    background: var(--red-light) !important;
 }
 
 /* ══════════════════════════════════════════════════
@@ -984,15 +984,15 @@ select:focus { border-color: var(--blue-primary); }
 }
 
 .badge-escrita {
-    background: #e3f2fd;
-    color: var(--blue-dark);
-    border: 1px solid #90caf9;
+    background: var(--gray-200);
+    color: var(--gray-800);
+    border: 1px solid var(--gray-400);
 }
 
 .badge-verbal {
-    background: #fff3e0;
-    color: var(--orange);
-    border: 1px solid #ffcc80;
+    background: var(--gray-100);
+    color: var(--gray-700);
+    border: 1px solid var(--gray-300);
 }
 
 /* ── Marcação de assinatura ── */
@@ -1179,7 +1179,7 @@ select:focus { border-color: var(--blue-primary); }
 }
 
 .tabela-row--selected {
-    background: #ffeaea !important;
+    background: var(--red-light) !important;
     outline: 2px solid var(--red-primary);
     outline-offset: -2px;
 }
@@ -1297,26 +1297,6 @@ select:focus { border-color: var(--blue-primary); }
 .acoes-btn--excluir:hover:not(:disabled) {
     background: var(--red-dark);
     border-color: var(--red-dark);
-}
-
-.acoes-btn--editar {
-    background: var(--blue-primary);
-    border-color: var(--blue-primary);
-}
-
-.acoes-btn--editar:hover:not(:disabled) {
-    background: var(--blue-dark);
-    border-color: var(--blue-dark);
-}
-
-.acoes-btn--pdf {
-    background: var(--green-primary);
-    border-color: var(--green-primary);
-}
-
-.acoes-btn--pdf:hover:not(:disabled) {
-    background: var(--green-dark);
-    border-color: var(--green-dark);
 }
 
 .acoes-btn--disabled,
@@ -1518,7 +1498,7 @@ select:focus { border-color: var(--blue-primary); }
 }
 
 .motivos-select__option--selected {
-    background: #ffeaea;
+    background: var(--red-light);
     color: var(--red-dark);
     font-weight: 600;
 }
@@ -2164,16 +2144,16 @@ select:focus { border-color: var(--blue-primary); }
     justify-content: space-between;
     gap: 10px;
     padding: 8px 12px;
-    background: rgba(var(--blue-primary-rgb, 21, 101, 192), 0.07);
-    border: 1px solid rgba(var(--blue-primary-rgb, 21, 101, 192), 0.18);
-    border-radius: 8px;
+    background: rgba(21, 101, 192, 0.07);
+    border: 1px solid rgba(21, 101, 192, 0.18);
+    border-radius: var(--radius-md);
     margin-bottom: 14px;
 }
 
 .add-btn-modo-toggle {
     background: var(--blue-primary) !important;
     border-color: var(--blue-primary) !important;
-    font-size: 0.82rem !important;
+    font-size: 13px !important;
     padding: 5px 14px !important;
     white-space: nowrap;
 }
@@ -2184,7 +2164,7 @@ select:focus { border-color: var(--blue-primary); }
 
 .add-modo-label {
     font-weight: 600;
-    font-size: 0.9rem;
+    font-size: 14px;
     color: var(--blue-primary);
 }
 
@@ -2192,7 +2172,7 @@ select:focus { border-color: var(--blue-primary); }
     background: transparent !important;
     border-color: var(--blue-primary) !important;
     color: var(--blue-primary) !important;
-    font-size: 0.8rem !important;
+    font-size: 13px !important;
     padding: 4px 12px !important;
 }
 .add-btn-modo-voltar:hover {
@@ -2206,8 +2186,8 @@ select:focus { border-color: var(--blue-primary); }
 
 /* Seções internas do modo múltiplo */
 .add-multiplo-secao {
-    border: 1px solid var(--border-color, #e0e0e0);
-    border-radius: 8px;
+    border: 1px solid var(--gray-300);
+    border-radius: var(--radius-md);
     padding: 12px 14px;
     margin-bottom: 12px;
     background: rgba(0,0,0,0.015);
@@ -2225,13 +2205,13 @@ select:focus { border-color: var(--blue-primary); }
 
 .add-multiplo-secao-titulo {
     font-weight: 600;
-    font-size: 0.88rem;
-    color: var(--text-primary, #222);
+    font-size: 14px;
+    color: var(--gray-900);
 }
 
 .add-multiplo-hint {
-    font-size: 0.75rem;
-    color: var(--text-muted, #888);
+    font-size: 12px;
+    color: var(--gray-600);
     font-style: italic;
 }
 
@@ -2241,11 +2221,11 @@ select:focus { border-color: var(--blue-primary); }
     grid-template-columns: 1fr 140px 28px;
     gap: 8px;
     padding: 0 2px;
-    font-size: 0.75rem;
+    font-size: 12px;
     font-weight: 600;
-    color: var(--text-muted, #888);
+    color: var(--gray-600);
     text-transform: uppercase;
-    letter-spacing: 0.03em;
+    letter-spacing: 0.5px;
 }
 
 /* Lista de linhas de colaborador */
@@ -2279,7 +2259,7 @@ select:focus { border-color: var(--blue-primary); }
 .add-colab-nome-wrapper .add-matricula-loading {
     position: absolute;
     right: 8px;
-    font-size: 0.75rem;
+    font-size: 12px;
     pointer-events: none;
 }
 
@@ -2292,7 +2272,7 @@ select:focus { border-color: var(--blue-primary); }
     background: transparent;
     color: #999;
     cursor: pointer;
-    font-size: 0.75rem;
+    font-size: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -2312,7 +2292,7 @@ select:focus { border-color: var(--blue-primary); }
     background: transparent !important;
     border-color: var(--green-primary) !important;
     color: var(--green-primary) !important;
-    font-size: 0.8rem !important;
+    font-size: 13px !important;
     padding: 5px 12px !important;
     margin-top: 2px;
 }
@@ -2357,15 +2337,18 @@ select:focus { border-color: var(--blue-primary); }
 }
 
 .evid-add-btn {
-    background: var(--blue-primary) !important;
+    background: var(--gray-700) !important;
     color: #fff !important;
     border: none !important;
     padding: 6px 14px !important;
     font-size: 13px;
     border-radius: var(--radius-sm);
     cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
 }
-.evid-add-btn:hover:not(:disabled) { background: var(--blue-dark) !important; }
+.evid-add-btn:hover:not(:disabled) { background: var(--gray-800) !important; }
 .evid-add-btn:disabled { opacity: .6; cursor: default; }
 
 .evid-grid {

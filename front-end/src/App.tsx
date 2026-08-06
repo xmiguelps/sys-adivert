@@ -664,7 +664,7 @@ function App() {
                                             🗑️ Excluir{selectedIds.length > 1 ? ` (${selectedIds.length})` : ''}
                                         </button>
                                         <button
-                                            className={`acoes-btn acoes-btn--editar ${selectedIds.length !== 1 ? 'acoes-btn--disabled' : ''}`}
+                                            className={`acoes-btn ${selectedIds.length !== 1 ? 'acoes-btn--disabled' : ''}`}
                                             onClick={() => selectedIds.length === 1 && setUpdateView(true)}
                                             disabled={selectedIds.length !== 1}
                                             title="Editar (selecione uma advertência)"
@@ -672,7 +672,7 @@ function App() {
                                             ✏️ Editar
                                         </button>
                                         <button
-                                            className={`acoes-btn acoes-btn--pdf ${selectedIds.length === 0 ? 'acoes-btn--disabled' : ''}`}
+                                            className={`acoes-btn ${selectedIds.length === 0 ? 'acoes-btn--disabled' : ''}`}
                                             onClick={() => {
                                                 if (selectedIds.length === 1 && selectedAdivert) downloadPdfLinha(selectedAdivert)
                                                 else if (selectedIds.length > 1) setBaixarLoteView(true)
