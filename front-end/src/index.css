@@ -12,9 +12,6 @@
     --green-primary: #2e7d32;
     --green-dark:    #1b5e20;
 
-    --purple:        #6a1fc2;
-    --purple-dark:   #4a148c;
-
     --orange:        #e65100;
 
     --gray-100: #f8f9fa;
@@ -122,25 +119,9 @@ body {
 .search-colab-select .add-input {
     width: 100%;
     height: 43px;
-    border-radius: 8px 0 0 8px;
-    border-right: none;
-    font-size: 14px;
-}
-
-.search-input {
-    flex: 1;
-    padding: 9px 14px;
-    border: 2px solid var(--gray-300);
-    border-right: none;
     border-radius: var(--radius-md) 0 0 var(--radius-md);
+    border-right: none;
     font-size: 14px;
-    background: #fff;
-    transition: border-color var(--transition);
-    outline: none;
-}
-
-.search-input:focus {
-    border-color: var(--red-primary);
 }
 
 .search-buttom {
@@ -403,9 +384,6 @@ button {
 
 .cancel-btn       { background: var(--gray-600); border-color: var(--gray-600); }
 .cancel-btn:hover { background: #fff; color: var(--gray-600); }
-
-.colab-btn-listar { background: var(--blue-primary); border-color: var(--blue-primary); }
-.colab-btn-listar:hover:not(:disabled) { background: #fff; color: var(--blue-primary); }
 
 .colab-btn-novo   { background: var(--green-primary); border-color: var(--green-primary); }
 .colab-btn-novo:hover { background: #fff; color: var(--green-primary); }
@@ -1102,38 +1080,6 @@ select:focus { border-color: var(--blue-primary); }
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(-4px); }
     to   { opacity: 1; transform: translateY(0); }
-}
-
-/* ══════════════════════════════════════════════════
-   COLABORADORES — novos botões
-══════════════════════════════════════════════════ */
-.colab-btn-refresh {
-    background: var(--blue-primary);
-    color: #fff;
-    border-color: var(--blue-primary);
-    font-weight: 600;
-}
-
-.colab-btn-refresh:hover:not(:disabled) {
-    background: var(--blue-dark);
-    border-color: var(--blue-dark);
-}
-
-.colab-btn-download {
-    background: var(--green-primary);
-    color: #fff;
-    border-color: var(--green-primary);
-    font-weight: 600;
-}
-
-.colab-btn-download:hover:not(:disabled) {
-    background: var(--green-dark);
-    border-color: var(--green-dark);
-}
-
-.colab-btn-download:disabled {
-    opacity: 0.45;
-    cursor: not-allowed;
 }
 
 .colab-lista-info {
@@ -2161,7 +2107,8 @@ select:focus { border-color: var(--blue-primary); }
 .hist-tabela-wrap::-webkit-scrollbar,
 .caixa::-webkit-scrollbar,
 .add-lista::-webkit-scrollbar,
-.colab-lista::-webkit-scrollbar {
+.colab-lista::-webkit-scrollbar,
+.add-colabs-lista::-webkit-scrollbar {
     width: 10px;
     height: 10px;
 }
@@ -2170,7 +2117,8 @@ select:focus { border-color: var(--blue-primary); }
 .hist-tabela-wrap::-webkit-scrollbar-track,
 .caixa::-webkit-scrollbar-track,
 .add-lista::-webkit-scrollbar-track,
-.colab-lista::-webkit-scrollbar-track {
+.colab-lista::-webkit-scrollbar-track,
+.add-colabs-lista::-webkit-scrollbar-track {
     background: var(--gray-200);
     border-radius: 8px;
 }
@@ -2179,7 +2127,8 @@ select:focus { border-color: var(--blue-primary); }
 .hist-tabela-wrap::-webkit-scrollbar-thumb,
 .caixa::-webkit-scrollbar-thumb,
 .add-lista::-webkit-scrollbar-thumb,
-.colab-lista::-webkit-scrollbar-thumb {
+.colab-lista::-webkit-scrollbar-thumb,
+.add-colabs-lista::-webkit-scrollbar-thumb {
     background: var(--gray-500);
     border-radius: 8px;
     border: 2px solid var(--gray-200);
@@ -2190,7 +2139,8 @@ select:focus { border-color: var(--blue-primary); }
 .hist-tabela-wrap::-webkit-scrollbar-thumb:hover,
 .caixa::-webkit-scrollbar-thumb:hover,
 .add-lista::-webkit-scrollbar-thumb:hover,
-.colab-lista::-webkit-scrollbar-thumb:hover {
+.colab-lista::-webkit-scrollbar-thumb:hover,
+.add-colabs-lista::-webkit-scrollbar-thumb:hover {
     background: var(--gray-600);
     border: 2px solid var(--gray-200);
     background-clip: padding-box;
@@ -2201,7 +2151,8 @@ select:focus { border-color: var(--blue-primary); }
 .hist-tabela-wrap,
 .caixa,
 .add-lista,
-.colab-lista {
+.colab-lista,
+.add-colabs-lista {
     scrollbar-color: var(--gray-500) var(--gray-200);
     scrollbar-width: thin;
 }
@@ -2368,15 +2319,6 @@ select:focus { border-color: var(--blue-primary); }
 .add-btn-mais-colab:hover {
     background: var(--green-primary) !important;
     color: #fff !important;
-}
-
-/* Scrollbar na lista de colabs */
-.add-colabs-lista::-webkit-scrollbar {
-    width: 4px;
-}
-.add-colabs-lista::-webkit-scrollbar-thumb {
-    background: var(--red-primary);
-    border-radius: 4px;
 }
 
 /* ══════════════════════════════════════════════════
