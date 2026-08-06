@@ -465,6 +465,9 @@ button {
 }
 
 .config-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     background: transparent;
     border: none;
     border-bottom: 3px solid transparent;
@@ -473,7 +476,7 @@ button {
     font-weight: 600;
     color: var(--gray-600);
     cursor: pointer;
-    transition: color .15s, border-color .15s;
+    transition: color var(--transition), border-color var(--transition);
 }
 
 .config-tab:hover {

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { X, Trash, Users } from "@phosphor-icons/react";
 import ColabSelect from "./ColabSelect";
 
 function normalizar(s: string) {
@@ -142,9 +143,9 @@ function Colaboradores({ setColabAberto }: ColabsProps) {
         <div className="colab-popup">
             {/* ── Cabeçalho ── */}
             <div className="colab-header">
-                <h2 className="colab-titulo">👥 Gerenciar Colaboradores</h2>
+                <h2 className="colab-titulo"><Users size={20} /> Gerenciar Colaboradores</h2>
                 <button className="add-btn-fechar" onClick={() => setColabAberto(false)} title="Fechar">
-                    <img className="icon" src="close.png" alt="fechar" />
+                    <X size={20} />
                 </button>
             </div>
 
@@ -154,14 +155,14 @@ function Colaboradores({ setColabAberto }: ColabsProps) {
                     className="btn colab-btn-novo"
                     onClick={() => { setCriandoColab(v => !v); setRemovendoAtivo(false); setConfirmRemoverId(null); }}
                 >
-                    {criandoColab ? "✕ Cancelar" : "+ Novo Colaborador"}
+                    {criandoColab ? <><X size={14} /> Cancelar</> : "+ Novo Colaborador"}
                 </button>
 
                 <button
                     className={`btn colab-btn-remover${removendoAtivo ? " colab-btn-remover--ativo" : ""}`}
                     onClick={toggleRemover}
                 >
-                    {removendoAtivo ? "✕ Cancelar Remoção" : "🗑 Remover"}
+                    {removendoAtivo ? <><X size={14} /> Cancelar Remoção</> : <><Trash size={14} /> Remover</>}
                 </button>
             </div>
 
@@ -189,7 +190,7 @@ function Colaboradores({ setColabAberto }: ColabsProps) {
                     </div>
                     <div className="add-form-acoes">
                         <button className="btn add-btn-confirm" onClick={criarColab} disabled={salvando}>
-                            {salvando ? "Salvando..." : "✔ Criar"}
+                            {salvando ? "Salvando..." : "Criar"}
                         </button>
                         <button className="btn cancel-btn" onClick={() => setCriandoColab(false)}>
                             Cancelar
@@ -219,7 +220,7 @@ function Colaboradores({ setColabAberto }: ColabsProps) {
                         onClick={removerPorNome}
                         disabled={removendo}
                     >
-                        {removendo ? "Buscando..." : "🗑 Buscar e Remover"}
+                        {removendo ? "Buscando..." : <><Trash size={14} /> Buscar e Remover</>}
                     </button>
 
                     {confirmRemoverId !== null && (() => {
@@ -236,7 +237,7 @@ function Colaboradores({ setColabAberto }: ColabsProps) {
                                         onClick={() => removerPorId(confirmRemoverId)}
                                         disabled={removendo}
                                     >
-                                        {removendo ? "Removendo..." : "✔ Sim, remover"}
+                                        {removendo ? "Removendo..." : "Sim, remover"}
                                     </button>
                                     <button className="btn cancel-btn" onClick={() => setConfirmRemoverId(null)}>
                                         Cancelar
@@ -253,7 +254,7 @@ function Colaboradores({ setColabAberto }: ColabsProps) {
                 <div className="lista-busca">
                     <input
                         className="add-input"
-                        placeholder="🔍 Pesquisar por nome ou matrícula..."
+                        placeholder="Pesquisar por nome ou matrícula..."
                         value={busca}
                         onChange={e => setBusca(e.target.value)}
                     />
@@ -263,7 +264,7 @@ function Colaboradores({ setColabAberto }: ColabsProps) {
             {/* ── Lista de colaboradores ── */}
             <div className="colab-lista">
                 {carregando ? (
-                    <p className="add-vazio">⏳ Carregando colaboradores...</p>
+                    <p className="add-vazio">Carregando colaboradores...</p>
                 ) : colabs.length === 0 ? (
                     <p className="add-vazio">Nenhum colaborador cadastrado.</p>
                 ) : colabsFiltrados.length === 0 ? (
@@ -301,7 +302,7 @@ function Colaboradores({ setColabAberto }: ColabsProps) {
                                                 title="Remover"
                                                 onClick={() => setConfirmRemoverId(c.id)}
                                             >
-                                                <img className="icon" src="lixeira.png" alt="remover" />
+                                                <Trash size={16} />
                                             </button>
                                         </td>
                                     </tr>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { X, Trash, Gear, ClipboardText } from "@phosphor-icons/react";
 import { showToast } from "./Toast";
 
 function normalizar(s: string) {
@@ -104,9 +105,9 @@ function Configuracoes({ setConfigAberto }: ConfiguracoesProps) {
         <div className="colab-popup">
             {/* ── Cabeçalho ── */}
             <div className="colab-header">
-                <h2 className="colab-titulo">⚙️ Configurações</h2>
+                <h2 className="colab-titulo"><Gear size={20} /> Configurações</h2>
                 <button className="add-btn-fechar" onClick={() => setConfigAberto(false)} title="Fechar">
-                    <img className="icon" src="close.png" alt="fechar" />
+                    <X size={20} />
                 </button>
             </div>
 
@@ -116,7 +117,7 @@ function Configuracoes({ setConfigAberto }: ConfiguracoesProps) {
                     className={`config-tab${aba === "motivos" ? " config-tab--ativa" : ""}`}
                     onClick={() => setAba("motivos")}
                 >
-                    📝 Motivos
+                    <ClipboardText size={16} /> Motivos
                 </button>
             </div>
 
@@ -129,7 +130,7 @@ function Configuracoes({ setConfigAberto }: ConfiguracoesProps) {
                             className="btn colab-btn-novo"
                             onClick={() => { setCriando(v => !v); setConfirmRemoverId(null); }}
                         >
-                            {criando ? "✕ Cancelar" : "+ Novo Motivo"}
+                            {criando ? <><X size={14} /> Cancelar</> : "+ Novo Motivo"}
                         </button>
                     </div>
 
@@ -149,7 +150,7 @@ function Configuracoes({ setConfigAberto }: ConfiguracoesProps) {
                             </div>
                             <div className="add-form-acoes">
                                 <button className="btn add-btn-confirm" onClick={criarMotivo} disabled={salvando}>
-                                    {salvando ? "Salvando..." : "✔ Criar"}
+                                    {salvando ? "Salvando..." : "Criar"}
                                 </button>
                                 <button className="btn cancel-btn" onClick={() => { setCriando(false); setNovoMotivo(""); }}>
                                     Cancelar
@@ -171,7 +172,7 @@ function Configuracoes({ setConfigAberto }: ConfiguracoesProps) {
                                         onClick={() => removerPorId(confirmRemoverId)}
                                         disabled={removendo}
                                     >
-                                        {removendo ? "Removendo..." : "✔ Sim, remover"}
+                                        {removendo ? "Removendo..." : "Sim, remover"}
                                     </button>
                                     <button className="btn cancel-btn" onClick={() => setConfirmRemoverId(null)}>
                                         Cancelar
@@ -186,7 +187,7 @@ function Configuracoes({ setConfigAberto }: ConfiguracoesProps) {
                         <div className="lista-busca">
                             <input
                                 className="add-input"
-                                placeholder="🔍 Pesquisar motivo..."
+                                placeholder="Pesquisar motivo..."
                                 value={busca}
                                 onChange={e => setBusca(e.target.value)}
                             />
@@ -196,7 +197,7 @@ function Configuracoes({ setConfigAberto }: ConfiguracoesProps) {
                     {/* Lista de motivos */}
                     <div className="colab-lista">
                         {carregando ? (
-                            <p className="add-vazio">⏳ Carregando motivos...</p>
+                            <p className="add-vazio">Carregando motivos...</p>
                         ) : motivos.length === 0 ? (
                             <p className="add-vazio">Nenhum motivo cadastrado.</p>
                         ) : motivosFiltrados.length === 0 ? (
@@ -232,7 +233,7 @@ function Configuracoes({ setConfigAberto }: ConfiguracoesProps) {
                                                         title="Remover"
                                                         onClick={() => setConfirmRemoverId(m.id)}
                                                     >
-                                                        <img className="icon" src="lixeira.png" alt="remover" />
+                                                        <Trash size={16} />
                                                     </button>
                                                 </td>
                                             </tr>
