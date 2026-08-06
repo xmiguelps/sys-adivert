@@ -43,7 +43,7 @@ body {
     overflow-x: hidden;
     display: flex;
     justify-content: center;
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    background: linear-gradient(135deg, var(--gray-800) 0%, var(--gray-900) 100%);
     font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
     color: var(--gray-800);
 }
