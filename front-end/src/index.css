@@ -2206,7 +2206,7 @@ select:focus {
     gap: 8px;
 }
 
-.add-multiplo-secao:first-of-type {
+.add-lote-toggle + .add-multiplo-secao {
     padding-top: 0;
     border-top: none;
 }
