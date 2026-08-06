@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { X, PencilSimple, Trash, User, Users, Warning, Paperclip, NotePencil, ClipboardText } from "@phosphor-icons/react";
 import MotivosSelect from "./MotivosSelect";
 import TipoSelect from "./TipoSelect";
 import ColabSelect from "./ColabSelect";
@@ -120,7 +121,7 @@ function ColaboradorRow({
                         onClick={() => onRemove(entry.id)}
                         title="Remover colaborador"
                     >
-                        ✕
+                        <X size={12} />
                     </button>
                 )}
             </div>
@@ -131,13 +132,13 @@ function ColaboradorRow({
                         className="add-input add-textarea"
                         value={entry.complemento}
                         onChange={e => onChangeCampo(entry.id, "complemento", e.target.value)}
-                        placeholder="Complemento (opcional) — deste colaborador"
+                        placeholder="Complemento (opcional): deste colaborador"
                         rows={3}
                     />
                     <EvidenciasUploader
                         novas={entry.evidencias}
                         onChangeNovas={evs => onChangeEvidencias(entry.id, evs)}
-                        label="Evidências (opcional) — deste colaborador:"
+                        label="Evidências deste colaborador (opcional):"
                     />
                 </div>
             )}
@@ -356,7 +357,7 @@ function Add({ setAddAberto, getAdiverts }: AddProps) {
                     className={`add-modo-tab ${ativo === "individual" ? "add-modo-tab--ativo" : ""}`}
                     onClick={() => { setModoMultiplo(false); setErroForm(null); }}
                 >
-                    <span className="add-modo-tab-icone">👤</span>
+                    <span className="add-modo-tab-icone"><User size={22} /></span>
                     <span className="add-modo-tab-texto">
                         <strong>Individual</strong>
                         <small>Um colaborador</small>
@@ -367,7 +368,7 @@ function Add({ setAddAberto, getAdiverts }: AddProps) {
                     className={`add-modo-tab ${ativo === "multiplo" ? "add-modo-tab--ativo" : ""}`}
                     onClick={() => { setModoMultiplo(true); setErroForm(null); }}
                 >
-                    <span className="add-modo-tab-icone">👥</span>
+                    <span className="add-modo-tab-icone"><Users size={22} /></span>
                     <span className="add-modo-tab-texto">
                         <strong>Vários colaboradores</strong>
                         <small>Aplica a mesma advertência a vários de uma vez</small>
@@ -400,7 +401,7 @@ function Add({ setAddAberto, getAdiverts }: AddProps) {
                         colabs={colabs}
                         onNomeChange={v => { onChange({ ...form, Nome: v }); setErroForm(null); }}
                         onColabSelect={(nome, matricula) => { onChange({ ...form, Nome: nome, matricula }); setErroForm(null); }}
-                        placeholder="Digite o nome — matrícula será preenchida automaticamente"
+                        placeholder="Digite o nome; a matrícula será preenchida automaticamente"
                     />
                 </div>
             </div>
@@ -453,7 +454,7 @@ function Add({ setAddAberto, getAdiverts }: AddProps) {
                     className="add-input add-textarea"
                     value={form.complemento}
                     onChange={e => { onChange({ ...form, complemento: e.target.value }); setErroForm(null); }}
-                    placeholder="Texto complementar — aparece abaixo do motivo, na 1ª página do PDF"
+                    placeholder="Texto complementar (aparece abaixo do motivo, na 1ª página do PDF)"
                     rows={4}
                 />
             </div>
@@ -463,7 +464,7 @@ function Add({ setAddAberto, getAdiverts }: AddProps) {
                 onChangeNovas={evs => onChange({ ...form, evidencias: evs })}
             />
 
-            {erroForm && <div className="add-erro-form">⚠️ {erroForm}</div>}
+            {erroForm && <div className="add-erro-form"><Warning size={14} /> {erroForm}</div>}
 
             <div className="add-form-acoes">
                 <button className="add-btn-confirm btn" onClick={onConfirm}>{labelConfirm}</button>
@@ -581,20 +582,20 @@ function Add({ setAddAberto, getAdiverts }: AddProps) {
                                 className="add-input add-textarea"
                                 value={novaForm.complemento}
                                 onChange={e => { setNovaForm(prev => ({ ...prev, complemento: e.target.value })); setErroForm(null); }}
-                                placeholder="Texto complementar — aplicado a todos os colaboradores"
+                                placeholder="Texto complementar, aplicado a todos os colaboradores"
                                 rows={4}
                             />
                         </div>
                         <EvidenciasUploader
                             novas={novaForm.evidencias}
                             onChangeNovas={evs => setNovaForm(prev => ({ ...prev, evidencias: evs }))}
-                            label="Evidências (opcional) — aplicadas a todos:"
+                            label="Evidências aplicadas a todos (opcional):"
                         />
                     </>
                 )}
             </div>
 
-            {erroForm && <div className="add-erro-form">⚠️ {erroForm}</div>}
+            {erroForm && <div className="add-erro-form"><Warning size={14} /> {erroForm}</div>}
 
             <div className="add-form-acoes">
                 <button className="add-btn-confirm btn" onClick={confirmarLote}>
@@ -616,9 +617,9 @@ function Add({ setAddAberto, getAdiverts }: AddProps) {
     return (
         <div className="add-popup">
             <div className="add-header">
-                <h2 className="add-titulo-principal">📋 Nova Advertência</h2>
+                <h2 className="add-titulo-principal"><ClipboardText size={20} /> Nova Advertência</h2>
                 <button className="add-btn-fechar" onClick={() => setAddAberto(false)} title="Fechar">
-                    <img className="icon" src="close.png" alt="fechar" />
+                    <X size={20} />
                 </button>
             </div>
 
@@ -637,8 +638,8 @@ function Add({ setAddAberto, getAdiverts }: AddProps) {
                                         <span className="add-card-nome">{adv.Nome || "—"}</span>
                                         <span className="add-card-sub">
                                             Mat: {adv.matricula} &nbsp;|&nbsp; {adv.data} &nbsp;|&nbsp; {adv.tipo}
-                                            {adv.evidencias.length > 0 && <> &nbsp;|&nbsp; 📎 {adv.evidencias.length}</>}
-                                            {adv.complemento.trim() && <> &nbsp;|&nbsp; 📝</>}
+                                            {adv.evidencias.length > 0 && <> &nbsp;|&nbsp; <Paperclip size={12} /> {adv.evidencias.length}</>}
+                                            {adv.complemento.trim() && <> &nbsp;|&nbsp; <NotePencil size={12} /></>}
                                         </span>
                                         <span className="add-card-motivo" title={adv.motivo}>
                                             {adv.motivo.length > 85 ? adv.motivo.substring(0, 85) + "…" : adv.motivo}
@@ -646,10 +647,10 @@ function Add({ setAddAberto, getAdiverts }: AddProps) {
                                     </div>
                                     <div className="add-card-acoes">
                                         <button className="add-btn-icone" onClick={() => iniciarEdicao(idx)} title="Editar">
-                                            <img className="icon" src="edit.png" alt="editar" />
+                                            <PencilSimple size={16} />
                                         </button>
                                         <button className="add-btn-icone" onClick={() => excluir(idx)} title="Excluir">
-                                            <img className="icon" src="lixeira.png" alt="excluir" />
+                                            <Trash size={16} />
                                         </button>
                                     </div>
                                 </div>
@@ -673,7 +674,7 @@ function Add({ setAddAberto, getAdiverts }: AddProps) {
             </div>
 
             {erroForm && !criandoNova && editandoIdx === null && (
-                <div className="add-erro-form">⚠️ {erroForm}</div>
+                <div className="add-erro-form"><Warning size={14} /> {erroForm}</div>
             )}
 
             <div className="add-rodape">
