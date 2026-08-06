@@ -45,7 +45,7 @@ body {
     overflow-x: hidden;
     display: flex;
     justify-content: center;
-    background: linear-gradient(135deg, var(--gray-800) 0%, var(--gray-900) 100%);
+    background: var(--gray-200);
     font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
     color: var(--gray-800);
 }
@@ -2121,7 +2121,7 @@ select:focus {
 }
 
 /* ══════════════════════════════════════════════════
-   SCROLLBARS CUSTOMIZADAS — cinza discreto, sempre visível
+   SCROLLBARS CUSTOMIZADAS — trilho invisível, polegar fino em pílula
 ══════════════════════════════════════════════════ */
 .box-adiverts::-webkit-scrollbar,
 .hist-tabela-wrap::-webkit-scrollbar,
@@ -2129,8 +2129,8 @@ select:focus {
 .add-lista::-webkit-scrollbar,
 .colab-lista::-webkit-scrollbar,
 .add-colabs-lista::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
 }
 
 .box-adiverts::-webkit-scrollbar-track,
@@ -2139,8 +2139,7 @@ select:focus {
 .add-lista::-webkit-scrollbar-track,
 .colab-lista::-webkit-scrollbar-track,
 .add-colabs-lista::-webkit-scrollbar-track {
-    background: var(--gray-200);
-    border-radius: 8px;
+    background: transparent;
 }
 
 .box-adiverts::-webkit-scrollbar-thumb,
@@ -2149,10 +2148,8 @@ select:focus {
 .add-lista::-webkit-scrollbar-thumb,
 .colab-lista::-webkit-scrollbar-thumb,
 .add-colabs-lista::-webkit-scrollbar-thumb {
-    background: var(--gray-500);
-    border-radius: 8px;
-    border: 2px solid var(--gray-200);
-    background-clip: padding-box;
+    background: var(--gray-400);
+    border-radius: 999px;
 }
 
 .box-adiverts::-webkit-scrollbar-thumb:hover,
@@ -2161,9 +2158,7 @@ select:focus {
 .add-lista::-webkit-scrollbar-thumb:hover,
 .colab-lista::-webkit-scrollbar-thumb:hover,
 .add-colabs-lista::-webkit-scrollbar-thumb:hover {
-    background: var(--gray-600);
-    border: 2px solid var(--gray-200);
-    background-clip: padding-box;
+    background: var(--gray-500);
 }
 
 /* Firefox */
@@ -2173,7 +2168,7 @@ select:focus {
 .add-lista,
 .colab-lista,
 .add-colabs-lista {
-    scrollbar-color: var(--gray-500) var(--gray-200);
+    scrollbar-color: var(--gray-400) transparent;
     scrollbar-width: thin;
 }
 
