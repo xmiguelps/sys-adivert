@@ -1,4 +1,5 @@
 import type { MouseEvent } from "react";
+import { CheckCircle, Square } from "@phosphor-icons/react";
 
 type TabelaProps = {
     data: string;
@@ -54,9 +55,11 @@ function Tabela({ data, matricula, nome, tipo, motivo, assinada, id, selected, o
                         className={`assinada-toggle ${assinada ? 'assinada-toggle--sim' : 'assinada-toggle--nao'}`}
                         onClick={() => onToggleAssinatura(id, !assinada)}
                         aria-pressed={assinada}
-                        title={assinada ? 'Assinada — clique para desmarcar' : 'Pendente — clique para marcar como assinada'}
+                        title={assinada ? 'Assinada. Clique para desmarcar.' : 'Pendente. Clique para marcar como assinada.'}
                     >
-                        {assinada ? '✅ Assinada' : '⬜ Pendente'}
+                        {assinada
+                            ? <><CheckCircle size={14} weight="fill" /> Assinada</>
+                            : <><Square size={14} /> Pendente</>}
                     </button>
                 </td>
             </tr>
