@@ -34,6 +34,7 @@
     --radius-lg: 14px;
 
     --transition: 0.18s ease;
+    --transition-fast: 0.08s ease;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -527,6 +528,9 @@ button {
 .add-btn-fechar:hover {
     background: var(--gray-300) !important;
 }
+.add-btn-fechar:active {
+    transform: scale(0.93);
+}
 
 .add-lista {
     flex: 1;
@@ -609,6 +613,9 @@ button {
 
 .add-btn-icone:hover {
     background: var(--gray-300) !important;
+}
+.add-btn-icone:active {
+    transform: scale(0.93);
 }
 
 /* ── Formulário ── */
@@ -898,7 +905,7 @@ select:focus {
     padding: 2px 6px;
     border-radius: var(--radius-sm);
     background: rgba(21, 101, 192, 0.12) !important;
-    transition: background 0.18s ease;
+    transition: background var(--transition);
     cursor: pointer;
     border: none;
     line-height: 1;
@@ -1019,7 +1026,7 @@ select:focus {
     cursor: pointer;
     letter-spacing: 0.2px;
     white-space: nowrap;
-    transition: filter 0.15s ease, transform 0.05s ease;
+    transition: filter var(--transition), transform var(--transition-fast);
 }
 
 .assinada-toggle:hover { filter: brightness(0.96); }
@@ -1756,6 +1763,9 @@ select:focus {
 .hist-btn-voltar:hover {
     background: var(--gray-300);
 }
+.hist-btn-voltar:active {
+    transform: scale(0.97);
+}
 
 /* ══════════════════════════════════════════════════
    HISTÓRICO — MENU INICIAL (2 cards)
@@ -2283,7 +2293,7 @@ select:focus {
     align-items: center;
     justify-content: center;
     padding: 0;
-    transition: all 0.15s;
+    transition: all var(--transition);
     flex-shrink: 0;
 }
 .add-btn-remover-colab:hover {
