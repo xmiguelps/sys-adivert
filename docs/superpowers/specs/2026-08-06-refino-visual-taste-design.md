@@ -70,10 +70,18 @@ tingimento quente), sem alterar o card branco, a borda vermelha do topo, nem o l
 
 **A2. Consistência de cor (Color Consistency Lock)**
 - Remover `--purple` / `--purple-dark` (`index.css` linhas 15-16) — declarados e nunca usados.
-- Botões de ação secundária que hoje usam azul/verde como se fossem "marca" (`.acoes-btn--editar`,
-  `.acoes-btn--pdf`, `.add-btn-nova`, `.colab-btn-listar`, `.add-btn-confirm`, `.add-btn-salvar`,
-  `.colab-btn-novo`) passam a usar tratamento neutro (cinza ou vermelho-contorno), reservando
-  vermelho saturado só para ação primária/destrutiva.
+- Também confirmado como morto (grep no `front-end/src`, nenhum componente referencia):
+  `.colab-btn-listar`, `.colab-btn-refresh`, `.colab-btn-download` e `.search-input` — remover
+  as 4 regras.
+- **Decisão refinada com o usuário (diverge da leitura inicial "um acento só"):** vermelho
+  continua exclusivo de ação destrutiva (`.acoes-btn--excluir`, `.excluir-btn`,
+  `.colab-btn-remover-exec`) — isso não muda. Verde continua reservado para ação afirmativa que
+  muda estado (`.add-btn-confirm`, `.add-btn-salvar`, `.colab-btn-novo` — Salvar/Criar/Adicionar).
+  Azul deixa de existir como "marca" de botão: `.acoes-btn--editar` (Editar) e `.acoes-btn--pdf`
+  (Baixar PDF) perdem o color override e caem no cinza padrão de `.acoes-btn` (mesmo tratamento
+  que "Inspecionar" já tem, sem modificador); `.add-btn-nova` (+ Nova Advertência) e
+  `.evid-add-btn` (Anexar imagens) passam de azul para cinza neutro — nem destrutivo nem
+  "salva estado", então não herdam nem vermelho nem verde.
 - `.badge-escrita` / `.badge-verbal` (linhas ~1008-1018, azul e laranja) passam a neutros —
   o campo "Tipo" não tem semântica de status.
 - Unificar os ~4 tons de "linha/opção selecionada" hoje espalhados
@@ -137,20 +145,30 @@ tratamento cinza.
   padronizados por contexto (ex.: 20-22px no menu lateral, 16-18px em botões inline,
   14-16px em badges/rótulos pequenos). Cor via `currentColor` (herdada do CSS do elemento pai)
   em vez do filtro `brightness(0) invert(1)`.
-- Mapeamento (não exaustivo — a lista completa de ocorrências está nos achados da auditoria,
-  arquivo de referência: journal da auditoria desta sessão):
-  - Menu lateral: `plus.png`→`Plus`, `colab.png`→`Users`, `download.png`→`DownloadSimple`,
+- Mapeamento (não exaustivo — a implementação deve fazer uma busca por emoji/PNG/glifo
+  Unicode usado como ícone em cada arquivo listado em "Arquivos afetados" para achar
+  ocorrências além destas):
+  - Menu lateral (`App.tsx`): `plus.png`→`Plus`, `colab.png`→`Users`, `download.png`→`DownloadSimple`,
     `settings.png`→`Gear`.
-  - Barra de ações da tabela (`App.tsx`, hoje 🔍🗑️✏️📄): `MagnifyingGlass`, `Trash`,
+  - Barra de ações da tabela (`App.tsx`, `.acoes-bar__buttons`, hoje 🔍🗑️✏️📄): `MagnifyingGlass`, `Trash`,
     `PencilSimple`, `FilePdf`.
-  - Fechar/voltar (hoje `close.png` + `✕` + `←` competindo): um único par `X` / `ArrowLeft`
-    em todos os cabeçalhos de modal e fluxo de Histórico.
-  - Confirmar (hoje `✔` + `✅`): `Check` / `CheckCircle` (mantendo `CheckCircle`/quadrado
+  - Fechar/voltar (hoje `close.png` + `✕` + `←` competindo, presente em `App.tsx` e em
+    todos os componentes de Histórico): um único par `X` / `ArrowLeft` em todos os
+    cabeçalhos de modal e fluxo de Histórico.
+  - Confirmar (hoje `✔` em `Colaboradores.tsx`/`Configuracoes.tsx` + `✅` em
+    `Tabela.tsx`/`App.tsx`): `Check` / `CheckCircle` (mantendo `CheckCircle`/quadrado
     vazio como badge de "Assinada", já que ali há semântica real de status).
-  - Carregando (hoje `⏳` em alguns lugares, "..." simples em outros):
-    padronizar em um só indicador (texto "..." onde já é o padrão majoritário, sem o emoji).
-  - Histórico/exportação (hoje 📥📄📊): `DownloadSimple`, `FilePdf`, `FileXls`.
+  - Carregando (hoje `⏳` em `Colaboradores.tsx`, `Configuracoes.tsx`,
+    `GerarHistoricoColaborador.tsx`, `GerarHistoricoMotivo.tsx`, `EvidenciasUploader.tsx`,
+    vs. "..." simples em `Update.tsx`/`Excluir.tsx`/`Add.tsx`): padronizar no texto "..."
+    já majoritário, sem emoji.
+  - Histórico/exportação (`GerarHistoricoColaborador.tsx`, `HistoricoColaborador.tsx`,
+    `HistoricoMotivo.tsx`, `GerarHistoricoMotivo.tsx`, hoje 📥📄📊): `DownloadSimple`, `FilePdf`, `FileXls`.
   - Toast (`Toast.tsx`, hoje ✅❌ℹ️): `CheckCircle`, `XCircle`, `Info`.
+  - Ícones de campo/badge sem ação associada (hoje 📅👤🪪📝⚠️✍️📎, em `App.tsx` no painel
+    "Inspecionar" e em `HistoricoColaborador.tsx`): avaliar caso a caso na implementação —
+    onde o emoji só decora um rótulo (ex.: "📅 Data"), a opção mais simples é remover o
+    glifo e deixar o rótulo em texto, em vez de forçar um ícone Phosphor sem necessidade.
 - Remover do repositório os PNGs que ficarem sem uso após a migração
   (`plus.png`, `colab.png`, `settings.png`, `search.png`, `close.png`, `download.png`,
   `edit.png`, `lixeira.png`). **`danlex.png`** (logo da empresa) e **`favicon.ico`** não são
