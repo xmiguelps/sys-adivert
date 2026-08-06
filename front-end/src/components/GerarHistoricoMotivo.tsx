@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react'
+import { X, ArrowLeft, DownloadSimple, Warning, Calendar, FilePdf, FileXls } from '@phosphor-icons/react'
 import {
     MESES_NOMES, getAnoMesAtual, listaAnos,
     isMesFuturo, isDataFutura, diasNoMes,
@@ -146,12 +147,15 @@ const GerarHistoricoMotivo: React.FC<Props> = ({ adiverts, motivoConfirmado, onV
             <div className="hist-header">
                 <div className="hist-header-left">
                     <button className="hist-btn-voltar" onClick={onVoltar} title="Voltar">
-                        ← Voltar
+                        <ArrowLeft size={16} /> Voltar
                     </button>
-                    <h2 className="hist-titulo">📥 Gerar histórico por motivo</h2>
+                    <span className="titulo-com-icone">
+                        <DownloadSimple size={20} />
+                        <h2 className="hist-titulo">Gerar histórico por motivo</h2>
+                    </span>
                 </div>
                 <button className="add-btn-fechar" onClick={onFechar} title="Fechar">
-                    <img className="icon" src="close.png" alt="fechar" />
+                    <X size={20} />
                 </button>
             </div>
 
@@ -165,13 +169,13 @@ const GerarHistoricoMotivo: React.FC<Props> = ({ adiverts, motivoConfirmado, onV
                     className={`hist-modo-btn ${modo === 'mes' ? 'hist-modo-btn--ativo' : ''}`}
                     onClick={() => setModo('mes')}
                 >
-                    📅 Gerar por mês
+                    <Calendar size={18} /> Gerar por mês
                 </button>
                 <button
                     className={`hist-modo-btn ${modo === 'dia' ? 'hist-modo-btn--ativo' : ''}`}
                     onClick={() => setModo('dia')}
                 >
-                    📆 Gerar por dia
+                    <Calendar size={18} /> Gerar por dia
                 </button>
             </div>
 
@@ -211,7 +215,7 @@ const GerarHistoricoMotivo: React.FC<Props> = ({ adiverts, motivoConfirmado, onV
 
                     <div className={`hist-msg-box ${doMes.length === 0 ? 'hist-msg-box--vazio' : 'hist-msg-box--ok'}`}>
                         {futuroMes ? (
-                            <>⚠️ Mês selecionado ainda não ocorreu.</>
+                            <><Warning size={14} /> Mês selecionado ainda não ocorreu.</>
                         ) : (
                             <>
                                 <strong>{doMes.length}</strong> advertência{doMes.length === 1 ? '' : 's'} encontrada{doMes.length === 1 ? '' : 's'} em
@@ -226,14 +230,14 @@ const GerarHistoricoMotivo: React.FC<Props> = ({ adiverts, motivoConfirmado, onV
                             onClick={gerarMes}
                             disabled={baixando || futuroMes || doMes.length === 0}
                         >
-                            {baixando ? '⏳ Gerando...' : '📄 Gerar PDF'}
+                            {baixando ? 'Gerando...' : <><FilePdf size={16} /> Gerar PDF</>}
                         </button>
                         <button
                             className="btn add-btn-confirm hist-btn-gerar"
                             onClick={gerarMesExcel}
                             disabled={baixando || futuroMes || doMes.length === 0}
                         >
-                            {baixando ? '⏳ Gerando...' : '📊 Gerar Excel'}
+                            {baixando ? 'Gerando...' : <><FileXls size={16} /> Gerar Excel</>}
                         </button>
                     </div>
                 </div>
@@ -290,7 +294,7 @@ const GerarHistoricoMotivo: React.FC<Props> = ({ adiverts, motivoConfirmado, onV
 
                     <div className={`hist-msg-box ${doDia.length === 0 ? 'hist-msg-box--vazio' : 'hist-msg-box--ok'}`}>
                         {futuroDia ? (
-                            <>⚠️ Data selecionada ainda não ocorreu.</>
+                            <><Warning size={14} /> Data selecionada ainda não ocorreu.</>
                         ) : (
                             <>
                                 <strong>{doDia.length}</strong> advertência{doDia.length === 1 ? '' : 's'} encontrada{doDia.length === 1 ? '' : 's'} em
@@ -307,14 +311,14 @@ const GerarHistoricoMotivo: React.FC<Props> = ({ adiverts, motivoConfirmado, onV
                             onClick={gerarDia}
                             disabled={baixando || futuroDia || doDia.length === 0}
                         >
-                            {baixando ? '⏳ Gerando...' : '📄 Gerar PDF'}
+                            {baixando ? 'Gerando...' : <><FilePdf size={16} /> Gerar PDF</>}
                         </button>
                         <button
                             className="btn add-btn-confirm hist-btn-gerar"
                             onClick={gerarDiaExcel}
                             disabled={baixando || futuroDia || doDia.length === 0}
                         >
-                            {baixando ? '⏳ Gerando...' : '📊 Gerar Excel'}
+                            {baixando ? 'Gerando...' : <><FileXls size={16} /> Gerar Excel</>}
                         </button>
                     </div>
                 </div>
