@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { X, Trash, Users } from "@phosphor-icons/react";
+import { Plus, X, Trash, Users } from "@phosphor-icons/react";
 import ColabSelect from "./ColabSelect";
 
 function normalizar(s: string) {
@@ -155,7 +155,7 @@ function Colaboradores({ setColabAberto }: ColabsProps) {
                     className="btn colab-btn-novo"
                     onClick={() => { setCriandoColab(v => !v); setRemovendoAtivo(false); setConfirmRemoverId(null); }}
                 >
-                    {criandoColab ? <><X size={14} /> Cancelar</> : "+ Novo Colaborador"}
+                    {criandoColab ? <><X size={14} /> Cancelar</> : <><Plus size={14} /> Novo Colaborador</>}
                 </button>
 
                 <button

@@ -1,4 +1,5 @@
 import { useState, useRef, useLayoutEffect, useEffect } from "react";
+import { CaretDown } from "@phosphor-icons/react";
 
 const TIPOS = ["Escrita", "Verbal"];
 
@@ -63,7 +64,7 @@ function TipoSelect({ value, onChange, className }: TipoSelectProps) {
                 aria-expanded={open}
             >
                 <span className="tipo-select__value">{value || "Selecione..."}</span>
-                <span className="tipo-select__arrow">▾</span>
+                <span className="tipo-select__arrow"><CaretDown size={12} /></span>
             </button>
 
             {open && (

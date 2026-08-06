@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { X, Trash, Gear, ClipboardText } from "@phosphor-icons/react";
+import { Plus, X, Trash, Gear, ClipboardText } from "@phosphor-icons/react";
 import { showToast } from "./Toast";
 
 function normalizar(s: string) {
@@ -130,7 +130,7 @@ function Configuracoes({ setConfigAberto }: ConfiguracoesProps) {
                             className="btn colab-btn-novo"
                             onClick={() => { setCriando(v => !v); setConfirmRemoverId(null); }}
                         >
-                            {criando ? <><X size={14} /> Cancelar</> : "+ Novo Motivo"}
+                            {criando ? <><X size={14} /> Cancelar</> : <><Plus size={14} /> Novo Motivo</>}
                         </button>
                     </div>
 

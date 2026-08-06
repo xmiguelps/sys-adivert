@@ -1315,8 +1315,8 @@ select:focus {
     cursor: pointer;
     border: 2px solid transparent;
     transition: background var(--transition), color var(--transition),
-                border-color var(--transition), transform 0.15s ease,
-                box-shadow 0.15s ease;
+                border-color var(--transition), transform var(--transition),
+                box-shadow var(--transition);
     background: var(--gray-700);
     color: #fff;
     white-space: nowrap;
@@ -1700,7 +1700,7 @@ select:focus {
 }
 
 .tipo-select__option--selected {
-    background: #ffeaea;
+    background: var(--red-light);
     color: var(--red-dark);
     font-weight: 600;
 }
@@ -2172,6 +2172,17 @@ select:focus {
     scrollbar-width: thin;
 }
 
+/* .box-adiverts tem fundo vermelho (cabeçalho da tabela) — o trilho
+   "transparente" compartilhado deixaria essa cor vazar pelo gutter.
+   Aqui ele ganha um trilho translúcido em branco, visível sobre
+   qualquer fundo, em vez de herdar o vermelho por baixo. */
+.box-adiverts::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.3);
+}
+.box-adiverts {
+    scrollbar-color: var(--gray-400) rgba(255, 255, 255, 0.3);
+}
+
 /* ── Modo Múltiplos Colaboradores ── */
 .add-modo-toggle-bar {
     display: flex;
@@ -2386,7 +2397,6 @@ select:focus {
     gap: 6px;
 }
 .evid-add-btn:hover:not(:disabled) { background: var(--gray-800) !important; }
-.evid-add-btn:disabled { opacity: .6; cursor: default; }
 
 .evid-grid {
     display: grid;
@@ -2669,7 +2679,7 @@ select:focus {
 
     /* Menu de histórico (2 cards) mais baixo */
     .hist-menu-card { min-height: 120px; padding: 18px 16px; }
-    .hist-menu-icon { font-size: 34px; }
+    .hist-menu-icon svg { width: 32px; height: 32px; }
 
     /* Listas dos modais grandes acompanham a altura da tela */
     .add-lista { max-height: 46vh; }

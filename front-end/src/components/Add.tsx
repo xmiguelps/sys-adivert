@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { X, PencilSimple, Trash, User, Users, Warning, Paperclip, NotePencil, ClipboardText } from "@phosphor-icons/react";
+import { Plus, X, PencilSimple, Trash, User, Users, Warning, Paperclip, NotePencil, ClipboardText } from "@phosphor-icons/react";
 import MotivosSelect from "./MotivosSelect";
 import TipoSelect from "./TipoSelect";
 import ColabSelect from "./ColabSelect";
@@ -531,7 +531,7 @@ function Add({ setAddAberto, getAdiverts }: AddProps) {
                 </div>
 
                 <button className="add-btn-mais-colab btn" onClick={adicionarColab}>
-                    + Adicionar Colaborador
+                    <Plus size={14} /> Adicionar Colaborador
                 </button>
             </div>
 
@@ -679,7 +679,7 @@ function Add({ setAddAberto, getAdiverts }: AddProps) {
 
             <div className="add-rodape">
                 <button className="add-btn-nova btn" onClick={abrirNova}>
-                    + Nova Advertência
+                    <Plus size={14} /> Nova Advertência
                 </button>
                 <button className="add-btn-salvar btn" onClick={finalizarESalvar} disabled={salvando}>
                     {salvando ? "Salvando..." : "Finalizar e Salvar"}

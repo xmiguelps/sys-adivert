@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useLayoutEffect } from 'react'
+import { CaretDown } from '@phosphor-icons/react'
 
 type Props = {
     value: string
@@ -88,7 +89,7 @@ function MotivosSelect({ value, onChange, motivos, className }: Props) {
                     <span className={value ? 'motivos-select__value' : 'motivos-select__placeholder'}>
                         {triggerLabel}
                     </span>
-                    <span className="motivos-select__arrow">▾</span>
+                    <span className="motivos-select__arrow"><CaretDown size={12} /></span>
                 </button>
 
                 {open && (

@@ -446,7 +446,7 @@ function App() {
                             <div className="inspecionar-campo inspecionar-campo--coluna">
                                 <span className="inspecionar-label">Evidências</span>
                                 {inspCarregando ? (
-                                    <span className="inspecionar-valor">Carregando…</span>
+                                    <span className="inspecionar-valor">Carregando...</span>
                                 ) : (inspDetalhe?.evidencias && inspDetalhe.evidencias.length > 0) ? (
                                     <div className="evid-grid inspecionar-evid-grid">
                                         {inspDetalhe.evidencias.map((e: any) => {
@@ -631,7 +631,7 @@ function App() {
                                             <tbody>
                                                 <tr>
                                                     <td colSpan={6} className="tabela-vazia">
-                                                        <span className="tabela-vazia__icone"><ClipboardText size={45} /></span>
+                                                        <span className="tabela-vazia__icone"><ClipboardText size={44} /></span>
                                                         <span className="tabela-vazia__texto">Nenhuma advertência registrada</span>
                                                     </td>
                                                 </tr>
