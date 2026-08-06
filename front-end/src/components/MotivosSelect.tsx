@@ -105,7 +105,7 @@ function MotivosSelect({ value, onChange, motivos, className }: Props) {
                                 className="motivos-select__search"
                                 value={query}
                                 onChange={e => setQuery(e.target.value)}
-                                placeholder="🔍 Pesquisar motivo..."
+                                placeholder="Pesquisar motivo..."
                                 autoComplete="off"
                             />
                         </div>
