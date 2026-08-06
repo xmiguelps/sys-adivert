@@ -9,7 +9,7 @@ type Props = {
     // evidencias novas (ainda nao enviadas), controladas pelo pai
     novas: EvidenciaLocal[];
     onChangeNovas: (evs: EvidenciaLocal[]) => void;
-    // evidencias ja salvas (modo edicao) — opcional
+    // evidencias ja salvas (modo edicao) - opcional
     existentes?: EvidenciaExistente[];
     onRemoverExistente?: (id: number) => void;
     label?: string;

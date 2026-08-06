@@ -185,7 +185,7 @@ function Add({ setAddAberto, getAdiverts }: AddProps) {
     const prevNovoNomeRef = useRef("");
     const prevEditNomeRef = useRef("");
 
-    /* Modo único — nova: uppercase + busca matrícula via debounce */
+    /* Modo único - nova: uppercase + busca matrícula via debounce */
     useEffect(() => {
 
         if (!debouncedNovoNome || debouncedNovoNome === prevNovoNomeRef.current || !criandoNova) return;
@@ -195,7 +195,7 @@ function Add({ setAddAberto, getAdiverts }: AddProps) {
         buscarMatricula(upper, "nova");
     }, [debouncedNovoNome, criandoNova]);
 
-    /* Modo único — edição: uppercase + busca matrícula via debounce */
+    /* Modo único - edição: uppercase + busca matrícula via debounce */
     useEffect(() => {
         if (!debouncedEditNome || debouncedEditNome === prevEditNomeRef.current || editandoIdx === null) return;
         const upper = debouncedEditNome.toUpperCase();

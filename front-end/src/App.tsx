@@ -56,7 +56,7 @@ function App() {
     const [data, setData] = useState<any[]>([])
     const [carregando, setCarregando] = useState<boolean>(false)
 
-    // Seleção de linha (múltipla — segure Ctrl para selecionar várias)
+    // Seleção de linha (múltipla - segure Ctrl para selecionar várias)
     const [selectedIds, setSelectedIds] = useState<number[]>([])
     const selectedId = selectedIds.length === 1 ? selectedIds[0] : null
 
@@ -119,7 +119,7 @@ function App() {
         }
     }
 
-    // Baixa TODAS as advertências selecionadas — um PDF por advertência, tudo em um .zip
+    // Baixa TODAS as advertências selecionadas - um PDF por advertência, tudo em um .zip
     const confirmarDownloadLote = async () => {
         setBaixandoLote(true)
         try {
