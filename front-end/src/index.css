@@ -28,6 +28,7 @@
     --shadow-md: 0 4px 12px rgba(0,0,0,.15);
     --shadow-lg: 0 8px 24px rgba(0,0,0,.2);
 
+    --radius-xs: 4px;
     --radius-sm: 6px;
     --radius-md: 10px;
     --radius-lg: 14px;
@@ -506,7 +507,7 @@ button {
 
 .add-btn-fechar {
     background: var(--gray-200) !important;
-    border-radius: 10px !important;
+    border-radius: var(--radius-md) !important;
     width: 40px !important;
     height: 40px !important;
     display: flex !important;
@@ -883,7 +884,7 @@ select:focus { border-color: var(--blue-primary); }
 .btn-inspecionar {
     font-size: 16px;
     padding: 2px 6px;
-    border-radius: 6px;
+    border-radius: var(--radius-sm);
     background: rgba(21, 101, 192, 0.12) !important;
     transition: background 0.18s ease;
     cursor: pointer;
@@ -1281,8 +1282,8 @@ select:focus { border-color: var(--blue-primary); }
 }
 
 .acoes-btn:hover:not(:disabled) {
-    transform: translateY(-4px);
-    box-shadow: 0 6px 14px rgba(0,0,0,.18);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
 }
 
 .acoes-btn:active:not(:disabled) {
@@ -1332,7 +1333,7 @@ select:focus { border-color: var(--blue-primary); }
     padding: 12px 22px;
     font-size: 14px;
     font-weight: 600;
-    box-shadow: 0 6px 24px rgba(0,0,0,.18);
+    box-shadow: var(--shadow-lg);
     min-width: 260px;
     max-width: 420px;
     white-space: nowrap;
@@ -2581,7 +2582,7 @@ select:focus { border-color: var(--blue-primary); }
     background: var(--gray-200);
     border: 1px solid var(--gray-300);
     border-bottom-width: 2px;
-    border-radius: 4px;
+    border-radius: var(--radius-xs);
     padding: 1px 6px;
     font-size: 11px;
     font-family: monospace;
