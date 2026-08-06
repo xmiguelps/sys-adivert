@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import {
     Plus, X, MagnifyingGlass, PencilSimple, Trash, Users, Gear,
-    DownloadSimple, FilePdf, CheckCircle, Square,
+    DownloadSimple, FilePdf, CheckCircle, Square, Info, ClipboardText,
 } from '@phosphor-icons/react'
 import Tabela from './components/Tabela'
 import Add from './components/Add'
@@ -434,7 +434,7 @@ function App() {
                                 <>
                                     <div className="inspecionar-divider" />
                                     <div className="inspecionar-campo inspecionar-campo--coluna">
-                                        <span className="inspecionar-label">🗒️ Complemento</span>
+                                        <span className="inspecionar-label">Complemento</span>
                                         <span className="inspecionar-motivo">
                                             {inspDetalhe?.complemento ?? selectedAdivert.complemento}
                                         </span>
@@ -610,7 +610,7 @@ function App() {
                         <div className='d-flex box-main'>
                             <div className='box-adiverts-wrapper'>
                                 <div className="tabela-hint">
-                                    💡 Segure <kbd>Ctrl</kbd> para selecionar mais de uma advertência.
+                                    <Info size={14} /> Segure <kbd>Ctrl</kbd> para selecionar mais de uma advertência.
                                     {selectedIds.length > 1 && (
                                         <strong className="tabela-hint__count"> · {selectedIds.length} selecionadas</strong>
                                     )}
@@ -631,7 +631,7 @@ function App() {
                                             <tbody>
                                                 <tr>
                                                     <td colSpan={6} className="tabela-vazia">
-                                                        <span className="tabela-vazia__icone">📋</span>
+                                                        <span className="tabela-vazia__icone"><ClipboardText size={45} /></span>
                                                         <span className="tabela-vazia__texto">Nenhuma advertência registrada</span>
                                                     </td>
                                                 </tr>
