@@ -162,7 +162,7 @@ function Configuracoes({ setConfigAberto }: ConfiguracoesProps) {
                     {confirmRemoverId !== null && (() => {
                         const alvo = motivos.find(m => m.id === confirmRemoverId);
                         return alvo ? (
-                            <div className="colab-confirm-box">
+                            <div className="colab-form-box">
                                 <p>Tem certeza que deseja remover este motivo?</p>
                                 <p><em>"{alvo.descricao}"</em></p>
                                 <div className="add-form-acoes">

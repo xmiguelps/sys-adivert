@@ -219,35 +219,34 @@ function Colaboradores({ setColabAberto }: ColabsProps) {
                         onClick={removerPorNome}
                         disabled={removendo}
                     >
-                        {removendo ? "⏳" : "🗑 Buscar e Remover"}
+                        {removendo ? "Buscando..." : "🗑 Buscar e Remover"}
                     </button>
+
+                    {confirmRemoverId !== null && (() => {
+                        const alvo = colabs.find(c => c.id === confirmRemoverId);
+                        return alvo ? (
+                            <div className="colab-remover-confirm">
+                                <p>
+                                    Tem certeza que deseja remover <strong>{alvo.nome}</strong>{" "}
+                                    (Mat: {alvo.matricula})?
+                                </p>
+                                <div className="add-form-acoes">
+                                    <button
+                                        className="btn excluir-btn"
+                                        onClick={() => removerPorId(confirmRemoverId)}
+                                        disabled={removendo}
+                                    >
+                                        {removendo ? "Removendo..." : "✔ Sim, remover"}
+                                    </button>
+                                    <button className="btn cancel-btn" onClick={() => setConfirmRemoverId(null)}>
+                                        Cancelar
+                                    </button>
+                                </div>
+                            </div>
+                        ) : null;
+                    })()}
                 </div>
             )}
-
-            {/* ── Confirmação de remoção ── */}
-            {confirmRemoverId !== null && (() => {
-                const alvo = colabs.find(c => c.id === confirmRemoverId);
-                return alvo ? (
-                    <div className="colab-confirm-box">
-                        <p>
-                            Tem certeza que deseja remover <strong>{alvo.nome}</strong>{" "}
-                            (Mat: {alvo.matricula})?
-                        </p>
-                        <div className="add-form-acoes">
-                            <button
-                                className="btn excluir-btn"
-                                onClick={() => removerPorId(confirmRemoverId)}
-                                disabled={removendo}
-                            >
-                                {removendo ? "Removendo..." : "✔ Sim, remover"}
-                            </button>
-                            <button className="btn cancel-btn" onClick={() => setConfirmRemoverId(null)}>
-                                Cancelar
-                            </button>
-                        </div>
-                    </div>
-                ) : null;
-            })()}
 
             {/* ── Busca na lista ── */}
             {!carregando && colabs.length > 0 && (

@@ -772,6 +772,12 @@ select:focus {
     margin-bottom: 4px;
 }
 
+.colab-form-box p {
+    font-size: 14px;
+    color: var(--gray-800);
+    margin-bottom: 12px;
+}
+
 /* ── Remover por nome ── */
 .colab-remover-bar {
     display: flex;
@@ -790,16 +796,15 @@ select:focus {
     min-width: 200px;
 }
 
-/* ── Confirmação ── */
-.colab-confirm-box {
-    background: #fffde7;
-    border: 1px solid #ffe082;
-    border-left: 4px solid var(--orange);
-    border-radius: var(--radius-md);
-    padding: 16px;
+/* ── Confirmação: continua dentro do mesmo painel do .colab-remover-bar ── */
+.colab-remover-confirm {
+    flex-basis: 100%;
+    padding-top: 12px;
+    margin-top: 4px;
+    border-top: 1px solid #f5c2c2;
 }
 
-.colab-confirm-box p {
+.colab-remover-confirm p {
     font-size: 14px;
     color: var(--gray-800);
     margin-bottom: 12px;
