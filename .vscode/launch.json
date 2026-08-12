@@ -6,7 +6,10 @@
       "type": "aspire",
       "request": "launch",
       "program": "${workspaceFolder}/apphost/sys-adivert.AppHost/sys-adivert.AppHost.csproj",
-      "preLaunchTask": "preflight"
+      "preLaunchTask": "preflight",
+      "env": {
+        "ASPIRE_ALLOW_UNSECURED_TRANSPORT": "true"
+      }
     },
     {
       "name": "Subir tudo (reserva, sem a extensao do Aspire)",

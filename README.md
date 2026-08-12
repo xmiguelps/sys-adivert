@@ -4,7 +4,7 @@ Sistema de advertências (DANLEX): API .NET 10 + PostgreSQL e front-end React/Vi
 
 ## Rodando o ambiente completo
 
-Abra esta pasta no VS Code e aperte **F5**. Sobem três coisas:
+Abra esta pasta no VS Code e aperte **F5**. Sobem três recursos que ficam rodando:
 
 | Recurso | O que é | Onde |
 |---|---|---|
@@ -12,16 +12,20 @@ Abra esta pasta no VS Code e aperte **F5**. Sobem três coisas:
 | `api` | Back-end .NET | `http://localhost:5010` |
 | `front-end` | Vite em modo dev | link no dashboard do Aspire |
 
-O dashboard do Aspire abre junto e concentra os logs dos três.
+Um quarto recurso, `front-end-installer` (um Executable), também aparece no dashboard: ele instala as dependências do front-end, roda e chega a **Finished** antes de `front-end` iniciar — é esperado, não é um recurso preso ou com erro.
+
+O dashboard do Aspire abre junto e concentra os logs de tudo isso.
 
 ### Pré-requisitos
 
 - .NET SDK 10
 - Node.js 20 ou superior
+- Aspire CLI 13.x (`dotnet tool install -g Aspire.Cli`) — a extensão do VS Code depende dela e checa a presença **antes** de o preflight rodar, então sem ela o F5 para com um pedido de instalação e as mensagens do preflight nem aparecem
 - Docker Desktop (o banco local roda em container)
 - VS Code com as extensões `microsoft-aspire.aspire-vscode` e `ms-dotnettools.csdevkit` — ao abrir a pasta, o VS Code oferece instalar as duas
+- Windows: o preflight é um script PowerShell e localiza o Docker Desktop por caminhos do Windows
 
-O F5 roda `scripts/preflight.ps1` antes de tudo. Ele confere esses pré-requisitos, abre o Docker Desktop se estiver fechado e roda `npm ci` se `front-end/node_modules` não existir. Se faltar o .NET SDK ou o Node, ele cancela o F5 com o link de download.
+O F5 roda `scripts/preflight.ps1` antes de tudo. Ele confere o .NET SDK, o Node, a Aspire CLI e o daemon do Docker (abrindo o Docker Desktop se estiver fechado), e garante `front-end/node_modules` (rodando `npm ci` se não existir) — mas não confere as extensões do VS Code. Se faltar algum desses, ele cancela o F5 com uma mensagem e, quando aplicável, o link ou comando de instalação.
 
 Dica: ligue "Start Docker Desktop when you sign in" nas configurações do Docker Desktop para o F5 não precisar esperar o Docker subir.
 
@@ -44,13 +48,17 @@ Para inspecionar com DBeaver, pgAdmin ou psql:
 Host=localhost;Port=5432;Database=sysadivert;Username=postgres;Password=postgres
 ```
 
-Essa porta é servida pelo proxy de endpoints do Aspire, que escuta só em loopback e só existe enquanto o AppHost estiver rodando — o banco não é alcançável de outra máquina, e um `dotnet run` isolado do AppHost, com o AppHost parado, não conecta em nada (falha segura, nunca em produção).
+Essa porta é servida pelo proxy de endpoints do Aspire, que escuta só em loopback e só existe enquanto o AppHost estiver rodando — o banco não é alcançável de outra máquina.
+
+> **Atenção ao rodar a API fora do F5.** A proteção contra tocar produção depende de o ambiente ser `Development`, que é o que os perfis do `launchSettings.json` definem. Um `dotnet run` comum é seguro. Já `dotnet run --no-launch-profile`, sem definir `ASPNETCORE_ENVIRONMENT`, cai em `Production`, lê o `appsettings.json` e **conecta no Supabase de produção** — e o `Program.cs` chama `Migrate()` antes de qualquer checagem de ambiente. Se precisar desse comando, defina `$env:ASPNETCORE_ENVIRONMENT = "Development"` junto.
 
 O seed roda apenas em ambiente `Development` e apenas quando a connection string aponta para host local — ele se recusa a escrever em banco remoto.
 
 ## Produção
 
 O deploy usa `back-end/Dockerfile` e a connection string de `back-end/sys-adivert.Api/appsettings.json`; o front-end de produção usa `front-end/.env`. **Nenhum dos dois é usado pelo F5**, e nenhum deve ser alterado para mexer no ambiente local.
+
+**Nunca defina `ASPNETCORE_ENVIRONMENT=Development` no Render.** O `appsettings.Development.json` é publicado dentro da imagem e aponta para `localhost:5432`; com essa variável ligada, o `Migrate()` do startup falha e o container entra em ciclo de reinício. Verificado em 2026-08-12: o serviço está em `Production` — o endpoint `/openapi/v1.json` responde 404, e ele só é registrado em Development.
 
 ## Problemas comuns
 

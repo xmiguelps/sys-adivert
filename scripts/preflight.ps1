@@ -42,11 +42,11 @@ if ($sdks) {
         $partes = $versao -split '\.'
         $major = 0
         try { $major = [int]$partes[0] } catch { $major = 0 }
-        if ($major -ge 10) { $sdkOk = $true }
+        if ($major -eq 10) { $sdkOk = $true }
     }
 }
 if (-not $sdkOk) {
-    Write-Falha "Falta o .NET SDK 10. Instale, feche e reabra o VS Code." "https://dotnet.microsoft.com/download/dotnet/10.0"
+    Write-Falha "Falta o .NET SDK 10 (major exatamente 10; global.json fixa 10.0.100 com rollForward latestFeature, que nao cruza para o SDK 11). Instale, feche e reabra o VS Code." "https://dotnet.microsoft.com/download/dotnet/10.0"
 }
 Write-Ok "dotnet SDK 10 encontrado."
 
@@ -63,7 +63,13 @@ if ($nodeMajor -lt 20) {
 }
 Write-Ok "node $nodeVersao encontrado."
 
-# --- 3) Daemon do Docker (o banco local roda em container) ---
+# --- 3) Aspire CLI ---
+if (-not (Get-Command aspire -ErrorAction SilentlyContinue)) {
+    Write-Falha "Falta a Aspire CLI." "dotnet tool install -g Aspire.Cli"
+}
+Write-Ok "aspire cli encontrada."
+
+# --- 4) Daemon do Docker (o banco local roda em container) ---
 if (-not (Test-DockerDaemon)) {
     Write-Host "[preflight] Docker nao esta respondendo. Tentando abrir o Docker Desktop..." -ForegroundColor Yellow
     $candidatos = @(
@@ -95,10 +101,17 @@ if (-not (Test-DockerDaemon)) {
 }
 Write-Ok "docker respondendo."
 
-# --- 4) Dependencias do front-end ---
+# --- 5) Dependencias do front-end ---
 $frontDir = Join-Path $root 'front-end'
 $nodeModules = Join-Path $frontDir 'node_modules'
 if (-not (Test-Path $nodeModules)) {
+    # A guarda com Get-Command e obrigatoria pelo mesmo motivo de Test-DockerDaemon: sem
+    # ela, numa maquina sem npm, `& npm ci` escreve um erro, o script SEGUE em frente e
+    # $LASTEXITCODE continua valendo 0 da checagem de node -v — o preflight anunciaria
+    # "dependencias do front-end presentes" numa maquina sem node_modules.
+    if (-not (Get-Command npm -ErrorAction SilentlyContinue)) {
+        Write-Falha "Falta o npm. Instale o Node.js (20 ou superior), que inclui o npm." "https://nodejs.org/en/download"
+    }
     Write-Host "[preflight] node_modules ausente. Rodando npm ci (pode levar alguns minutos)..." -ForegroundColor Yellow
     Push-Location $frontDir
     & npm ci
@@ -106,6 +119,9 @@ if (-not (Test-Path $nodeModules)) {
     Pop-Location
     if ($codigo -ne 0) {
         Write-Falha "npm ci falhou (codigo $codigo). Rode na mao dentro de front-end/ para ver o erro." ""
+    }
+    if (-not (Test-Path $nodeModules)) {
+        Write-Falha "npm ci terminou sem erro, mas front-end/node_modules ainda nao existe. Rode na mao dentro de front-end/ para investigar." ""
     }
 }
 Write-Ok "dependencias do front-end presentes."

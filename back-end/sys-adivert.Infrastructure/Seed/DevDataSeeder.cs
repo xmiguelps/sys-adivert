@@ -97,6 +97,7 @@ public static class DevDataSeeder
         // advertencias — e o historico por motivo e o Excel por motivo, que sao justamente o que
         // estes dados existem para exercitar, apareceriam vazios nos motivos que o usuario usa.
         var motivos = await db.Motivos
+            .OrderBy(m => m.Id)
             .Select(m => m.Descricao)
             .ToListAsync();
 
@@ -188,8 +189,9 @@ public static class DevDataSeeder
         await db.SaveChangesAsync();
 
         logger.LogInformation(
-            "DevDataSeeder: {Motivos} motivos, {Colabs} colaboradores, {Adverts} advertencias e {Evidencias} evidencias inseridos.",
-            motivos.Count, colabs.Count, adverts.Count, comEvidencia.Sum(a => a.Evidencias.Count));
+            "DevDataSeeder: {Colabs} colaboradores, {Adverts} advertencias e {Evidencias} evidencias " +
+            "inseridos, referenciando os {Motivos} motivos que ja existiam no banco.",
+            colabs.Count, adverts.Count, comEvidencia.Sum(a => a.Evidencias.Count), motivos.Count);
     }
 
     // Terceira camada de isolamento: nenhuma escrita ficticia fora de um banco local.
