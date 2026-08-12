@@ -109,7 +109,18 @@ function Write-Ok($mensagem) {
 }
 
 function Test-DockerDaemon {
-    & docker info --format '{{.ServerVersion}}' 2>$null | Out-Null
+    # A guarda com Get-Command e obrigatoria, nao defensivismo. Sem ela, numa maquina
+    # onde o docker nao existe, `& docker` escreve um erro, o script SEGUE em frente e
+    # $LASTEXITCODE continua valendo 0 das checagens de dotnet/node — a funcao devolveria
+    # $true e o preflight anunciaria "docker respondendo" numa maquina sem Docker.
+    # Comportamento medido em 2026-08-12, nao inferido.
+    if (-not (Get-Command docker -ErrorAction SilentlyContinue)) { return $false }
+    try {
+        & docker info --format '{{.ServerVersion}}' 2>$null | Out-Null
+    }
+    catch {
+        return $false
+    }
     return ($LASTEXITCODE -eq 0)
 }
 
