@@ -652,8 +652,11 @@ namespace sys_adivert.Infrastructure.Seed;
 /// </summary>
 public static class DevDataSeeder
 {
-    // Semente fixa: o conjunto gerado e sempre o mesmo, entao um caso encontrado hoje
-    // continua reproduzivel amanha.
+    // Semente fixa: o conjunto tem sempre a mesma FORMA — os mesmos colaboradores, as mesmas
+    // quantidades por pessoa, os mesmos tipos, os mesmos deslocamentos de data em dias. O que
+    // NAO e estavel entre dias diferentes sao as datas absolutas: elas sao relativas a
+    // DateTime.Today, de proposito, para o conjunto nao envelhecer ate virar "nenhuma
+    // advertencia nos ultimos seis meses". Duas execucoes no mesmo dia sao identicas.
     private const int Semente = 20260812;
 
     private static readonly string[] NomesSeed =
@@ -1315,7 +1318,9 @@ aspire run
 
 ## O banco de desenvolvimento
 
-Container efêmero com dados fictícios: **~150 advertências, 40 colaboradores e 10 motivos**, sempre os mesmos. Cada F5 recria o banco do zero, então **o que você cadastrar testando desaparece na próxima execução**.
+Container efêmero com dados fictícios: **152 advertências e 40 colaboradores**, distribuídas pelos **motivos reais** que a migration já insere — o seeder não inventa motivo nenhum. Cada F5 recria o banco do zero, então **o que você cadastrar testando desaparece na próxima execução**.
+
+O conjunto tem sempre a mesma forma: os mesmos colaboradores, as mesmas quantidades por pessoa, a mesma distribuição. As datas são relativas a hoje, de propósito, para os dados não envelhecerem — então duas execuções no mesmo dia são idênticas, e em dias diferentes só as datas absolutas deslizam.
 
 Para inspecionar com DBeaver, pgAdmin ou psql:
 
