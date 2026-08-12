@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { X } from "@phosphor-icons/react";
 import MotivosSelect from "./MotivosSelect";
 import TipoSelect from "./TipoSelect";
 import ColabSelect from "./ColabSelect";
@@ -113,7 +114,7 @@ function Update({ setUpdateView, getAdiverts, id, data, matricula, nome, tipo, m
 
             <div className="d-flex">
                 <button className="add-btn-fechar" onClick={() => setUpdateView(false)} title="Fechar">
-                    <img className="icon" src="close.png" alt="fechar" />
+                    <X size={20} />
                 </button>
             </div>
 
@@ -163,7 +164,7 @@ function Update({ setUpdateView, getAdiverts, id, data, matricula, nome, tipo, m
                             className="add-input add-textarea"
                             value={form.complemento}
                             onChange={e => setForm({ ...form, complemento: e.target.value })}
-                            placeholder="Texto complementar — aparece abaixo do motivo, na 1ª página do PDF"
+                            placeholder="Texto complementar (aparece abaixo do motivo, na 1ª página do PDF)"
                             rows={4}
                         />
                     </div>

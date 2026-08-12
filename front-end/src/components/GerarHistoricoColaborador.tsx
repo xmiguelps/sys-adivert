@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react'
+import { X, ArrowLeft, DownloadSimple, Warning, FileXls } from '@phosphor-icons/react'
 import { MESES_NOMES, getAnoMesAtual, listaAnos, isMesFuturo, filtrarPorMes } from '../utils/datas'
 import { downloadHistoricoExcel } from '../utils/excelHistorico'
 import { showToast } from './Toast'
@@ -60,14 +61,17 @@ const GerarHistoricoColaborador: React.FC<Props> = ({ adiverts, nomeColaborador,
             <div className="hist-header">
                 <div className="hist-header-left">
                     <button className="hist-btn-voltar" onClick={onVoltar} title="Voltar">
-                        ← Voltar
+                        <ArrowLeft size={16} /> Voltar
                     </button>
-                    <h2 className="hist-titulo">
-                        📥 Gerar histórico de <span className="hist-nome-destaque">{nomeColaborador}</span>
-                    </h2>
+                    <span className="titulo-com-icone">
+                        <DownloadSimple size={20} />
+                        <h2 className="hist-titulo">
+                            Gerar histórico de <span className="hist-nome-destaque">{nomeColaborador}</span>
+                        </h2>
+                    </span>
                 </div>
                 <button className="add-btn-fechar" onClick={onFechar} title="Fechar">
-                    <img className="icon" src="close.png" alt="fechar" />
+                    <X size={20} />
                 </button>
             </div>
 
@@ -111,7 +115,7 @@ const GerarHistoricoColaborador: React.FC<Props> = ({ adiverts, nomeColaborador,
                 {/* Mensagem de resultado */}
                 <div className={`hist-msg-box ${qtd === 0 ? 'hist-msg-box--vazio' : 'hist-msg-box--ok'}`}>
                     {futuro ? (
-                        <>⚠️ Mês selecionado ainda não ocorreu.</>
+                        <><Warning size={14} /> Mês selecionado ainda não ocorreu.</>
                     ) : qtd === 0 ? (
                         <>
                             O Colaborador <strong>{nomeColaborador}</strong> não teve nenhuma advertência
@@ -131,7 +135,7 @@ const GerarHistoricoColaborador: React.FC<Props> = ({ adiverts, nomeColaborador,
                         onClick={gerar}
                         disabled={baixando || futuro || qtd === 0}
                     >
-                        {baixando ? '⏳ Gerando...' : '📄 Gerar arquivo'}
+                        {baixando ? 'Gerando...' : <><FileXls size={16} /> Gerar arquivo</>}
                     </button>
                 </div>
             </div>

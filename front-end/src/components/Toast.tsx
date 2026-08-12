@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { CheckCircle, XCircle, Info } from '@phosphor-icons/react'
 
 type ToastItem = { id: number; message: string; type: 'success' | 'error' | 'info'; exiting: boolean }
 
@@ -36,7 +37,11 @@ export function ToastContainer() {
                     className={`toast toast--${t.type} ${t.exiting ? 'toast--exit' : 'toast--enter'}`}
                 >
                     <span className="toast-icon">
-                        {t.type === 'success' ? '✅' : t.type === 'error' ? '❌' : 'ℹ️'}
+                        {t.type === 'success'
+                            ? <CheckCircle size={18} weight="fill" />
+                            : t.type === 'error'
+                                ? <XCircle size={18} weight="fill" />
+                                : <Info size={18} weight="fill" />}
                     </span>
                     <span>{t.message}</span>
                 </div>

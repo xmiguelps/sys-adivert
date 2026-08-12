@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { Paperclip, X } from "@phosphor-icons/react";
 import { fileParaEvidencia } from "../utils/imagem";
 import type { EvidenciaLocal } from "../utils/imagem";
 
@@ -8,7 +9,7 @@ type Props = {
     // evidencias novas (ainda nao enviadas), controladas pelo pai
     novas: EvidenciaLocal[];
     onChangeNovas: (evs: EvidenciaLocal[]) => void;
-    // evidencias ja salvas (modo edicao) — opcional
+    // evidencias ja salvas (modo edicao) - opcional
     existentes?: EvidenciaExistente[];
     onRemoverExistente?: (id: number) => void;
     label?: string;
@@ -55,7 +56,7 @@ function EvidenciasUploader({
                     disabled={processando}
                     title="Anexar imagens (JPG, PNG ou WEBP)"
                 >
-                    {processando ? "⏳ Processando..." : "📎 Anexar imagens"}
+                    {processando ? "Processando..." : <><Paperclip size={16} /> Anexar imagens</>}
                 </button>
                 <input
                     ref={inputRef}
@@ -79,7 +80,7 @@ function EvidenciasUploader({
                                     title="Remover"
                                     onClick={() => onRemoverExistente(ex.id)}
                                 >
-                                    ✕
+                                    <X size={12} />
                                 </button>
                             )}
                         </div>
@@ -93,7 +94,7 @@ function EvidenciasUploader({
                                 title="Remover"
                                 onClick={() => removerNova(idx)}
                             >
-                                ✕
+                                <X size={12} />
                             </button>
                         </div>
                     ))}

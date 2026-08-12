@@ -1,10 +1,11 @@
 import React, { useState, useMemo, useEffect } from 'react'
+import { X, ArrowLeft, ClipboardText, CheckCircle, Square, Warning, DownloadSimple } from '@phosphor-icons/react'
 import MotivosSelect from './MotivosSelect'
-import { 
-    MESES_NOMES, 
+import {
+    MESES_NOMES,
     getAnoMesDiaAtual,
-    listaAnos, 
-    isMesFuturo, 
+    listaAnos,
+    isMesFuturo,
     isDataFutura,
     diasNoMes,
     filtrarPorMes,
@@ -80,12 +81,15 @@ const HistoricoMotivo: React.FC<Props> = ({ adiverts, onVoltar, onGerar, onFecha
             <div className="hist-header">
                 <div className="hist-header-left">
                     <button className="hist-btn-voltar" onClick={onVoltar} title="Voltar">
-                        ← Voltar
+                        <ArrowLeft size={16} /> Voltar
                     </button>
-                    <h2 className="hist-titulo">📋 Advertências por Motivo</h2>
+                    <span className="titulo-com-icone">
+                        <ClipboardText size={20} />
+                        <h2 className="hist-titulo">Advertências por Motivo</h2>
+                    </span>
                 </div>
                 <button className="add-btn-fechar" onClick={onFechar} title="Fechar">
-                    <img className="icon" src="close.png" alt="fechar" />
+                    <X size={20} />
                 </button>
             </div>
 
@@ -119,7 +123,7 @@ const HistoricoMotivo: React.FC<Props> = ({ adiverts, onVoltar, onGerar, onFecha
                         <>
                             <div className="hist-resultado-header">
                                 <span className="hist-resultado-motivo" title={motivoConfirmado}>
-                                    📌 {historicoMotivo.length} advertência(s) com esse motivo
+                                    {historicoMotivo.length} advertência(s) com esse motivo
                                 </span>
                             </div>
 
@@ -151,7 +155,9 @@ const HistoricoMotivo: React.FC<Props> = ({ adiverts, onVoltar, onGerar, onFecha
                                                 <td className="hist-td-motivo" title={a.motivo}>{a.motivo}</td>
                                                 <td>
                                                     <span className={`assinada-badge ${a.assinada ? 'assinada-badge--sim' : 'assinada-badge--nao'}`}>
-                                                        {a.assinada ? '✅ Assinada' : '⬜ Pendente'}
+                                                        {a.assinada
+                                                            ? <><CheckCircle size={14} weight="fill" /> Assinada</>
+                                                            : <><Square size={14} /> Pendente</>}
                                                     </span>
                                                 </td>
                                             </tr>
@@ -217,7 +223,7 @@ const HistoricoMotivo: React.FC<Props> = ({ adiverts, onVoltar, onGerar, onFecha
                                                 ))}
                                             </select>
                                             {isMesFuturo(filtroAno, filtroMes) && (
-                                                <span className="hist-aviso">⚠️ Mês futuro</span>
+                                                <span className="hist-aviso"><Warning size={14} /> Mês futuro</span>
                                             )}
                                         </div>
                                     )}
@@ -258,7 +264,7 @@ const HistoricoMotivo: React.FC<Props> = ({ adiverts, onVoltar, onGerar, onFecha
                                                 ))}
                                             </select>
                                             {isDataFutura(filtroAno, filtroMes, filtroDia) && (
-                                                <span className="hist-aviso">⚠️ Data futura</span>
+                                                <span className="hist-aviso"><Warning size={14} /> Data futura</span>
                                             )}
                                         </div>
                                     )}
@@ -270,7 +276,7 @@ const HistoricoMotivo: React.FC<Props> = ({ adiverts, onVoltar, onGerar, onFecha
                                     className="btn add-btn-confirm hist-btn-gerar"
                                     onClick={() => onGerar(motivoConfirmado)}
                                 >
-                                    📥 Gerar advertências por motivo
+                                    <DownloadSimple size={16} /> Gerar advertências por motivo
                                 </button>
                             </div>
                         </>
