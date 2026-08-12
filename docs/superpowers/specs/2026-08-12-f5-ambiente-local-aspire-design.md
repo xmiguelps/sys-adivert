@@ -110,8 +110,20 @@ builder.Build().Run();
 Quatro decisões embutidas nessas linhas:
 
 - **Perfil `http` explícito.** O `launchSettings.json` tem os perfis `http` e `https`. Fixar `http`
-  neutraliza o `app.UseHttpsRedirection()` do `Program.cs` e dispensa o certificado de
-  desenvolvimento — causa clássica de "o front não consegue falar com a API".
+  evita a causa clássica de "o front não consegue falar com a API".
+
+  Precisão corrigida durante a implementação (2026-08-12): fixar `http` **não** neutraliza o
+  `app.UseHttpsRedirection()` — `Program.cs` o chama incondicionalmente e o middleware roda em toda
+  requisição. O que o perfil evita é o *redirect disparar*, porque não há porta HTTPS de destino, e o
+  Kestrel precisar do certificado de dev para abrir um listener HTTPS. Efeito colateral aceito: o
+  middleware loga uma vez `Failed to determine the https port for redirect`.
+
+  Correção feita durante a implementação (2026-08-12): isso **não** dispensa o certificado de
+  desenvolvimento do ambiente como um todo. O próprio dashboard do Aspire serve por HTTPS, então um
+  certificado de dev ausente ou com chave privada inacessível impede o AppHost de subir, mesmo com a
+  API em HTTP. Na máquina do usuário o certificado existente tinha chave privada inacessível e teve
+  de ser regenerado com `dotnet dev-certs https` antes de o AppHost rodar. Está documentado na seção
+  de problemas comuns do README.
 - **Porta 5010 preservada.** É a porta que o perfil `http` já usa, então F5 e `dotnet run` avulso se
   comportam igual e o `.env.development` do front pode apontar para um endereço estável.
 - **`ConnectionStrings__DefaultConnection` nomeada à mão.** O padrão do Aspire seria

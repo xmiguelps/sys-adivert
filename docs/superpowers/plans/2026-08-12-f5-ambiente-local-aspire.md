@@ -372,9 +372,13 @@ var postgres = builder.AddPostgres("postgres", userName: pgUser, password: pgPas
 
 var db = postgres.AddDatabase("sysadivert");
 
-// launchProfileName "http" evita o UseHttpsRedirection() do Program.cs e o certificado
-// de desenvolvimento. O nome ConnectionStrings__DefaultConnection e explicito porque o
-// padrao do Aspire seria ConnectionStrings__sysadivert, que o Program.cs da API nao le.
+// launchProfileName "http": o Program.cs chama UseHttpsRedirection() incondicionalmente,
+// entao o middleware RODA de qualquer forma. Com um unico endpoint HTTP nao existe porta
+// HTTPS de destino, e o redirect nao dispara; e o Kestrel nao precisa do certificado de
+// dev para abrir um listener HTTPS. Efeito colateral conhecido: o middleware loga uma vez
+// "Failed to determine the https port for redirect".
+// O nome ConnectionStrings__DefaultConnection e explicito porque o padrao do Aspire seria
+// ConnectionStrings__sysadivert, que o Program.cs da API nao le.
 var api = builder.AddProject<Projects.sys_adivert_Api>("api", launchProfileName: "http")
     .WithEnvironment("ConnectionStrings__DefaultConnection", db)
     .WaitFor(db);
@@ -1289,6 +1293,7 @@ O deploy usa `back-end/Dockerfile` e a connection string de `back-end/sys-adiver
 ## Problemas comuns
 
 - **"unsecured transport"** ao subir o AppHost: defina `ASPIRE_ALLOW_UNSECURED_TRANSPORT=true`. A API roda em HTTP de propósito no ambiente local.
+- **O AppHost não sobe e o erro fala de certificado ou de chave privada inacessível:** o dashboard do Aspire serve por HTTPS e precisa do certificado de desenvolvimento do ASP.NET, mesmo com a API em HTTP. Regenere com `dotnet dev-certs https` e, se preciso, `dotnet dev-certs https --trust`. Aconteceu de verdade nesta máquina em 2026-08-12.
 - **Porta 5432 ocupada:** algum outro PostgreSQL está rodando. Pare-o, ou troque a porta em `apphost/sys-adivert.AppHost/AppHost.cs` **e** em `back-end/sys-adivert.Api/appsettings.Development.json` — os dois valores têm de bater.
 - **O front abre mas toda tela dá erro de rede:** o recurso `api` não subiu. Veja o log dele no dashboard.
 - **Diagnóstico do Aspire:** `aspire doctor`.
