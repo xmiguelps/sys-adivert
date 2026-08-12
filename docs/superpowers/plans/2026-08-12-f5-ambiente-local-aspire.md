@@ -641,7 +641,6 @@ using Microsoft.Extensions.Logging;
 using Npgsql;
 using sys_adivert.adivert.Entity;
 using sys_adivert.colab.Entity;
-using sys_adivert.motivo.Entity;
 using sys_adivert.Infrastructure.AppDb;
 
 namespace sys_adivert.Infrastructure.Seed;
@@ -656,21 +655,6 @@ public static class DevDataSeeder
     // Semente fixa: o conjunto gerado e sempre o mesmo, entao um caso encontrado hoje
     // continua reproduzivel amanha.
     private const int Semente = 20260812;
-
-    // Descricao tem indice unico (MotivoConfiguration), entao nao pode haver repetidos.
-    private static readonly string[] MotivosSeed =
-    [
-        "Atraso reiterado no início da jornada",
-        "Falta sem justificativa",
-        "Uso indevido de EPI",
-        "Descumprimento de procedimento operacional",
-        "Uso de celular em área operacional",
-        "Abandono de posto de trabalho",
-        "Conduta inadequada com colega de trabalho",
-        "Dano a patrimônio da empresa",
-        "Insubordinação a superior imediato",
-        "Não cumprimento de padrão de qualidade",
-    ];
 
     private static readonly string[] NomesSeed =
     [
@@ -742,10 +726,24 @@ public static class DevDataSeeder
             return;
         }
 
-        var rnd = new Random(Semente);
+        // Os motivos NAO sao criados aqui. A migration 20260528195547_CriandoTabelaDeMotivos
+        // ja insere os motivos reais da operacao em todo banco novo, e as advertencias ficticias
+        // referenciam esses. Se o seeder inventasse os seus, os motivos reais ficariam com zero
+        // advertencias — e o historico por motivo e o Excel por motivo, que sao justamente o que
+        // estes dados existem para exercitar, apareceriam vazios nos motivos que o usuario usa.
+        var motivos = await db.Motivos
+            .Select(m => m.Descricao)
+            .ToListAsync();
 
-        var motivos = MotivosSeed.Select(descricao => new Motivo(descricao)).ToList();
-        db.Motivos.AddRange(motivos);
+        if (motivos.Count == 0)
+        {
+            logger.LogWarning(
+                "DevDataSeeder ignorado: nao ha motivos no banco. Esperava-se que a migration " +
+                "CriandoTabelaDeMotivos os tivesse inserido.");
+            return;
+        }
+
+        var rnd = new Random(Semente);
 
         var colabs = new List<Colab>();
         for (var i = 0; i < NomesSeed.Length; i++)
@@ -784,7 +782,7 @@ public static class DevDataSeeder
             {
                 var data = hoje.AddDays(-rnd.Next(0, 730));
                 var tipo = rnd.Next(0, 10) < 6 ? "Escrita" : "Verbal";
-                var motivo = MotivosSeed[rnd.Next(0, MotivosSeed.Length)];
+                var motivo = motivos[rnd.Next(0, motivos.Count)];
 
                 string? complemento = null;
                 if (rnd.Next(0, 10) < 3)
@@ -802,8 +800,9 @@ public static class DevDataSeeder
         await db.SaveChangesAsync();
 
         logger.LogInformation(
-            "DevDataSeeder: {Motivos} motivos, {Colabs} colaboradores e {Adverts} advertencias inseridos.",
-            motivos.Count, colabs.Count, adverts.Count);
+            "DevDataSeeder: {Colabs} colaboradores e {Adverts} advertencias inseridos, " +
+            "referenciando os {Motivos} motivos que ja existiam no banco.",
+            colabs.Count, adverts.Count, motivos.Count);
     }
 
     // Terceira camada de isolamento: nenhuma escrita ficticia fora de um banco local.
@@ -877,7 +876,14 @@ Em outro terminal:
 ```powershell
 docker exec (docker ps -q -f name=postgres) psql -U postgres -d sysadivert -c "select (select count(*) from \"Motivos\") as motivos, (select count(*) from \"Colabs\") as colabs, (select count(*) from \"Adiverts\") as adverts;"
 ```
-Expected: `motivos = 10`, `colabs = 40`, `adverts` entre 140 e 170.
+Expected: `colabs = 40`, `adverts` entre 140 e 170, e `motivos` **inalterado** em relação ao que a migration `20260528195547_CriandoTabelaDeMotivos` insere — o seeder não cria nem apaga motivo nenhum. Registre o número que aparecer; ele é o baseline dos motivos reais da operação.
+
+Confirme também que as advertências se espalharam pelos motivos reais, que é o ponto de referenciá-los:
+
+```powershell
+docker exec -e PGPASSWORD=postgres (docker ps -q -f name=postgres) psql -U postgres -d sysadivert -c "select count(distinct \"Motivo\") as motivos_usados from \"Adiverts\";"
+```
+Expected: um número alto (dezenas), não 10 — prova de que as advertências referenciam os motivos existentes e não um conjunto inventado.
 
 - [ ] **Step 5: Conferir a distribuição desigual**
 

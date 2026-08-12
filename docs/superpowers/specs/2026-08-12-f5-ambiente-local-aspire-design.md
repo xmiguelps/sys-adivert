@@ -228,10 +228,14 @@ biblioteca de dados falsos (nada de Bogus).
 
 **Conteúdo:**
 
-- **10 motivos** típicos de RH: atraso, falta sem justificativa, uso indevido de EPI, descumprimento
-  de procedimento operacional, uso de celular em área operacional, abandono de posto, conduta
-  inadequada com colega, dano a patrimônio da empresa, insubordinação, não cumprimento de padrão de
-  qualidade.
+- **Nenhum motivo é criado.** Descoberto durante a implementação (2026-08-12): a migration
+  `20260528195547_CriandoTabelaDeMotivos` já insere os **motivos reais da operação** em todo banco
+  novo. O desenho original inventava 10 motivos próprios, o que produzia um defeito concreto: as
+  ~155 advertências fictícias referenciavam só os 10 inventados, deixando os motivos reais com zero
+  advertências — de modo que o histórico por motivo e o Excel por motivo, que são justamente o que
+  estes dados existem para exercitar, apareceriam **vazios exatamente nos motivos que o usuário
+  usa**. Decisão do usuário: o seeder lê os motivos existentes e sorteia entre eles, sem criar
+  nenhum. A lista de motivos na tela fica idêntica à de produção.
 - **40 colaboradores** com nomes claramente fictícios e matrículas sequenciais a partir de `10001`.
   A escolha dos nomes evita de propósito qualquer semelhança com funcionário real.
 - **~155 advertências** distribuídas nos últimos 24 meses. Mistura de `Escrita` e `Verbal` (os dois
