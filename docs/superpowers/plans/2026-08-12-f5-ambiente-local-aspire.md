@@ -894,27 +894,44 @@ Expected: a tabela carrega povoada. A busca por nome funciona, o histórico por 
 
 - [ ] **Step 7: Verificar a guarda de host — o teste mais importante desta task**
 
-O seeder não pode escrever em banco remoto. Para exercitar isso sem tocar produção, aponte a API para o **mesmo container** por um endereço que não seja `localhost`: o nome da máquina resolve para o IP local, e o container publica a porta 5432 em todas as interfaces.
+O seeder não pode escrever em banco remoto. Exercitar isso exige uma combinação específica: **host não-local na connection string E banco de fato alcançável**. Se o banco não for alcançável, o `Migrate()` estoura antes de o seeder ser chamado e a guarda nunca é exercitada — o teste passaria por acidente, provando nada.
 
-Deixe o `aspire run` do Step 4 **rodando** (é ele que mantém o container de pé) e, em outro terminal, suba uma segunda instância da API na porta 5011 — a 5010 está ocupada pela instância que o Aspire subiu:
+Medição feita em 2026-08-12, que descarta o caminho óbvio: o container que o Aspire sobe publica em `127.0.0.1:<porta aleatória>`, e o proxy do Aspire escuta em `localhost:5432` **apenas na interface de loopback**. O nome da máquina (`PROC1774:5432`) não alcança nenhum dos dois. Portanto não dá para reaproveitar o container do Aspire para este teste.
+
+O caminho que funciona é um Postgres descartável publicado em todas as interfaces. **Este step não precisa do ambiente Aspire no ar** — rode-o isolado.
+
+```powershell
+docker run -d --name guarda-teste -p 5433:5432 -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=sysadivert postgres:17
+```
+
+Espere uns 10 segundos e suba a API apontada para ele **pelo nome da máquina** (host não-local, banco alcançável):
 
 ```powershell
 cd back-end/sys-adivert.Api
 $env:ASPNETCORE_ENVIRONMENT = "Development"
 $env:ASPNETCORE_URLS = "http://localhost:5011"
-$env:ConnectionStrings__DefaultConnection = "Host=$env:COMPUTERNAME;Port=5432;Database=sysadivert;Username=postgres;Password=postgres"
+$env:ConnectionStrings__DefaultConnection = "Host=$env:COMPUTERNAME;Port=5433;Database=sysadivert;Username=postgres;Password=postgres"
 dotnet run --no-launch-profile
 ```
 
-`--no-launch-profile` é necessário: com o perfil `http` ativo, o `applicationUrl` do `launchSettings.json` sobrescreveria a porta 5011 e a API tentaria a 5010 já ocupada.
+`--no-launch-profile` é necessário: com o perfil `http` ativo, o `applicationUrl` do `launchSettings.json` sobrescreveria a porta e a API tentaria a 5010.
 
-Expected no log desta segunda instância: a linha de warning `DevDataSeeder ignorado: a connection string nao aponta para host local.` — e nenhuma linha de inserção.
+Expected, nesta ordem: as migrations aplicam normalmente — o que **prova que o banco era alcançável**, e portanto que a guarda não passou por falta de conexão — e em seguida o log traz `DevDataSeeder ignorado: a connection string nao aponta para host local.`, sem nenhuma linha de inserção.
 
-Encerre com `Ctrl+C` e limpe as variáveis:
+Confirme que nada foi escrito:
+
+```powershell
+docker exec guarda-teste psql -U postgres -d sysadivert -c "select count(*) from \"Colabs\";"
+```
+Expected: `0`.
+
+Encerre a API com `Ctrl+C` e limpe tudo:
+
 ```powershell
 Remove-Item Env:ConnectionStrings__DefaultConnection
 Remove-Item Env:ASPNETCORE_URLS
 Remove-Item Env:ASPNETCORE_ENVIRONMENT
+docker rm -f guarda-teste
 ```
 
 - [ ] **Step 8: Verificar a idempotência**

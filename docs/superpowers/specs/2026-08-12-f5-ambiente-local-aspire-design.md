@@ -132,6 +132,17 @@ Quatro decisões embutidas nessas linhas:
 - **Porta 5432 fixa no host.** Sem isso o Aspire sorteia a porta a cada execução e nenhuma
   connection string escrita em arquivo conseguiria acompanhar.
 
+  Como isso funciona de fato, medido em 2026-08-12 (o mecanismo não é o que o desenho supunha):
+  o `port: 5432` **não** vira a porta publicada do container. O container publica em
+  `127.0.0.1:<aleatória>` e o **proxy de endpoint do Aspire** escuta em `localhost:5432`,
+  encaminhando para ele. O efeito prático é o desejado — `Host=localhost;Port=5432` acha o banco,
+  e clientes como DBeaver/pgAdmin conectam — com duas consequências que importam:
+
+  1. O proxy escuta **só em loopback**. O nome da máquina não alcança o banco, nem de outra
+     máquina da rede. Isso é bom para segurança e foi o que invalidou o teste de guarda original.
+  2. O proxy só existe enquanto o AppHost roda. Um `dotnet run` avulso com o AppHost desligado
+     não conecta em nada — falha segura, nunca produção.
+
 Sequência do F5: preflight → AppHost inicia → container Postgres sobe e fica saudável → API sobe,
 aplica migrations e popula os dados fictícios → `npm run dev` sobe → dashboard do Aspire abre com os
 três recursos, o log de cada um e o link do front-end.
