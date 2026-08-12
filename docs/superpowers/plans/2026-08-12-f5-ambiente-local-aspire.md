@@ -1157,6 +1157,7 @@ git commit -m "feat: evidencias em PNG no seed de desenvolvimento"
 **Files:**
 - Create: `.vscode/launch.json`
 - Modify: `.vscode/tasks.json`
+- Create: `.gitignore` (na raiz — hoje não existe)
 - Create: `README.md`
 
 **Interfaces:**
@@ -1225,19 +1226,28 @@ Get-Content .\.vscode\launch.json -Raw | ConvertFrom-Json | Out-Null; Get-Conten
 ```
 Expected: `json ok`.
 
-- [ ] **Step 4: O teste que define o sucesso do plano**
+- [ ] **Step 4: Criar `.gitignore` na raiz**
+
+Descoberto durante a Task 3: `aspire add` e `aspire start` criam um `aspire.config.json` de bookkeeping **na raiz do repositório**. Apagá-lo a cada execução é brigar com a ferramenta; o certo é ignorá-lo, para ele não poluir o `git status` nem ser commitado por acidente. A raiz não tem `.gitignore` hoje.
+
+```gitignore
+# Bookkeeping da CLI do Aspire, recriado a cada `aspire add` / `aspire start`.
+aspire.config.json
+```
+
+- [ ] **Step 5: O teste que define o sucesso do plano**
 
 Feche o VS Code e o Docker Desktop. Abra a pasta `sys-adivert/` no VS Code e aperte **F5**, sem tocar em mais nada.
 Expected, nesta ordem: o painel do preflight abre e inicia o Docker; o dashboard do Aspire abre; `postgres`, `api` e `front-end` ficam saudáveis; abrir o link do front mostra a aplicação com os dados fictícios.
 
 Se o alvo `aspire` reclamar do valor de `program`, troque o `.csproj` pela pasta do AppHost (`${workspaceFolder}/apphost/sys-adivert.AppHost`) e repita.
 
-- [ ] **Step 5: Verificar o alvo de reserva**
+- [ ] **Step 6: Verificar o alvo de reserva**
 
 Na paleta de depuração do VS Code, selecione `Subir tudo (reserva, sem a extensao do Aspire)` e rode.
 Expected: o AppHost sobe, a URL do dashboard aparece no console de depuração, e os três recursos ficam de pé.
 
-- [ ] **Step 6: Criar `README.md` na raiz**
+- [ ] **Step 7: Criar `README.md` na raiz**
 
 ````markdown
 # sys-adivert
@@ -1296,17 +1306,18 @@ O deploy usa `back-end/Dockerfile` e a connection string de `back-end/sys-adiver
 - **O AppHost não sobe e o erro fala de certificado ou de chave privada inacessível:** o dashboard do Aspire serve por HTTPS e precisa do certificado de desenvolvimento do ASP.NET, mesmo com a API em HTTP. Regenere com `dotnet dev-certs https` e, se preciso, `dotnet dev-certs https --trust`. Aconteceu de verdade nesta máquina em 2026-08-12.
 - **Porta 5432 ocupada:** algum outro PostgreSQL está rodando. Pare-o, ou troque a porta em `apphost/sys-adivert.AppHost/AppHost.cs` **e** em `back-end/sys-adivert.Api/appsettings.Development.json` — os dois valores têm de bater.
 - **O front abre mas toda tela dá erro de rede:** o recurso `api` não subiu. Veja o log dele no dashboard.
+- **`Failed to determine the https port for redirect` no log do `api`:** esperado, não é erro. A API roda só em HTTP no ambiente local e o `Program.cs` chama `UseHttpsRedirection()` de qualquer forma; sem porta HTTPS de destino, o middleware avisa uma vez e segue. Confirmado em 2026-08-12.
 - **Diagnóstico do Aspire:** `aspire doctor`.
 ````
 
-- [ ] **Step 7: Conferir o README contra a realidade**
+- [ ] **Step 8: Conferir o README contra a realidade**
 
 Verifique que a contagem de advertências citada no README bate com o que o Step 4 da Task 4 mostrou; ajuste o número se necessário.
 
-- [ ] **Step 8: Commit**
+- [ ] **Step 9: Commit**
 
 ```bash
-git add .vscode/launch.json .vscode/tasks.json README.md
+git add .vscode/launch.json .vscode/tasks.json .gitignore README.md
 git commit -m "feat: F5 sobe o ambiente completo, com README de pre-requisitos"
 ```
 
