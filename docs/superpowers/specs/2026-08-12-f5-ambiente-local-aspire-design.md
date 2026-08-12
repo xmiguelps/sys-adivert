@@ -89,7 +89,7 @@ var builder = DistributedApplication.CreateBuilder(args);
 // appsettings.Development.json bate com o container, e dá para abrir o banco
 // num cliente (DBeaver/pgAdmin) com credenciais conhecidas.
 var pgUser = builder.AddParameter("pg-user", "postgres");
-var pgPassword = builder.AddParameter("pg-password", "postgres", secret: false);
+var pgPassword = builder.AddParameter("pg-password", "postgres");
 
 // Sem WithDataVolume(): container efêmero, banco novo a cada execução.
 var postgres = builder.AddPostgres("postgres", userName: pgUser, password: pgPassword, port: 5432);
@@ -211,11 +211,17 @@ biblioteca de dados falsos (nada de Bogus).
   qualidade.
 - **40 colaboradores** com nomes claramente fictícios e matrículas sequenciais a partir de `10001`.
   A escolha dos nomes evita de propósito qualquer semelhança com funcionário real.
-- **~250 advertências** distribuídas nos últimos 24 meses. Mistura de `Escrita` e `Verbal` (os dois
+- **~155 advertências** distribuídas nos últimos 24 meses. Mistura de `Escrita` e `Verbal` (os dois
   únicos valores que o `TipoSelect.tsx` oferece), cerca de dois terços com `Assinada = true`, cerca
-  de um terço com `Complemento` preenchido. Distribuição **deliberadamente desigual**: alguns
-  colaboradores com 8–12 advertências e a maioria com 1–3, senão o histórico por colaborador e o
-  Excel por motivo não mostram nada interessante.
+  de um terço com `Complemento` preenchido. Distribuição **deliberadamente desigual**: 5
+  colaboradores com 8–12 advertências, 10 com 4–7 e os 25 restantes com 1–3, senão o histórico por
+  colaborador e o Excel por motivo não mostram nada interessante.
+
+  O número saiu de ~250 para ~155 durante o planejamento, por incoerência aritmética: 250
+  advertências em 40 colaboradores exigem média de 6,25 por pessoa, o que é incompatível com "a
+  maioria tem de 1 a 3" a menos que os reincidentes tivessem ~30 cada — irreal para RH. Optou-se por
+  preservar a distribuição realista e reduzir o total; ~155 já é volume mais que suficiente para
+  exercitar rolagem da lista, histórico e exportações.
 - **3 advertências com 1–2 evidências** cada. As imagens são PNGs gerados em código (retângulo de cor
   sólida, ~600×400), com um helper de CRC32 de ~15 linhas e `ZLibStream` do BCL — sem pacote novo e
   sem blob base64 no fonte. Serve para conferir o PDF com evidência sem subir arquivo na mão.
@@ -294,7 +300,7 @@ front-end.
 ## Verificação
 
 1. F5 na pasta `sys-adivert/`: dashboard abre com `postgres`, `api` e `front-end` saudáveis.
-2. Abrir o front pelo link do dashboard: a lista traz as ~250 advertências.
+2. Abrir o front pelo link do dashboard: a lista traz as ~155 advertências.
 3. Exercitar as features que dependem de volume: busca por nome, histórico por colaborador,
    histórico por motivo, exportação Excel e PDF, e o PDF de uma das advertências com evidência.
 4. Confirmar o isolamento: conectar em `localhost:5432` e ver os dados fictícios; confirmar que o
@@ -307,8 +313,10 @@ front-end.
 
 ## Riscos e pontos a confirmar na implementação
 
-- **Identificador do pacote de hospedagem JavaScript do Aspire 13.** Será resolvido com
-  `aspire add`, não escrito de memória.
+- ~~**Identificador do pacote de hospedagem JavaScript do Aspire 13.**~~ **Resolvido** em
+  2026-08-12 via `aspire integration list`: a integração se chama `javascript` e corresponde ao
+  pacote `Aspire.Hosting.JavaScript` 13.4.6 (o antigo `Aspire.Hosting.NodeJs` foi renomeado). O
+  Postgres é a integração `postgresql` → `Aspire.Hosting.PostgreSQL` 13.4.6.
 - **Sobrecarga `WithEnvironment(string, IResourceBuilder<IResourceWithConnectionString>)`.** Se não
   existir em 13.4, o equivalente é o callback:
   `.WithEnvironment(ctx => ctx.EnvironmentVariables["ConnectionStrings__DefaultConnection"] = db.Resource.ConnectionStringExpression)`.
