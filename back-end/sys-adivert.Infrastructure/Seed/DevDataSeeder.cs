@@ -1,0 +1,193 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Npgsql;
+using sys_adivert.adivert.Entity;
+using sys_adivert.colab.Entity;
+using sys_adivert.motivo.Entity;
+using sys_adivert.Infrastructure.AppDb;
+
+namespace sys_adivert.Infrastructure.Seed;
+
+/// <summary>
+/// Popula o banco de desenvolvimento com dados ficticios.
+/// Duas travas independentes: o Program.cs so chama em ambiente Development, e este
+/// seeder se recusa a escrever se o host da connection string nao for local.
+/// </summary>
+public static class DevDataSeeder
+{
+    // Semente fixa: o conjunto gerado e sempre o mesmo, entao um caso encontrado hoje
+    // continua reproduzivel amanha.
+    private const int Semente = 20260812;
+
+    // Descricao tem indice unico (MotivoConfiguration), entao nao pode haver repetidos.
+    private static readonly string[] MotivosSeed =
+    [
+        "Atraso reiterado no início da jornada",
+        "Falta sem justificativa",
+        "Uso indevido de EPI",
+        "Descumprimento de procedimento operacional",
+        "Uso de celular em área operacional",
+        "Abandono de posto de trabalho",
+        "Conduta inadequada com colega de trabalho",
+        "Dano a patrimônio da empresa",
+        "Insubordinação a superior imediato",
+        "Não cumprimento de padrão de qualidade",
+    ];
+
+    private static readonly string[] NomesSeed =
+    [
+        "Adriana Nogueira Prado",
+        "Alexandre Bittencourt Rosa",
+        "Amanda Quirino Vasques",
+        "Anderson Palmeira Toledo",
+        "Beatriz Sampaio Andrade",
+        "Bruno Vilela Meireles",
+        "Camila Rezende Fontoura",
+        "Carlos Eduardo Vasconcelos",
+        "Cristiane Aparecida Bueno",
+        "Daniel Otávio Ferraz",
+        "Débora Cristina Salgado",
+        "Diego Marchesi Coutinho",
+        "Eduardo Tavares Pimenta",
+        "Elaine Moraes Sobral",
+        "Fabiana Lustosa Rangel",
+        "Fábio Henrique Peçanha",
+        "Felipe Andrade Zanetti",
+        "Gabriela Munhoz Teixeira",
+        "Gustavo Lemos Bragança",
+        "Helena Vitória Caldas",
+        "Igor Sarmento Vilhena",
+        "Jaqueline Borges Amorim",
+        "João Vitor Assunção",
+        "Juliana Paes Kruger",
+        "Leandro Cardim Estevão",
+        "Letícia Marques Ferrão",
+        "Lucas Aguiar Pontes",
+        "Marcelo Trindade Bastos",
+        "Mariana Duarte Nogueira",
+        "Nathalia Cordeiro Simões",
+        "Otávio Camargo Bicalho",
+        "Patrícia Rangel Vidotti",
+        "Rafael Siqueira Bandeira",
+        "Renata Guimarães Portela",
+        "Ricardo Veríssimo Almeida",
+        "Rodrigo Frota Menezes",
+        "Sabrina Correia Valadares",
+        "Thiago Barcelos Pinheiro",
+        "Vanessa Klein Andrade",
+        "Wagner Furtado Sanches",
+    ];
+
+    private static readonly string[] ComplementosSeed =
+    [
+        "Terceira ocorrência no mesmo trimestre; colaborador ciente do procedimento.",
+        "Orientado verbalmente em duas oportunidades anteriores, sem mudança de conduta.",
+        "Ocorrência registrada pelo líder do turno, com testemunha presente.",
+        "Colaborador reconheceu o ocorrido e assinou ciência no ato.",
+        "Reincidência após treinamento de reciclagem concluído no mês anterior.",
+        "A situação gerou parada de linha por aproximadamente 40 minutos.",
+    ];
+
+    public static async Task SeedAsync(AppDbContext db, ILogger logger)
+    {
+        if (!HostEhLocal(db.Database.GetConnectionString()))
+        {
+            logger.LogWarning(
+                "DevDataSeeder ignorado: a connection string nao aponta para host local. " +
+                "Dados ficticios so sao inseridos em banco local.");
+            return;
+        }
+
+        if (await db.Colabs.AnyAsync())
+        {
+            logger.LogInformation("DevDataSeeder ignorado: o banco ja tem colaboradores.");
+            return;
+        }
+
+        var rnd = new Random(Semente);
+
+        var motivos = MotivosSeed.Select(descricao => new Motivo(descricao)).ToList();
+        db.Motivos.AddRange(motivos);
+
+        var colabs = new List<Colab>();
+        for (var i = 0; i < NomesSeed.Length; i++)
+        {
+            colabs.Add(new Colab(NomesSeed[i], (10001 + i).ToString()));
+        }
+        db.Colabs.AddRange(colabs);
+
+        await db.SaveChangesAsync();
+
+        var hoje = DateOnly.FromDateTime(DateTime.Today);
+        var adverts = new List<Adivert>();
+
+        // Distribuicao desigual de proposito: alguns reincidentes e uma maioria com uma a
+        // tres advertencias. Sem isso, o historico por colaborador e o Excel por motivo
+        // saem todos iguais e nao servem para testar nada.
+        for (var i = 0; i < colabs.Count; i++)
+        {
+            var colab = colabs[i];
+
+            int quantidade;
+            if (i < 5)
+            {
+                quantidade = rnd.Next(8, 13);
+            }
+            else if (i < 15)
+            {
+                quantidade = rnd.Next(4, 8);
+            }
+            else
+            {
+                quantidade = rnd.Next(1, 4);
+            }
+
+            for (var j = 0; j < quantidade; j++)
+            {
+                var data = hoje.AddDays(-rnd.Next(0, 730));
+                var tipo = rnd.Next(0, 10) < 6 ? "Escrita" : "Verbal";
+                var motivo = MotivosSeed[rnd.Next(0, MotivosSeed.Length)];
+
+                string? complemento = null;
+                if (rnd.Next(0, 10) < 3)
+                {
+                    complemento = ComplementosSeed[rnd.Next(0, ComplementosSeed.Length)];
+                }
+
+                var adivert = new Adivert(data, colab.Matricula, motivo, colab.Nome, tipo, complemento);
+                adivert.MarcarAssinatura(rnd.Next(0, 10) < 7);
+                adverts.Add(adivert);
+            }
+        }
+
+        db.Adiverts.AddRange(adverts);
+        await db.SaveChangesAsync();
+
+        logger.LogInformation(
+            "DevDataSeeder: {Motivos} motivos, {Colabs} colaboradores e {Adverts} advertencias inseridos.",
+            motivos.Count, colabs.Count, adverts.Count);
+    }
+
+    // Terceira camada de isolamento: nenhuma escrita ficticia fora de um banco local.
+    private static bool HostEhLocal(string? connectionString)
+    {
+        if (string.IsNullOrWhiteSpace(connectionString))
+        {
+            return false;
+        }
+
+        string host;
+        try
+        {
+            host = new NpgsqlConnectionStringBuilder(connectionString).Host ?? string.Empty;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+
+        return host.Equals("localhost", StringComparison.OrdinalIgnoreCase)
+            || host == "127.0.0.1"
+            || host == "::1";
+    }
+}

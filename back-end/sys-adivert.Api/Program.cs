@@ -5,6 +5,7 @@ using sys_adivert.Infrastructure.Adiverts.Repository;
 using sys_adivert.Infrastructure.Colabs.Repository;
 using sys_adivert.Infrastructure.Motivos.Repository;
 using sys_adivert.Infrastructure.AppDb;
+using sys_adivert.Infrastructure.Seed;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -53,6 +54,13 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.Migrate();
+
+    // Dados ficticios apenas em desenvolvimento. O seeder ainda checa, por conta propria,
+    // se o host e local antes de escrever qualquer linha.
+    if (app.Environment.IsDevelopment())
+    {
+        await DevDataSeeder.SeedAsync(db, app.Logger);
+    }
 }
 
 if (app.Environment.IsDevelopment())
