@@ -19,6 +19,19 @@
         "panel": "dedicated",
         "clear": true
       }
+    },
+    {
+      "label": "build-apphost",
+      "detail": "preflight + dotnet build do AppHost",
+      "dependsOn": ["preflight"],
+      "dependsOrder": "sequence",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "build",
+        "${workspaceFolder}/apphost/sys-adivert.AppHost/sys-adivert.AppHost.csproj"
+      ],
+      "problemMatcher": "$msCompile"
     }
   ]
 }

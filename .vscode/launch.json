@@ -1,0 +1,27 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Subir tudo (Aspire)",
+      "type": "aspire",
+      "request": "launch",
+      "program": "${workspaceFolder}/apphost/sys-adivert.AppHost/sys-adivert.AppHost.csproj",
+      "preLaunchTask": "preflight"
+    },
+    {
+      "name": "Subir tudo (reserva, sem a extensao do Aspire)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build-apphost",
+      "program": "${workspaceFolder}/apphost/sys-adivert.AppHost/bin/Debug/net10.0/sys-adivert.AppHost.dll",
+      "cwd": "${workspaceFolder}/apphost/sys-adivert.AppHost",
+      "console": "internalConsole",
+      "stopAtEntry": false,
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "DOTNET_ENVIRONMENT": "Development",
+        "ASPIRE_ALLOW_UNSECURED_TRANSPORT": "true"
+      }
+    }
+  ]
+}
