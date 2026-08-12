@@ -24,4 +24,12 @@ var api = builder.AddProject<Projects.sys_adivert_Api>("api", launchProfileName:
     .WithEnvironment("ConnectionStrings__DefaultConnection", db)
     .WaitFor(db);
 
+// AddViteApp registra o endpoint HTTP do front, escolhe a porta e a informa na variavel
+// PORT; o vite.config.ts respeita essa variavel. Nao chamar WithHttpEndpoint aqui: a
+// porta e gerenciada pelo Aspire.
+builder.AddViteApp("front-end", "../../front-end")
+    .WithEnvironment("VITE_API_URL", api.GetEndpoint("http"))
+    .WithReference(api)
+    .WaitFor(api);
+
 builder.Build().Run();
