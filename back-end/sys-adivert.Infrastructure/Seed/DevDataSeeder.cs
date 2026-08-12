@@ -14,8 +14,11 @@ namespace sys_adivert.Infrastructure.Seed;
 /// </summary>
 public static class DevDataSeeder
 {
-    // Semente fixa: o conjunto gerado e sempre o mesmo, entao um caso encontrado hoje
-    // continua reproduzivel amanha.
+    // Semente fixa: o conjunto tem sempre a mesma FORMA — os mesmos colaboradores, as mesmas
+    // quantidades por pessoa, os mesmos tipos, os mesmos deslocamentos de data em dias. O que
+    // NAO e estavel entre dias diferentes sao as datas absolutas: elas sao relativas a
+    // DateTime.Today, de proposito, para o conjunto nao envelhecer ate virar "nenhuma
+    // advertencia nos ultimos seis meses". Duas execucoes no mesmo dia sao identicas.
     private const int Semente = 20260812;
 
     private static readonly string[] NomesSeed =
@@ -159,12 +162,34 @@ public static class DevDataSeeder
         }
 
         db.Adiverts.AddRange(adverts);
+
+        // Tres advertencias com evidencia, para conferir o PDF com imagem sem precisar
+        // subir arquivo na mao. ContentType tem de ser image/png: o default da entidade e
+        // image/jpeg, e pdfAdvertencia.ts monta a data URL a partir desse campo, entao um
+        // PNG rotulado como JPEG nao renderiza.
+        var cores = new (byte R, byte G, byte B)[] { (168, 21, 21), (32, 74, 135), (78, 154, 6) };
+        var comEvidencia = adverts.Where(a => a.Complemento is not null).Take(3).ToList();
+        for (var i = 0; i < comEvidencia.Count; i++)
+        {
+            var cor = cores[i % cores.Length];
+            var quantidade = i == 0 ? 2 : 1;
+            for (var ordem = 0; ordem < quantidade; ordem++)
+            {
+                comEvidencia[i].Evidencias.Add(new AdivertEvidencia
+                {
+                    Conteudo = PngSimples.CorSolida(600, 400, cor.R, cor.G, cor.B),
+                    ContentType = "image/png",
+                    NomeArquivo = $"evidencia-{i + 1}-{ordem + 1}.png",
+                    Ordem = ordem,
+                });
+            }
+        }
+
         await db.SaveChangesAsync();
 
         logger.LogInformation(
-            "DevDataSeeder: {Colabs} colaboradores e {Adverts} advertencias inseridos, " +
-            "referenciando os {Motivos} motivos que ja existiam no banco.",
-            colabs.Count, adverts.Count, motivos.Count);
+            "DevDataSeeder: {Motivos} motivos, {Colabs} colaboradores, {Adverts} advertencias e {Evidencias} evidencias inseridos.",
+            motivos.Count, colabs.Count, adverts.Count, comEvidencia.Sum(a => a.Evidencias.Count));
     }
 
     // Terceira camada de isolamento: nenhuma escrita ficticia fora de um banco local.
