@@ -374,3 +374,35 @@ ambiente no Render, em um ciclo próprio.
 **Início automático do Docker Desktop com o Windows.** O preflight cobre o caso do Docker fechado,
 mas ligar "Start Docker Desktop when you sign in" nas configurações do Docker Desktop elimina a
 espera. É um ajuste manual de um clique, mencionado no README.
+
+## Pendências e recomendações levantadas durante a implementação
+
+Nada disto foi feito neste ciclo. Fica registrado aqui porque o registro de trabalho da execução é
+descartável e estas são as recomendações que sobrevivem a ele.
+
+### Segurança, em ordem de severidade
+
+1. **Credenciais de produção do Supabase em texto puro** em `back-end/sys-adivert.Api/appsettings.json`
+   e no histórico do git. É o item de maior severidade que toca este repositório, e é o único que
+   hoje separa uma credencial vazada dos dados reais de RH. Rotacionar a senha no Supabase e mover a
+   connection string para variável de ambiente no Render — nessa ordem, porque tirar do arquivo sem
+   rotacionar não resolve nada.
+2. **`Microsoft.OpenApi` 2.0.0 com vulnerabilidade de severidade alta** (NU1903), transitiva de
+   `Microsoft.AspNetCore.OpenApi` 10.0.3. Aparece como aviso em toda compilação.
+3. **7 vulnerabilidades nas dependências do front-end** (1 baixa, 6 altas), reportadas pelo `npm ci`.
+
+### Um teste automatizado que vale mais que a regra que o proíbe
+
+Este plano proibiu projeto de teste, e para infraestrutura de ambiente isso foi a decisão certa: o
+instrumento adequado foi comando mais saída capturada. Mas a revisão final apontou a exposição real,
+e ela é justa: **nada re-executa**. Toda garantia deste trabalho foi verificada uma vez, à mão, numa
+máquina, e apodrece em silêncio.
+
+Se um único teste automatizado for adicionado a este repositório, que seja sobre
+`DevDataSeeder.HostEhLocal`: seis casos (`localhost`, `127.0.0.1`, `::1`, o host do Supabase, string
+vazia, lixo). É a asserção cuja falha seria pior e cujo teste seria menor.
+
+### Nota operacional
+
+`Stop-Process -Force` **não** derruba o Docker Desktop nesta máquina — os processos ressuscitam
+sozinhos. O comando que funciona é `docker desktop stop`.
