@@ -3,4 +3,5 @@
   <Project Path="sys-adivert.Application/sys-adivert.Application.csproj" />
   <Project Path="sys-adivert.Domain/sys-adivert.Domain.csproj" />
   <Project Path="sys-adivert.Infrastructure/sys-adivert.Infrastructure.csproj" />
+  <Project Path="../apphost/sys-adivert.AppHost/sys-adivert.AppHost.csproj" />
 </Solution>

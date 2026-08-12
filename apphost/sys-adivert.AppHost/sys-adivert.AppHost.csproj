@@ -1,0 +1,19 @@
+﻿<Project Sdk="Aspire.AppHost.Sdk/13.4.6">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <UserSecretsId>apphost-c85f6c53b8274b0fde7ed5e93f862fbe966159c964b4e77ca7c029d88730cb8c</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="13.4.6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\back-end\sys-adivert.Api\sys-adivert.Api.csproj" />
+  </ItemGroup>
+
+</Project>
