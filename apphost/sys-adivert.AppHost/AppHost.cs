@@ -13,9 +13,13 @@ var postgres = builder.AddPostgres("postgres", userName: pgUser, password: pgPas
 
 var db = postgres.AddDatabase("sysadivert");
 
-// launchProfileName "http" evita o UseHttpsRedirection() do Program.cs e o certificado
-// de desenvolvimento. O nome ConnectionStrings__DefaultConnection e explicito porque o
-// padrao do Aspire seria ConnectionStrings__sysadivert, que o Program.cs da API nao le.
+// launchProfileName "http": o Program.cs chama UseHttpsRedirection() incondicionalmente,
+// entao o middleware RODA de qualquer forma. Com um unico endpoint HTTP nao existe porta
+// HTTPS de destino, e o redirect nao dispara; e o Kestrel nao precisa do certificado de
+// dev para abrir um listener HTTPS. Efeito colateral conhecido: o middleware loga uma vez
+// "Failed to determine the https port for redirect".
+// O nome ConnectionStrings__DefaultConnection e explicito porque o padrao do Aspire seria
+// ConnectionStrings__sysadivert, que o Program.cs da API nao le.
 var api = builder.AddProject<Projects.sys_adivert_Api>("api", launchProfileName: "http")
     .WithEnvironment("ConnectionStrings__DefaultConnection", db)
     .WaitFor(db);
