@@ -734,7 +734,11 @@ public static class DevDataSeeder
         // referenciam esses. Se o seeder inventasse os seus, os motivos reais ficariam com zero
         // advertencias — e o historico por motivo e o Excel por motivo, que sao justamente o que
         // estes dados existem para exercitar, apareceriam vazios nos motivos que o usuario usa.
+        // O OrderBy nao e enfeite: sem ordenacao explicita o Postgres pode devolver as linhas
+        // em qualquer ordem, e o sorteio abaixo indexa nesta lista. Sem isso, o "conjunto tem
+        // sempre a mesma forma" que o README promete dependeria de sorte.
         var motivos = await db.Motivos
+            .OrderBy(m => m.Id)
             .Select(m => m.Descricao)
             .ToListAsync();
 
@@ -924,6 +928,8 @@ dotnet run --no-launch-profile
 ```
 
 `--no-launch-profile` é necessário: com o perfil `http` ativo, o `applicationUrl` do `launchSettings.json` sobrescreveria a porta e a API tentaria a 5010.
+
+> **Cuidado ao reaproveitar este comando fora deste teste.** `--no-launch-profile` também descarta o `ASPNETCORE_ENVIRONMENT=Development` que os perfis definem, então a API resolve para `Production`, lê o `appsettings.json` e conecta no **Supabase de produção** — e o `Program.cs` chama `Migrate()` antes de qualquer checagem de ambiente. Aqui é seguro porque as três variáveis acima são definidas explicitamente, inclusive a connection string. Copiar o comando sem elas não é. Achado da revisão final; documentado também no README.
 
 Expected, nesta ordem: as migrations aplicam normalmente — o que **prova que o banco era alcançável**, e portanto que a guarda não passou por falta de conexão — e em seguida o log traz `DevDataSeeder ignorado: a connection string nao aponta para host local.`, sem nenhuma linha de inserção.
 
@@ -1131,8 +1137,9 @@ E acrescente ao log final, para o número aparecer no startup:
 
 ```csharp
         logger.LogInformation(
-            "DevDataSeeder: {Motivos} motivos, {Colabs} colaboradores, {Adverts} advertencias e {Evidencias} evidencias inseridos.",
-            motivos.Count, colabs.Count, adverts.Count, comEvidencia.Sum(a => a.Evidencias.Count));
+            "DevDataSeeder: {Colabs} colaboradores, {Adverts} advertencias e {Evidencias} evidencias " +
+            "inseridos, referenciando os {Motivos} motivos que ja existiam no banco.",
+            colabs.Count, adverts.Count, comEvidencia.Sum(a => a.Evidencias.Count), motivos.Count);
 ```
 
 - [ ] **Step 3: Compilar**
@@ -1280,6 +1287,8 @@ Na paleta de depuração do VS Code, selecione `Subir tudo (reserva, sem a exten
 Expected: o AppHost sobe, a URL do dashboard aparece no console de depuração, e os três recursos ficam de pé.
 
 - [ ] **Step 7: Criar `README.md` na raiz**
+
+> **Nota histórica (2026-08-12):** o `README.md` que está no repositório **divergiu deste bloco** depois da revisão final da branch, que acrescentou o aviso sobre `--no-launch-profile` cair em produção, o aviso de nunca usar `ASPNETCORE_ENVIRONMENT=Development` no Render, o Aspire CLI e o Windows como pré-requisitos, a precisão sobre o que o preflight realmente confere, e o quarto recurso `front-end-installer`. A fonte de verdade é o `README.md` do repositório (commit `e015d78`), não este bloco.
 
 ````markdown
 # sys-adivert

@@ -351,8 +351,13 @@ front-end.
   como o AppHost não está na raiz, será apontado para o `.csproj` e validado na prática.
 - **Primeira execução é lenta:** *pull* da imagem do Postgres, `dotnet restore` e possivelmente
   `npm ci`. As seguintes são rápidas.
-- **`AddViteApp` e instalação de pacotes.** Se a integração já instalar dependências sozinha, o passo
-  de `npm ci` sai do preflight para não duplicar trabalho.
+- ~~**`AddViteApp` e instalação de pacotes.**~~ **Resolvido, com decisão contrária à premissa**
+  (2026-08-12). A condição se confirmou: `AddViteApp` instala pacotes por conta própria e cria um
+  quarto recurso, `front-end-installer`, que roda e chega a *Finished* antes de o `front-end`
+  subir. Mesmo assim, **o `npm ci` do preflight fica**: ele é exato quanto ao lockfile, o que a
+  instalação do Aspire não garante, e é o que faz um `npm run dev` avulso funcionar sem depender do
+  AppHost. O custo é uma instalação redundante na primeira execução; o ganho é reprodutibilidade.
+  Consequência documentada no README: o dashboard mostra **quatro** recursos, não três.
 
 ## Pendências fora de escopo
 
