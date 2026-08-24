@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import {
     Plus, X, MagnifyingGlass, PencilSimple, Trash, Users, Gear,
     DownloadSimple, FilePdf, CheckCircle, Square, Info, ClipboardText,
+    CircleNotch, WarningCircle, ArrowClockwise,
 } from '@phosphor-icons/react'
 import Tabela from './components/Tabela'
 import Add from './components/Add'
@@ -10,9 +11,7 @@ import Excluir from './components/Excluir'
 import Update from './components/Update'
 import HistoricoMenu from './components/HistoricoMenu'
 import HistoricoColaborador from './components/HistoricoColaborador'
-import GerarHistoricoColaborador from './components/GerarHistoricoColaborador'
 import HistoricoMotivo from './components/HistoricoMotivo'
-import GerarHistoricoMotivo from './components/GerarHistoricoMotivo'
 import ColabSelect from './components/ColabSelect'
 import Configuracoes from './components/Configuracoes'
 import { ToastContainer, showToast } from './components/Toast'
@@ -25,9 +24,10 @@ type HistView =
     | null
     | 'menu'
     | 'colaborador'
-    | 'gerar-colaborador'
     | 'motivo'
-    | 'gerar-motivo'
+
+// Quantidade de linhas "fantasma" exibidas enquanto a lista carrega
+const SKELETON_LINHAS = 7
 
 // Dispara o download de um Blob no navegador
 const baixarBlob = (blob: Blob, filename: string) => {
@@ -54,7 +54,10 @@ function App() {
     const [configAberto, setConfigAberto] = useState<boolean>(false)
     const [adiverts, setAdiverts] = useState<any[]>([])
     const [data, setData] = useState<any[]>([])
-    const [carregando, setCarregando] = useState<boolean>(false)
+    // Já começa carregando: o fetch inicial dispara no primeiro efeito e, sem
+    // isso, a tabela pisca o estado "Nenhuma advertência registrada" antes dos dados.
+    const [carregando, setCarregando] = useState<boolean>(true)
+    const [erroCarregar, setErroCarregar] = useState<boolean>(false)
 
     // Seleção de linha (múltipla - segure Ctrl para selecionar várias)
     const [selectedIds, setSelectedIds] = useState<number[]>([])
@@ -82,16 +85,10 @@ function App() {
 
     // Fluxo de histórico
     const [histView, setHistView] = useState<HistView>(null)
-    const [histNomeColab, setHistNomeColab] = useState<string>('')
-    const [histMotivo, setHistMotivo] = useState<string>('')
 
     const selectedAdivert = adiverts.find(a => a.id === selectedId) ?? null
 
-    const fecharHistorico = () => {
-        setHistView(null)
-        setHistNomeColab('')
-        setHistMotivo('')
-    }
+    const fecharHistorico = () => setHistView(null)
 
     // Baixa o PDF da advertência selecionada (com complemento e evidências)
     const downloadPdfLinha = async (adivert: any) => {
@@ -206,31 +203,24 @@ function App() {
 
     const getAdiverts = async (nomeParam?: string) => {
         const buscaNome = nomeParam !== undefined ? nomeParam : nome
+        const url = buscaNome === ''
+            ? `${import.meta.env.VITE_API_URL}/api/Adiverts`
+            : `${import.meta.env.VITE_API_URL}/api/Adiverts?nome=${encodeURIComponent(buscaNome)}`
         setCarregando(true);
         try {
-            if (buscaNome === '') {
-                const response = await fetch(
-                    `${import.meta.env.VITE_API_URL}/api/Adiverts`,
-                    {
-                        method: "GET",
-                        headers: { "Accept": "application/json" }
-                    }
-                );
-                if (!response.ok) throw new Error(`Erro: ${response.status}`);
-                const data = await response.json();
-                setAdiverts(data);
-            } else {
-                const response = await fetch(
-                    `${import.meta.env.VITE_API_URL}/api/Adiverts?nome=${buscaNome}`,
-                    {
-                        method: "GET",
-                        headers: { "Accept": "application/json" }
-                    }
-                );
-                if (!response.ok) throw new Error(`Erro: ${response.status}`);
-                const data = await response.json();
-                setAdiverts(data);
-            }
+            const response = await fetch(url, {
+                method: "GET",
+                headers: { "Accept": "application/json" }
+            });
+            if (!response.ok) throw new Error(`Erro: ${response.status}`);
+            const data = await response.json();
+            setAdiverts(data);
+            setErroCarregar(false);
+        } catch {
+            // Falha de rede/servidor: sinaliza na própria tabela em vez de cair
+            // no estado vazio, que passaria a impressão de que os dados sumiram.
+            setErroCarregar(true);
+            showToast('Não foi possível carregar as advertências.', 'error');
         } finally {
             setCarregando(false);
         }
@@ -273,6 +263,11 @@ function App() {
         const [yyyy, mm, dd] = data.slice(0, 10).split('-')
         return `${dd}/${mm}/${yyyy}`
     }
+
+    // Enquanto a lista recarrega a tabela mostra esqueletos: liberar as ações aí
+    // deixaria botões ativos apontando para linhas que não estão mais visíveis.
+    const podeUma = selectedIds.length === 1 && !carregando
+    const podeVarias = selectedIds.length > 0 && !carregando
 
     return (
         <>
@@ -524,23 +519,6 @@ function App() {
                             adiverts={adiverts}
                             onVoltar={() => setHistView('menu')}
                             onFechar={fecharHistorico}
-                            onGerar={(nomeColab) => {
-                                setHistNomeColab(nomeColab)
-                                setHistView('gerar-colaborador')
-                            }}
-                        />
-                    </div>
-                </div>
-            )}
-
-            {histView === 'gerar-colaborador' && (
-                <div className='overlay'>
-                    <div className='caixa caixa--hist'>
-                        <GerarHistoricoColaborador
-                            adiverts={adiverts}
-                            nomeColaborador={histNomeColab}
-                            onVoltar={() => setHistView('colaborador')}
-                            onFechar={fecharHistorico}
                         />
                     </div>
                 </div>
@@ -552,23 +530,6 @@ function App() {
                         <HistoricoMotivo
                             adiverts={adiverts}
                             onVoltar={() => setHistView('menu')}
-                            onFechar={fecharHistorico}
-                            onGerar={(motivo) => {
-                                setHistMotivo(motivo)
-                                setHistView('gerar-motivo')
-                            }}
-                        />
-                    </div>
-                </div>
-            )}
-
-            {histView === 'gerar-motivo' && (
-                <div className='overlay'>
-                    <div className='caixa caixa--hist'>
-                        <GerarHistoricoMotivo
-                            adiverts={adiverts}
-                            motivoConfirmado={histMotivo}
-                            onVoltar={() => setHistView('motivo')}
                             onFechar={fecharHistorico}
                         />
                     </div>
@@ -610,9 +571,18 @@ function App() {
                         <div className='d-flex box-main'>
                             <div className='box-adiverts-wrapper'>
                                 <div className="tabela-hint">
-                                    <Info size={14} /> Segure <kbd>Ctrl</kbd> para selecionar mais de uma advertência.
-                                    {selectedIds.length > 1 && (
-                                        <strong className="tabela-hint__count"> · {selectedIds.length} selecionadas</strong>
+                                    {carregando ? (
+                                        <>
+                                            <CircleNotch size={14} className="girando" />
+                                            Carregando advertências...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Info size={14} /> Segure <kbd>Ctrl</kbd> para selecionar mais de uma advertência.
+                                            {selectedIds.length > 1 && (
+                                                <strong className="tabela-hint__count"> · {selectedIds.length} selecionadas</strong>
+                                            )}
+                                        </>
                                     )}
                                 </div>
                                 <div className='box-adiverts'>
@@ -627,7 +597,37 @@ function App() {
                                                 <th className='adivert-column' id='assinada'>Assinada</th>
                                             </tr>
                                         </thead>
-                                        {adiverts.length === 0 ? (
+                                        {carregando ? (
+                                            <tbody className="tabela-skeleton">
+                                                {Array.from({ length: SKELETON_LINHAS }, (_, i) => (
+                                                    <tr key={i} style={{ animationDelay: `${i * 70}ms` }}>
+                                                        <td><span className="sk sk--curto" /></td>
+                                                        <td><span className="sk sk--curto" /></td>
+                                                        <td><span className="sk sk--medio" /></td>
+                                                        <td><span className="sk sk--curto" /></td>
+                                                        <td><span className="sk sk--longo" /></td>
+                                                        <td><span className="sk sk--badge" /></td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        ) : erroCarregar ? (
+                                            <tbody>
+                                                <tr>
+                                                    <td colSpan={6} className="tabela-vazia">
+                                                        <span className="tabela-vazia__icone tabela-vazia__icone--erro">
+                                                            <WarningCircle size={44} />
+                                                        </span>
+                                                        <span className="tabela-vazia__texto">
+                                                            Não foi possível carregar as advertências.
+                                                            <br />Seus dados continuam salvos — foi só a consulta que falhou.
+                                                        </span>
+                                                        <button className="tabela-vazia__retry" onClick={() => getAdiverts()}>
+                                                            <ArrowClockwise size={14} /> Tentar novamente
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        ) : adiverts.length === 0 ? (
                                             <tbody>
                                                 <tr>
                                                     <td colSpan={6} className="tabela-vazia">
@@ -659,36 +659,37 @@ function App() {
                                     <span className='acoes-bar__label'>AÇÕES:</span>
                                     <div className='acoes-bar__buttons'>
                                         <button
-                                            className={`acoes-btn ${selectedIds.length !== 1 ? 'acoes-btn--disabled' : ''}`}
-                                            onClick={() => selectedIds.length === 1 && setInspecionarView(true)}
-                                            disabled={selectedIds.length !== 1}
+                                            className={`acoes-btn ${!podeUma ? 'acoes-btn--disabled' : ''}`}
+                                            onClick={() => podeUma && setInspecionarView(true)}
+                                            disabled={!podeUma}
                                             title="Inspecionar (selecione uma advertência)"
                                         >
                                             <MagnifyingGlass size={16} /> Inspecionar
                                         </button>
                                         <button
-                                            className={`acoes-btn acoes-btn--excluir ${selectedIds.length === 0 ? 'acoes-btn--disabled' : ''}`}
-                                            onClick={() => selectedIds.length > 0 && setExcluirView(true)}
-                                            disabled={selectedIds.length === 0}
+                                            className={`acoes-btn acoes-btn--excluir ${!podeVarias ? 'acoes-btn--disabled' : ''}`}
+                                            onClick={() => podeVarias && setExcluirView(true)}
+                                            disabled={!podeVarias}
                                             title="Excluir advertência(s) selecionada(s)"
                                         >
                                             <Trash size={16} /> Excluir{selectedIds.length > 1 ? ` (${selectedIds.length})` : ''}
                                         </button>
                                         <button
-                                            className={`acoes-btn ${selectedIds.length !== 1 ? 'acoes-btn--disabled' : ''}`}
-                                            onClick={() => selectedIds.length === 1 && setUpdateView(true)}
-                                            disabled={selectedIds.length !== 1}
+                                            className={`acoes-btn ${!podeUma ? 'acoes-btn--disabled' : ''}`}
+                                            onClick={() => podeUma && setUpdateView(true)}
+                                            disabled={!podeUma}
                                             title="Editar (selecione uma advertência)"
                                         >
                                             <PencilSimple size={16} /> Editar
                                         </button>
                                         <button
-                                            className={`acoes-btn ${selectedIds.length === 0 ? 'acoes-btn--disabled' : ''}`}
+                                            className={`acoes-btn ${!podeVarias ? 'acoes-btn--disabled' : ''}`}
                                             onClick={() => {
+                                                if (!podeVarias) return
                                                 if (selectedIds.length === 1 && selectedAdivert) downloadPdfLinha(selectedAdivert)
                                                 else if (selectedIds.length > 1) setBaixarLoteView(true)
                                             }}
-                                            disabled={selectedIds.length === 0}
+                                            disabled={!podeVarias}
                                             title="Baixar PDF da(s) advertência(s) selecionada(s)"
                                         >
                                             <FilePdf size={16} /> Baixar PDF{selectedIds.length > 1 ? ` (${selectedIds.length})` : ''}

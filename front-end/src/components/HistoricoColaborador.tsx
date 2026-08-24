@@ -1,6 +1,10 @@
 import React, { useState, useMemo, useEffect } from 'react'
-import { X, ArrowLeft, User, CheckCircle, Square, Warning, DownloadSimple } from '@phosphor-icons/react'
+import { X, ArrowLeft, User, CheckCircle, Square, Warning, FilePdf, FileXls } from '@phosphor-icons/react'
 import { MESES_NOMES, getAnoMesAtual, listaAnos, isMesFuturo, filtrarPorMes, parseDataLocal } from '../utils/datas'
+import { downloadAdvertenciasMultiPdf } from '../utils/pdfAdvertencia'
+import type { AdvertenciaDoc } from '../utils/pdfAdvertencia'
+import { downloadHistoricoExcel } from '../utils/excelHistorico'
+import { showToast } from './Toast'
 import ColabSelect from './ColabSelect'
 
 type Colab = { id: number; nome: string; matricula: string }
@@ -12,20 +16,21 @@ type Adivert = {
     nome: string
     tipo: string
     motivo: string
+    complemento?: string | null
     assinada?: boolean
 }
 
 type Props = {
     adiverts: Adivert[]
     onVoltar: () => void
-    onGerar: (nomeColaborador: string) => void
     onFechar: () => void
 }
 
-const HistoricoColaborador: React.FC<Props> = ({ adiverts, onVoltar, onGerar, onFechar }) => {
+const HistoricoColaborador: React.FC<Props> = ({ adiverts, onVoltar, onFechar }) => {
     const [colabs, setColabs] = useState<Colab[]>([])
     const [nomeInput, setNomeInput] = useState('')
     const [nomeConfirmado, setNomeConfirmado] = useState<string | null>(null)
+    const [baixando, setBaixando] = useState(false)
 
     useEffect(() => {
         fetch(`${import.meta.env.VITE_API_URL}/api/Colabs`)
@@ -62,6 +67,57 @@ const HistoricoColaborador: React.FC<Props> = ({ adiverts, onVoltar, onGerar, on
             setNomeInput(nomeUpper)
             setNomeConfirmado(nomeUpper)
             setFiltroAtivo(false)
+        }
+    }
+
+    const periodoFuturo = filtroAtivo && isMesFuturo(filtroAno, filtroMes)
+
+    const toDoc = (a: Adivert): AdvertenciaDoc => ({
+        data: a.data,
+        nome: a.nome,
+        matricula: a.matricula,
+        motivo: a.motivo,
+        tipo: a.tipo,
+        complemento: a.complemento ?? null,
+    })
+
+    // Nome do arquivo reflete o filtro de mês aplicado na própria tela
+    const nomeArquivo = (ext: 'pdf' | 'xlsx') => {
+        const nomeColab = (historicoColaborador[0]?.nome ?? nomeConfirmado ?? 'colaborador')
+            .trim().replace(/\s+/g, '_')
+        const periodo = filtroAtivo ? `_${MESES_NOMES[filtroMes]}_${filtroAno}` : ''
+        return `historico_${nomeColab}${periodo}.${ext}`
+    }
+
+    const gerarPdf = async () => {
+        if (historicoFiltrado.length === 0) {
+            showToast('Não há advertências para gerar nesse período.', 'info')
+            return
+        }
+        setBaixando(true)
+        try {
+            await downloadAdvertenciasMultiPdf(historicoFiltrado.map(toDoc), nomeArquivo('pdf'))
+            showToast(`${historicoFiltrado.length} advertência(s) gerada(s) em PDF!`, 'success')
+        } catch {
+            showToast('Erro ao gerar o PDF.', 'error')
+        } finally {
+            setBaixando(false)
+        }
+    }
+
+    const gerarExcel = () => {
+        if (historicoFiltrado.length === 0) {
+            showToast('Não há advertências para gerar nesse período.', 'info')
+            return
+        }
+        setBaixando(true)
+        try {
+            downloadHistoricoExcel(historicoFiltrado, nomeArquivo('xlsx'))
+            showToast('Histórico gerado com sucesso!', 'success')
+        } catch {
+            showToast('Erro ao gerar histórico.', 'error')
+        } finally {
+            setBaixando(false)
         }
     }
 
@@ -196,13 +252,32 @@ const HistoricoColaborador: React.FC<Props> = ({ adiverts, onVoltar, onGerar, on
                                 )}
                             </div>
 
-                            {/* Botão "Gerar histórico de [nome]" - só aparece depois do histórico gerado */}
+                            {/* Exportação — age sobre exatamente o que está na tabela acima */}
                             <div className="hist-rodape">
+                                <span className="hist-rodape__resumo">
+                                    {periodoFuturo && (
+                                        <span className="hist-aviso"><Warning size={14} /> Mês futuro</span>
+                                    )}
+                                    <span>
+                                        <strong>{historicoFiltrado.length}</strong> advertência
+                                        {historicoFiltrado.length === 1
+                                            ? ' será exportada'
+                                            : 's serão exportadas'}
+                                    </span>
+                                </span>
+                                <button
+                                    className="btn hist-btn-pdf hist-btn-gerar"
+                                    onClick={gerarPdf}
+                                    disabled={baixando || historicoFiltrado.length === 0}
+                                >
+                                    {baixando ? 'Gerando...' : <><FilePdf size={16} /> Gerar PDF</>}
+                                </button>
                                 <button
                                     className="btn add-btn-confirm hist-btn-gerar"
-                                    onClick={() => onGerar(historicoColaborador[0].nome)}
+                                    onClick={gerarExcel}
+                                    disabled={baixando || historicoFiltrado.length === 0}
                                 >
-                                    <DownloadSimple size={16} /> Gerar histórico de {historicoColaborador[0].nome}
+                                    {baixando ? 'Gerando...' : <><FileXls size={16} /> Gerar Excel</>}
                                 </button>
                             </div>
                         </>

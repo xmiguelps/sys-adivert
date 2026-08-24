@@ -178,15 +178,21 @@ body {
 }
 
 /* ── Tabela de advertências ── */
+/* Fundo branco (e não vermelho): com scrollbar-gutter: stable sobra uma calha
+   de ~8px à direita que a tabela não cobre — em vermelho ela virava uma faixa
+   berrante ao lado da lista. Em branco a calha some no fundo da tabela. */
 .box-adiverts {
     flex: 0 1 auto;
-    background: var(--red-primary);
+    background: #fff;
+    border: 1px solid var(--gray-300);
+    border-bottom: none;
     border-radius: var(--radius-md);
     padding: 0;
     box-shadow: var(--shadow-sm);
     display: block;
     overflow-y: scroll;
     overflow-x: hidden;
+    overscroll-behavior: contain;
     min-height: 120px;
     min-width: 0;
     margin-top: 0;
@@ -687,7 +693,9 @@ select.add-input {
 .add-input--matricula { width: 120px; flex: none; }
 .add-input--data      { width: 148px; flex: none; }
 .add-input--tipo      { width: 110px; flex: none; }
-.add-input--motivo    { flex: 1; min-width: 200px; }
+/* A largura mínima preferida mora em .motivos-select-wrap (flex-basis), não
+   aqui: um min-width no .motivos-select volta a impedir o campo de encolher. */
+.add-input--motivo    { flex: 1; }
 
 .add-input-wrapper {
     flex: 1;
@@ -1237,7 +1245,7 @@ select:focus {
     text-align: center;
     padding: 48px 24px;
     background: #fff;
-    border-bottom: 1px solid #f0e0e0;
+    border-bottom: 1px solid var(--gray-200);
 }
 
 .tabela-vazia__icone {
@@ -1252,6 +1260,95 @@ select:focus {
     font-size: 14px;
     color: var(--gray-600);
     font-weight: 500;
+    line-height: 1.6;
+}
+
+.tabela-vazia__icone--erro { color: var(--orange); opacity: 0.7; }
+
+.tabela-vazia__retry {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 14px;
+    padding: 7px 16px;
+    border: 1.5px solid var(--gray-400);
+    border-radius: var(--radius-sm);
+    background: #fff;
+    color: var(--gray-800);
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background var(--transition), border-color var(--transition), color var(--transition);
+}
+
+.tabela-vazia__retry:hover {
+    background: var(--red-light);
+    border-color: var(--red-primary);
+    color: var(--red-dark);
+}
+
+/* ── Estado de carregamento: linhas "fantasma" no lugar da lista ──
+   Mostra a forma da tabela enquanto os dados chegam, para o estado vazio
+   ("Nenhuma advertência registrada") não passar a ideia de dados perdidos. */
+.tabela-skeleton tr {
+    border-bottom: 1px solid var(--gray-200);
+    opacity: 0;
+    animation: sk-entrada 0.3s ease forwards;
+}
+
+.tabela-skeleton td {
+    padding: 11px 14px;
+    border-right: 1px solid var(--gray-200);
+}
+
+.tabela-skeleton td:last-child { border-right: none; }
+
+/* Linha fantasma não é clicável — não deve reagir ao hover como as reais */
+.adivert tbody.tabela-skeleton tr:hover { background: transparent; }
+
+.sk {
+    display: block;
+    height: 10px;
+    border-radius: 999px;
+    background: linear-gradient(
+        90deg,
+        var(--gray-200) 25%,
+        var(--gray-100) 37%,
+        var(--gray-200) 63%
+    );
+    background-size: 400% 100%;
+    animation: sk-brilho 1.5s ease-in-out infinite;
+}
+
+.sk--curto  { width: 62%; }
+.sk--medio  { width: 78%; }
+.sk--longo  { width: 92%; }
+.sk--badge  { width: 74px; height: 18px; border-radius: 999px; margin: 0 auto; }
+
+@keyframes sk-brilho {
+    0%   { background-position: 100% 0; }
+    100% { background-position: 0 0; }
+}
+
+@keyframes sk-entrada {
+    to { opacity: 1; }
+}
+
+/* Ícone de progresso reutilizável (dica acima da tabela) */
+.girando {
+    animation: girar 0.9s linear infinite;
+    transform-origin: center;
+}
+
+@keyframes girar {
+    to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sk { animation: none; background: var(--gray-200); }
+    .tabela-skeleton tr { animation: none; opacity: 1; }
+    .girando { animation-duration: 2.4s; }
 }
 
 /* ══════════════════════════════════════════════════
@@ -1413,10 +1510,23 @@ select:focus {
 /* ══════════════════════════════════════════════════
    CUSTOM SELECT (MOTIVOS)
 ══════════════════════════════════════════════════ */
+
+/* Envelope do campo (gatilho + chips dos motivos escolhidos).
+   min-width: 0 é obrigatório: sem ele o tamanho mín. automático do flex item
+   passa a ser o texto inteiro do motivo (que é nowrap), o campo estoura a
+   largura do modal e empurra o botão "Buscar" para fora. */
+.motivos-select-wrap {
+    flex: 1 1 200px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
 .motivos-select {
     position: relative;
     flex: 1;
-    min-width: 200px;
+    min-width: 0;
 }
 
 .motivos-select__trigger {
@@ -1447,6 +1557,7 @@ select:focus {
 
 .motivos-select__value {
     flex: 1;
+    min-width: 0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -1454,6 +1565,7 @@ select:focus {
 
 .motivos-select__placeholder {
     flex: 1;
+    min-width: 0;
     color: var(--gray-600);
     white-space: nowrap;
     overflow: hidden;
@@ -1478,7 +1590,6 @@ select:focus {
     border-radius: var(--radius-sm);
     box-shadow: var(--shadow-md);
     z-index: 9999;
-    max-height: 260px;
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -1541,6 +1652,120 @@ select:focus {
 .motivos-select__option--empty {
     color: var(--gray-500);
     font-style: italic;
+}
+
+/* ── Modo múltiplo: atalhos, caixas de marcação e chips ── */
+.motivos-select__acoes {
+    display: flex;
+    gap: 6px;
+    padding: 0 6px 6px;
+    border-bottom: 1px solid var(--gray-200);
+    flex-shrink: 0;
+}
+
+.motivos-select__acao {
+    flex: 1;
+    min-width: 0;
+    padding: 5px 8px;
+    border: 1px solid var(--gray-300);
+    border-radius: var(--radius-xs);
+    background: var(--gray-100);
+    color: var(--gray-700);
+    font-family: inherit;
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: background var(--transition), color var(--transition);
+}
+
+.motivos-select__acao:hover:not(:disabled) {
+    background: var(--red-light);
+    color: var(--red-dark);
+    border-color: #f0cccc;
+}
+
+.motivos-select__acao:disabled {
+    opacity: 0.45;
+    cursor: default;
+}
+
+.motivos-select__option--check {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+}
+
+.motivos-select__option-texto { min-width: 0; }
+
+.motivos-select__box {
+    flex-shrink: 0;
+    width: 15px;
+    height: 15px;
+    margin-top: 1px;
+    border: 1.5px solid var(--gray-400);
+    border-radius: var(--radius-xs);
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    transition: background var(--transition), border-color var(--transition);
+}
+
+.motivos-select__box--on {
+    background: var(--red-primary);
+    border-color: var(--red-primary);
+}
+
+.motivos-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.motivos-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    max-width: 100%;
+    padding: 3px 4px 3px 10px;
+    background: var(--red-light);
+    border: 1px solid #f0cccc;
+    border-radius: 999px;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--red-dark);
+}
+
+.motivos-chip__texto {
+    min-width: 0;
+    max-width: 260px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.motivos-chip__remover {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(168, 21, 21, 0.14);
+    color: var(--red-dark);
+    cursor: pointer;
+    transition: background var(--transition);
+}
+
+.motivos-chip__remover:hover {
+    background: var(--red-primary);
+    color: #fff;
 }
 
 /* ══════════════════════════════════════════════════
@@ -1652,6 +1877,7 @@ select:focus {
 
 .tipo-select__value {
     flex: 1;
+    min-width: 0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -1760,10 +1986,6 @@ select:focus {
     text-overflow: ellipsis;
     white-space: nowrap;
     min-width: 0;
-}
-
-.hist-nome-destaque {
-    color: var(--red-primary);
 }
 
 .hist-subtitulo {
@@ -1893,6 +2115,20 @@ select:focus {
     padding: 8px 0;
 }
 
+/* Bloco "tipo de filtro + campos do período" (Advertências por Motivo) */
+.hist-filtro-bloco {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 4px 0;
+}
+
+.hist-filtro-opcoes {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
 .hist-filtro-check {
     display: inline-flex;
     align-items: center;
@@ -1997,112 +2233,30 @@ select:focus {
 }
 
 /* ══════════════════════════════════════════════════
-   HISTÓRICO — BOX DE GERAÇÃO (colaborador / motivo)
-══════════════════════════════════════════════════ */
-.hist-gerar-box {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    background: var(--gray-100);
-    padding: 16px;
-    border-radius: var(--radius-md);
-    border: 1px solid var(--gray-300);
-}
-
-.hist-msg-box {
-    padding: 14px 16px;
-    border-radius: var(--radius-md);
-    font-size: 14px;
-    line-height: 1.5;
-}
-
-.hist-msg-box--ok {
-    background: #e8f5e9;
-    border-left: 4px solid var(--green-primary);
-    color: var(--green-dark);
-}
-
-.hist-msg-box--vazio {
-    background: #fff3e0;
-    border-left: 4px solid var(--orange);
-    color: #bf4b00;
-}
-
-.hist-motivo-preview {
-    display: flex;
-    gap: 10px;
-    align-items: flex-start;
-    background: #fff;
-    padding: 12px 14px;
-    border-left: 4px solid var(--red-primary);
-    border-radius: var(--radius-sm);
-    box-shadow: var(--shadow-sm);
-    font-size: 13px;
-}
-
-.hist-motivo-label {
-    font-weight: 700;
-    color: var(--gray-900);
-    flex-shrink: 0;
-}
-
-.hist-motivo-texto {
-    color: var(--gray-800);
-    line-height: 1.4;
-}
-
-/* ══════════════════════════════════════════════════
-   HISTÓRICO — SELEÇÃO DE MODO (mes/dia)
-══════════════════════════════════════════════════ */
-.hist-modo-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-}
-
-.hist-modo-btn {
-    padding: 14px 18px;
-    background: #fff;
-    border: 2px solid var(--gray-300);
-    border-radius: var(--radius-md);
-    font-weight: 700;
-    font-size: 15px;
-    color: var(--gray-800);
-    cursor: pointer;
-    transition: all var(--transition);
-}
-
-.hist-modo-btn:hover {
-    border-color: var(--red-primary);
-    color: var(--red-primary);
-}
-
-.hist-modo-btn--ativo {
-    border-color: var(--red-primary);
-    background: var(--red-primary);
-    color: #fff;
-}
-
-.hist-dica {
-    padding: 14px 16px;
-    background: #e3f2fd;
-    color: var(--blue-dark);
-    border-left: 4px solid var(--blue-primary);
-    border-radius: var(--radius-md);
-    font-size: 13px;
-}
-
-/* ══════════════════════════════════════════════════
    HISTÓRICO — RODAPÉ / BOTÕES FINAIS
 ══════════════════════════════════════════════════ */
 .hist-rodape {
     display: flex;
     justify-content: flex-end;
+    align-items: center;
     gap: 10px;
+    flex-wrap: wrap;
     padding-top: 10px;
     border-top: 1px solid var(--gray-200);
     margin-top: 6px;
 }
+
+/* Contagem do que será exportado — empurra os botões para a direita */
+.hist-rodape__resumo {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-right: auto;
+    font-size: 13px;
+    color: var(--gray-700);
+}
+
+.hist-rodape__resumo strong { color: var(--gray-900); }
 
 .hist-btn-gerar {
     font-size: 15px;
@@ -2128,9 +2282,10 @@ select:focus {
 .caixa::-webkit-scrollbar,
 .add-lista::-webkit-scrollbar,
 .colab-lista::-webkit-scrollbar,
-.add-colabs-lista::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+.add-colabs-lista::-webkit-scrollbar,
+.motivos-select__lista::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
 }
 
 .box-adiverts::-webkit-scrollbar-track,
@@ -2138,17 +2293,23 @@ select:focus {
 .caixa::-webkit-scrollbar-track,
 .add-lista::-webkit-scrollbar-track,
 .colab-lista::-webkit-scrollbar-track,
-.add-colabs-lista::-webkit-scrollbar-track {
+.add-colabs-lista::-webkit-scrollbar-track,
+.motivos-select__lista::-webkit-scrollbar-track {
     background: transparent;
 }
 
+/* A borda transparente + background-clip: padding-box afina o polegar para
+   ~6px e o afasta da borda, em vez de colá-lo na lateral do conteúdo. */
 .box-adiverts::-webkit-scrollbar-thumb,
 .hist-tabela-wrap::-webkit-scrollbar-thumb,
 .caixa::-webkit-scrollbar-thumb,
 .add-lista::-webkit-scrollbar-thumb,
 .colab-lista::-webkit-scrollbar-thumb,
-.add-colabs-lista::-webkit-scrollbar-thumb {
+.add-colabs-lista::-webkit-scrollbar-thumb,
+.motivos-select__lista::-webkit-scrollbar-thumb {
     background: var(--gray-400);
+    background-clip: padding-box;
+    border: 2px solid transparent;
     border-radius: 999px;
 }
 
@@ -2157,8 +2318,15 @@ select:focus {
 .caixa::-webkit-scrollbar-thumb:hover,
 .add-lista::-webkit-scrollbar-thumb:hover,
 .colab-lista::-webkit-scrollbar-thumb:hover,
-.add-colabs-lista::-webkit-scrollbar-thumb:hover {
-    background: var(--gray-500);
+.add-colabs-lista::-webkit-scrollbar-thumb:hover,
+.motivos-select__lista::-webkit-scrollbar-thumb:hover {
+    background: var(--gray-600);
+    background-clip: padding-box;
+}
+
+.box-adiverts::-webkit-scrollbar-corner,
+.hist-tabela-wrap::-webkit-scrollbar-corner {
+    background: transparent;
 }
 
 /* Firefox */
@@ -2167,20 +2335,10 @@ select:focus {
 .caixa,
 .add-lista,
 .colab-lista,
-.add-colabs-lista {
+.add-colabs-lista,
+.motivos-select__lista {
     scrollbar-color: var(--gray-400) transparent;
     scrollbar-width: thin;
-}
-
-/* .box-adiverts tem fundo vermelho (cabeçalho da tabela) — o trilho
-   "transparente" compartilhado deixaria essa cor vazar pelo gutter.
-   Aqui ele ganha um trilho translúcido em branco, visível sobre
-   qualquer fundo, em vez de herdar o vermelho por baixo. */
-.box-adiverts::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.3);
-}
-.box-adiverts {
-    scrollbar-color: var(--gray-400) rgba(255, 255, 255, 0.3);
 }
 
 /* ── Modo Múltiplos Colaboradores ── */
@@ -2674,7 +2832,6 @@ select:focus {
     .hist-popup { gap: 12px; }
     .hist-header { padding-bottom: 10px; }
     .hist-titulo { font-size: 17px; }
-    .hist-gerar-box { gap: 12px; padding: 12px 14px; }
     .hist-tabela-wrap { max-height: 200px; }
 
     /* Menu de histórico (2 cards) mais baixo */
