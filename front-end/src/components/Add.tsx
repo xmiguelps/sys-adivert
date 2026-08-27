@@ -27,6 +27,9 @@ type ColabEntry = {
 
 type Colab = { id: number; nome: string; matricula: string }
 
+/* Erro por item devolvido pelo POST /api/Adiverts/batch */
+type ErroItem = { indice: number; erro: string }
+
 type AddProps = {
     setAddAberto: React.Dispatch<React.SetStateAction<boolean>>;
     setData: React.Dispatch<React.SetStateAction<any[]>>;
@@ -63,6 +66,44 @@ const toCreatePayload = (adv: Advertencia) => ({
         nomeArquivo: e.nomeArquivo,
     })),
 });
+
+/* Fatiamento do lote.
+   O teto de itens espelha AdivertService.LimiteLote; o de bytes fica bem
+   abaixo do MaxRequestBodySize do Kestrel (50 MB), porque as evidencias
+   trafegam em base64 e um lote com fotos passa disso facil. */
+const LIMITE_ITENS_LOTE = 200;
+const LIMITE_BYTES_LOTE = 20 * 1024 * 1024;
+
+const encoder = new TextEncoder();
+
+// Agrupa os itens ja serializados respeitando os dois tetos. Um item que
+// sozinho estoura o limite de bytes vai em um bloco proprio.
+function fatiarLote(itensJson: string[]) {
+    const blocos: { inicio: number; corpo: string }[] = [];
+    let inicio = 0;
+    let atual: string[] = [];
+    let bytes = 0;
+
+    const fechar = () => {
+        if (atual.length === 0) return;
+        blocos.push({ inicio, corpo: `[${atual.join(",")}]` });
+        inicio += atual.length;
+        atual = [];
+        bytes = 0;
+    };
+
+    for (const json of itensJson) {
+        const tamanho = encoder.encode(json).length;
+        if (atual.length > 0 && (atual.length >= LIMITE_ITENS_LOTE || bytes + tamanho > LIMITE_BYTES_LOTE)) {
+            fechar();
+        }
+        atual.push(json);
+        bytes += tamanho;
+    }
+    fechar();
+
+    return blocos;
+}
 
 function useDebounce(value: string, delay: number) {
     const [debounced, setDebounced] = useState(value);
@@ -158,6 +199,7 @@ function Add({ setAddAberto, getAdiverts }: AddProps) {
     const [novaForm, setNovaForm] = useState<Advertencia>(campoVazio());
     const [salvando, setSalvando] = useState(false);
     const [erroForm, setErroForm] = useState<string | null>(null);
+    const [errosItens, setErrosItens] = useState<ErroItem[]>([]);
     const [_buscandoMatricula, setBuscandoMatricula] = useState<"nova" | number | null>(null);
 
     useEffect(() => {
@@ -241,6 +283,7 @@ function Add({ setAddAberto, getAdiverts }: AddProps) {
         const erro = validarForm(novaForm);
         if (erro) { setErroForm(erro); return; }
         setErroForm(null);
+        setErrosItens([]);
         setLista(prev => [...prev, { ...novaForm }]);
         setCriandoNova(false);
     };
@@ -257,6 +300,7 @@ function Add({ setAddAberto, getAdiverts }: AddProps) {
         const erro = validarForm(editForm);
         if (erro) { setErroForm(erro); return; }
         setErroForm(null);
+        setErrosItens([]);
         setLista(prev => prev.map((a, i) => i === idx ? { ...editForm } : a));
         setEditandoIdx(null);
     };
@@ -264,6 +308,7 @@ function Add({ setAddAberto, getAdiverts }: AddProps) {
     const cancelarEdicao = () => { setEditandoIdx(null); setErroForm(null); };
 
     const excluir = (idx: number) => {
+        setErrosItens([]);
         setLista(prev => prev.filter((_, i) => i !== idx));
         if (editandoIdx === idx) setEditandoIdx(null);
     };
@@ -300,6 +345,7 @@ function Add({ setAddAberto, getAdiverts }: AddProps) {
             return;
         }
         setErroForm(null);
+        setErrosItens([]);
         const novas: Advertencia[] = validos.map(c => ({
             Nome: c.Nome,
             matricula: c.matricula,
@@ -315,32 +361,80 @@ function Add({ setAddAberto, getAdiverts }: AddProps) {
         setColabsMultiplo([{ id: nextId.current++, Nome: "", matricula: "", complemento: "", evidencias: [] }]);
     };
 
-    /* Salvar tudo na API */
+    /* Salvar tudo na API.
+       Um POST /batch por bloco, sempre em sequencia: cada bloco e uma
+       transacao no back e paralelizar aqui traria de volta o estouro do
+       pooler que o endpoint em lote veio resolver. */
     const finalizarESalvar = async () => {
         if (lista.length === 0) {
             setErroForm("Adicione pelo menos uma advertência antes de salvar.");
             return;
         }
         setSalvando(true);
+        setErroForm(null);
+        setErrosItens([]);
+
+        const total = lista.length;
+        // Serializa uma vez so: o mesmo JSON serve para medir o bloco e para
+        // montar o corpo da requisicao.
+        const blocos = fatiarLote(lista.map(adv => JSON.stringify(toCreatePayload(adv))));
+        let salvos = 0;
+
         try {
-            await Promise.all(
-                lista.map(adv =>
-                    fetch(`${import.meta.env.VITE_API_URL}/api/Adiverts`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(toCreatePayload(adv)),
-                    })
-                )
-            );
+            for (const bloco of blocos) {
+                const res = await fetch(`${import.meta.env.VITE_API_URL}/api/Adiverts/batch`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: bloco.corpo,
+                });
+
+                if (!res.ok) {
+                    const corpo = await res.json().catch(() => null);
+                    const detalhe: string = corpo?.mensagem ??
+                        (res.status === 413
+                            ? "Bloco grande demais para o servidor."
+                            : `Erro ${res.status} ao salvar.`);
+
+                    // Os indices vem relativos ao bloco, e o bloco que falhou
+                    // comeca exatamente em 'salvos' (os anteriores gravaram
+                    // inteiros). Depois do slice abaixo eles ja apontam para o
+                    // item certo da lista que sobrou.
+                    setErrosItens(corpo?.erros ?? []);
+
+                    if (salvos > 0) {
+                        // Os blocos anteriores ja commitaram: tira-os da lista
+                        // para que uma nova tentativa nao duplique o que gravou.
+                        await getAdiverts();
+                        setLista(prev => prev.slice(salvos));
+                        setErroForm(`${salvos} de ${total} advertências foram salvas. O envio parou no restante: ${detalhe}`);
+                        showToast(`${salvos} salvas, ${total - salvos} pendentes.`, "error");
+                    } else {
+                        setErroForm(detalhe);
+                        showToast("Nenhuma advertência foi salva.", "error");
+                    }
+                    return;
+                }
+
+                const { ids } = await res.json() as { ids: number[]; total: number };
+                salvos += ids.length;
+            }
+
             await getAdiverts();
             setAddAberto(false);
             showToast(
-                lista.length === 1
+                salvos === 1
                     ? "Advertência salva com sucesso!"
-                    : `${lista.length} advertências salvas com sucesso!`,
+                    : `${salvos} advertências salvas com sucesso!`,
                 "success"
             );
         } catch {
+            if (salvos > 0) {
+                await getAdiverts();
+                setLista(prev => prev.slice(salvos));
+                setErroForm(`${salvos} de ${total} advertências foram salvas antes da conexão cair. Tente salvar o restante.`);
+            } else {
+                setErroForm("Não foi possível falar com o servidor. Tente novamente.");
+            }
             showToast("Erro ao salvar advertências.", "error");
         } finally {
             setSalvando(false);
@@ -675,6 +769,16 @@ function Add({ setAddAberto, getAdiverts }: AddProps) {
 
             {erroForm && !criandoNova && editandoIdx === null && (
                 <div className="add-erro-form"><Warning size={14} /> {erroForm}</div>
+            )}
+
+            {errosItens.length > 0 && (
+                <ul className="add-erro-itens">
+                    {errosItens.map(e => (
+                        <li key={e.indice}>
+                            <strong>#{e.indice + 1} {lista[e.indice]?.Nome ?? "—"}:</strong> {e.erro}
+                        </li>
+                    ))}
+                </ul>
             )}
 
             <div className="add-rodape">

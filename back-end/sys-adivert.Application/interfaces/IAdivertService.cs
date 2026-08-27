@@ -6,15 +6,19 @@ namespace sys_adivert.Application.Service;
 
 public interface IAdivertService
 {
-    Task<IEnumerable<AdivertReadDto>>  GetAllAsync(string? nome);
+    Task<IEnumerable<AdivertReadDto>>  GetAllAsync(string? nome, CancellationToken cancellationToken = default);
 
-    Task<AdivertDetailDto?> GetByIdAsync(int id);
+    Task<AdivertDetailDto?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
 
-    Task<bool> CreateAsync(AdivertCreateDto dto);
+    Task<bool> CreateAsync(AdivertCreateDto dto, CancellationToken cancellationToken = default);
 
-    Task<bool> UpdateAsync(int id, AdivertUpdateDto dto);
+    Task<AdivertBatchResultDto> CreateBatchAsync(
+        IReadOnlyList<AdivertCreateDto>? dtos,
+        CancellationToken cancellationToken = default);
 
-    Task<bool> SetAssinaturaAsync(int id, bool assinada);
+    Task<bool> UpdateAsync(int id, AdivertUpdateDto dto, CancellationToken cancellationToken = default);
 
-    Task<bool> DeleteAsync(int id);
+    Task<bool> SetAssinaturaAsync(int id, bool assinada, CancellationToken cancellationToken = default);
+
+    Task<bool> DeleteAsync(int id, CancellationToken cancellationToken = default);
 }

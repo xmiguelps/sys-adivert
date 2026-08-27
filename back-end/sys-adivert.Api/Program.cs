@@ -24,7 +24,12 @@ AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(
-        builder.Configuration.GetConnectionString("DefaultConnection")
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        // O padrao relacional e 42 comandos por batch, o que quebraria a
+        // gravacao de um lote grande em varios round trips (na mesma conexao
+        // e na mesma transacao, mas ainda assim varios). Alinhar com o teto
+        // de itens do lote deixa o caso comum em um round trip so.
+        npgsql => npgsql.MaxBatchSize(AdivertService.LimiteLote)
     )
 );
 

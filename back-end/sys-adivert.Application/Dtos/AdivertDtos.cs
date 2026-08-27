@@ -45,3 +45,28 @@ public record AdivertDetailDto(
     List<EvidenciaReadDto> Evidencias);
 
 public record AdivertAssinaturaDto(bool Assinada);
+
+/* ---- Criacao em lote ---- */
+
+public enum AdivertBatchStatus
+{
+    Sucesso,
+    ListaVazia,
+    LimiteExcedido,
+    ItensInvalidos,
+    Conflito,
+    NaoProcessavel
+}
+
+public record AdivertBatchItemErroDto(int Indice, string Erro);
+
+public record AdivertBatchCreatedDto(IReadOnlyList<int> Ids, int Total);
+
+public record AdivertBatchErroDto(string Mensagem, IReadOnlyList<AdivertBatchItemErroDto> Erros);
+
+// Resultado interno do service; o controller traduz o Status em HTTP.
+public record AdivertBatchResultDto(
+    AdivertBatchStatus Status,
+    IReadOnlyList<int> Ids,
+    IReadOnlyList<AdivertBatchItemErroDto> Erros,
+    string? Mensagem);

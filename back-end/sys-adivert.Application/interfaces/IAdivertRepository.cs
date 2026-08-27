@@ -16,6 +16,8 @@ public interface IAdivertRepository
 
     Task CreateAsync(Adivert adivert ,CancellationToken cancellationToken = default);
 
+    Task CreateRangeAsync(IEnumerable<Adivert> adiverts, CancellationToken cancellationToken = default);
+
     Task DeleteAsync(Adivert adivert ,CancellationToken cancellationToken = default);
 
     Task UpdateAsync(Adivert adivert, CancellationToken cancellationToken = default);
