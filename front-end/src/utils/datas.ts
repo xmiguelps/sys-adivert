@@ -99,3 +99,18 @@ export function filtrarPorDia<T extends { data: string }>(
         return d.getFullYear() === ano && d.getMonth() === mes && d.getDate() === dia
     })
 }
+
+/**
+ * "YYYY-MM-DD" (ou ISO) -> "DD/MM/AAAA", sem passar por Date (sem deslocamento de fuso).
+ */
+export function formatarDataBr(iso: string): string {
+    const [yyyy, mm, dd] = iso.slice(0, 10).split('-')
+    return `${dd}/${mm}/${yyyy}`
+}
+
+/**
+ * Data de hoje (America/Sao_Paulo) como "YYYY-MM-DD".
+ */
+export function dataAtualBrasil(): string {
+    return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Sao_Paulo' }).format(new Date())
+}

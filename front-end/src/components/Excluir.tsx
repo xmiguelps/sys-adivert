@@ -5,9 +5,14 @@ type ExcluirProps = {
     setExcluirView: React.Dispatch<React.SetStateAction<boolean>>
     getAdiverts: () => void;
     ids: number[]
+    recurso?: 'advertencia' | 'suspensao'
 }
 
-function Excluir({ setExcluirView, ids, getAdiverts }: ExcluirProps) {
+function Excluir({ setExcluirView, ids, getAdiverts, recurso = 'advertencia' }: ExcluirProps) {
+    const susp = recurso === 'suspensao';
+    const endpoint = susp ? 'Suspensoes' : 'Adiverts';
+    const sing = susp ? 'suspensão' : 'advertência';
+    const plur = susp ? 'suspensões' : 'advertências';
     const [excluindo, setExcluindo] = useState(false);
     const qtd = ids.length;
 
@@ -16,7 +21,7 @@ function Excluir({ setExcluirView, ids, getAdiverts }: ExcluirProps) {
         try {
             const resultados = await Promise.allSettled(
                 ids.map(id =>
-                    fetch(`${import.meta.env.VITE_API_URL}/api/Adiverts/${id}`, { method: "DELETE" })
+                    fetch(`${import.meta.env.VITE_API_URL}/api/${endpoint}/${id}`, { method: "DELETE" })
                 )
             );
             const sucessos = resultados.filter(r => r.status === "fulfilled" && r.value.ok).length;
@@ -30,8 +35,8 @@ function Excluir({ setExcluirView, ids, getAdiverts }: ExcluirProps) {
                 setExcluirView(false);
                 showToast(
                     sucessos === 1
-                        ? "Advertência excluída com sucesso!"
-                        : `${sucessos} advertências excluídas com sucesso!`,
+                        ? `${susp ? "Suspensão excluída" : "Advertência excluída"} com sucesso!`
+                        : `${sucessos} ${plur} excluídas com sucesso!`,
                     "success"
                 );
             } else if (sucessos === 0) {
@@ -44,7 +49,7 @@ function Excluir({ setExcluirView, ids, getAdiverts }: ExcluirProps) {
             }
         } catch {
             try { await getAdiverts(); } catch { /* ignora */ }
-            showToast("Erro ao excluir advertência(s).", "error");
+            showToast(`Erro ao excluir ${sing}(s).`, "error");
         } finally {
             setExcluindo(false);
         }
@@ -56,8 +61,8 @@ function Excluir({ setExcluirView, ids, getAdiverts }: ExcluirProps) {
                 <h5>
                     Tem certeza que quer <strong>apagar</strong>{" "}
                     {qtd === 1
-                        ? "essa advertência"
-                        : <>essas <strong>{qtd}</strong> advertências</>}?
+                        ? `essa ${sing}`
+                        : <>essas <strong>{qtd}</strong> {plur}</>}?
                 </h5>
                 <div className="d-flex justify-content-center modal-confirm-acoes">
                     <button className="cancel-btn btn" onClick={() => setExcluirView(false)} title="Fechar">

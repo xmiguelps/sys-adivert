@@ -5,7 +5,9 @@ import TipoSelect from "./TipoSelect";
 import ColabSelect from "./ColabSelect";
 import EvidenciasUploader from "./EvidenciasUploader";
 import type { EvidenciaLocal } from "../utils/imagem";
+import { dataAtualBrasil } from "../utils/datas";
 import { showToast } from "./Toast";
+import { notificarSuspensao } from "./Notificacao";
 
 type Advertencia = {
     Nome: string;
@@ -38,8 +40,10 @@ type AddProps = {
     getAdiverts: () => void;
 }
 
-const dataAtualBrasil = () =>
-    new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Sao_Paulo' }).format(new Date());
+// A partir da 4ª advertência o sistema oferece aplicar suspensão
+const LIMITE_SUSPENSAO = 4;
+
+type Contagem = { matricula: string; nome: string; total: number }
 
 const campoVazio = (): Advertencia => ({
     Nome: "",
@@ -379,6 +383,14 @@ function Add({ setAddAberto, getAdiverts }: AddProps) {
         // montar o corpo da requisicao.
         const blocos = fatiarLote(lista.map(adv => JSON.stringify(toCreatePayload(adv))));
         let salvos = 0;
+        // Última contagem devolvida por matrícula (um colaborador pode aparecer em vários blocos)
+        const contagens = new Map<string, Contagem>();
+        // Notifica quem atingiu o limite, inclusive na falha parcial (blocos já gravados)
+        const notificar = () => {
+            contagens.forEach(c => {
+                if (c.total >= LIMITE_SUSPENSAO) notificarSuspensao(c);
+            });
+        };
 
         try {
             for (const bloco of blocos) {
@@ -404,6 +416,7 @@ function Add({ setAddAberto, getAdiverts }: AddProps) {
                     if (salvos > 0) {
                         // Os blocos anteriores ja commitaram: tira-os da lista
                         // para que uma nova tentativa nao duplique o que gravou.
+                        notificar();
                         await getAdiverts();
                         setLista(prev => prev.slice(salvos));
                         setErroForm(`${salvos} de ${total} advertências foram salvas. O envio parou no restante: ${detalhe}`);
@@ -415,10 +428,12 @@ function Add({ setAddAberto, getAdiverts }: AddProps) {
                     return;
                 }
 
-                const { ids } = await res.json() as { ids: number[]; total: number };
+                const { ids, contagens: cont } = await res.json() as { ids: number[]; total: number; contagens?: Contagem[] };
                 salvos += ids.length;
+                (cont ?? []).forEach(c => contagens.set(c.matricula, c));
             }
 
+            notificar();
             await getAdiverts();
             setAddAberto(false);
             showToast(
@@ -429,6 +444,7 @@ function Add({ setAddAberto, getAdiverts }: AddProps) {
             );
         } catch {
             if (salvos > 0) {
+                notificar();
                 await getAdiverts();
                 setLista(prev => prev.slice(salvos));
                 setErroForm(`${salvos} de ${total} advertências foram salvas antes da conexão cair. Tente salvar o restante.`);

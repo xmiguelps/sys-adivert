@@ -9,22 +9,31 @@ import Add from './components/Add'
 import Colaboradores from './components/Colaboradores'
 import Excluir from './components/Excluir'
 import Update from './components/Update'
-import HistoricoMenu from './components/HistoricoMenu'
-import HistoricoColaborador from './components/HistoricoColaborador'
-import HistoricoMotivo from './components/HistoricoMotivo'
+import SuspensaoForm from './components/SuspensaoForm'
+import TabelaSuspensao from './components/TabelaSuspensao'
+import HistoricoGeralModal from './components/HistoricoGeralModal'
+import BaixarHistoricoModal from './components/BaixarHistoricoModal'
+import type { AlvoHistorico } from './components/BaixarHistoricoModal'
 import ColabSelect from './components/ColabSelect'
+import MotivosSelect from './components/MotivosSelect'
 import Configuracoes from './components/Configuracoes'
 import { ToastContainer, showToast } from './components/Toast'
+import { NotificacaoContainer } from './components/Notificacao'
 import { downloadAdvertenciaPdf, getAdvertenciaPdfBlob } from './utils/pdfAdvertencia'
+import { downloadSuspensaoPdf, getSuspensaoPdfBlob } from './utils/pdfSuspensao'
+import { listarSuspensoes, obterSuspensao, assinarSuspensao } from './utils/suspensaoApi'
+import type { Suspensao } from './utils/suspensaoApi'
+import { listarAdvertencias } from './utils/historico'
+import type { FiltroHistorico } from './utils/historico'
+import { formatarDataBr } from './utils/datas'
 import JSZip from 'jszip'
 
 type Colab = { id: number; nome: string; matricula: string }
 
-type HistView =
-    | null
-    | 'menu'
-    | 'colaborador'
-    | 'motivo'
+type Modo = 'advertencias' | 'suspensoes'
+
+// Parametros explicitos de busca (o estado ainda nao refletiu a troca no mesmo clique)
+type BuscaOpts = { nome?: string; motivos?: string[]; porMotivo?: boolean }
 
 // Quantidade de linhas "fantasma" exibidas enquanto a lista carrega
 const SKELETON_LINHAS = 7
@@ -43,11 +52,16 @@ const baixarBlob = (blob: Blob, filename: string) => {
 
 // Nome de arquivo seguro a partir do nome do colaborador
 const sanitizeNome = (nome: string) =>
-    (nome || 'advertencia').trim().replace(/\s+/g, '_').replace(/[\\/:*?"<>|]+/g, '')
+    (nome || 'documento').trim().replace(/\s+/g, '_').replace(/[\\/:*?"<>|]+/g, '')
 
 function App() {
 
     const [nome, setNome] = useState<string>('')
+    // Colaborador escolhido na lista (chave = matrícula) e modo "filtrar por motivo"
+    const [colabSel, setColabSel] = useState<Colab | null>(null)
+    const [porMotivo, setPorMotivo] = useState<boolean>(false)
+    const [motivosSel, setMotivosSel] = useState<string[]>([])
+    const [motivos, setMotivos] = useState<string[]>([])
     const [colabs, setColabs] = useState<Colab[]>([])
     const [addAberto, setAddAberto] = useState<boolean>(false)
     const [colabAberto, setColabAberto] = useState<boolean>(false)
@@ -58,6 +72,15 @@ function App() {
     // isso, a tabela pisca o estado "Nenhuma advertência registrada" antes dos dados.
     const [carregando, setCarregando] = useState<boolean>(true)
     const [erroCarregar, setErroCarregar] = useState<boolean>(false)
+
+    // Toggle da lista principal e dados de suspensões
+    const [modo, setModo] = useState<Modo>('advertencias')
+    const [suspensoes, setSuspensoes] = useState<Suspensao[]>([])
+    const [carregandoSusp, setCarregandoSusp] = useState<boolean>(true)
+    const [erroSusp, setErroSusp] = useState<boolean>(false)
+    const ehSusp = modo === 'suspensoes'
+    // Formulário de suspensão: criação (pré-preenchida pela notificação) ou edição
+    const [suspForm, setSuspForm] = useState<{ matricula?: string; nome?: string; editar?: Suspensao } | null>(null)
 
     // Seleção de linha (múltipla - segure Ctrl para selecionar várias)
     const [selectedIds, setSelectedIds] = useState<number[]>([])
@@ -83,12 +106,18 @@ function App() {
     const [baixarLoteView, setBaixarLoteView] = useState<boolean>(false)
     const [baixandoLote, setBaixandoLote] = useState<boolean>(false)
 
-    // Fluxo de histórico
-    const [histView, setHistView] = useState<HistView>(null)
+    // Modais de histórico: geral e por colaborador/motivos
+    const [histGeralView, setHistGeralView] = useState<boolean>(false)
+    const [baixarHistView, setBaixarHistView] = useState<boolean>(false)
 
     const selectedAdivert = adiverts.find(a => a.id === selectedId) ?? null
+    const selectedSusp = suspensoes.find(x => x.id === selectedId) ?? null
 
-    const fecharHistorico = () => setHistView(null)
+    const trocarModo = (novo: Modo) => {
+        if (novo === modo) return
+        setSelectedIds([])
+        setModo(novo)
+    }
 
     // Baixa o PDF da advertência selecionada (com complemento e evidências)
     const downloadPdfLinha = async (adivert: any) => {
@@ -116,7 +145,31 @@ function App() {
         }
     }
 
-    // Baixa TODAS as advertências selecionadas - um PDF por advertência, tudo em um .zip
+    // Baixa o PDF da suspensão selecionada (com complemento e evidências)
+    const downloadPdfSusp = async (susp: Suspensao) => {
+        try {
+            const detalhe = await obterSuspensao(susp.id)
+            await downloadSuspensaoPdf({
+                dataEmissao: susp.dataEmissao,
+                nome: susp.nome,
+                matricula: susp.matricula,
+                dias: susp.dias,
+                dataInicio: susp.dataInicio,
+                dataRetorno: susp.dataRetorno,
+                motivo: susp.motivo,
+                complemento: detalhe?.complemento ?? susp.complemento ?? null,
+                evidencias: (detalhe?.evidencias ?? []).map(e => ({
+                    contentType: e.contentType,
+                    base64: e.base64,
+                })),
+            })
+            showToast('PDF gerado com sucesso!', 'success')
+        } catch {
+            showToast('Erro ao gerar o PDF.', 'error')
+        }
+    }
+
+    // Baixa TODAS as advertências (ou suspensões) selecionadas - um PDF por advertência, tudo em um .zip
     const confirmarDownloadLote = async () => {
         setBaixandoLote(true)
         try {
@@ -125,34 +178,50 @@ function App() {
             let adicionados = 0
 
             for (const id of selectedIds) {
-                const base = adiverts.find(a => a.id === id)
+                const base: any = ehSusp
+                    ? suspensoes.find(x => x.id === id)
+                    : adiverts.find(a => a.id === id)
                 if (!base) continue
 
                 let det: any = null
                 try {
-                    const resp = await fetch(
-                        `${import.meta.env.VITE_API_URL}/api/Adiverts/${id}`,
-                        { headers: { Accept: 'application/json' } }
-                    )
-                    det = resp.ok ? await resp.json() : null
+                    det = ehSusp
+                        ? await obterSuspensao(id)
+                        : await fetch(
+                            `${import.meta.env.VITE_API_URL}/api/Adiverts/${id}`,
+                            { headers: { Accept: 'application/json' } }
+                        ).then(r => r.ok ? r.json() : null)
                 } catch {
                     det = null
                 }
 
-                const blob = await getAdvertenciaPdfBlob({
-                    data: base.data,
-                    nome: base.nome,
-                    matricula: base.matricula,
-                    motivo: base.motivo,
-                    tipo: base.tipo,
-                    complemento: det?.complemento ?? base.complemento ?? null,
-                    evidencias: (det?.evidencias ?? []).map((e: any) => ({
-                        contentType: e.contentType,
-                        base64: e.base64,
-                    })),
-                })
+                const evidencias = (det?.evidencias ?? []).map((e: any) => ({
+                    contentType: e.contentType,
+                    base64: e.base64,
+                }))
+                const blob = ehSusp
+                    ? await getSuspensaoPdfBlob({
+                        dataEmissao: base.dataEmissao,
+                        nome: base.nome,
+                        matricula: base.matricula,
+                        dias: base.dias,
+                        dataInicio: base.dataInicio,
+                        dataRetorno: base.dataRetorno,
+                        motivo: base.motivo,
+                        complemento: det?.complemento ?? base.complemento ?? null,
+                        evidencias,
+                    })
+                    : await getAdvertenciaPdfBlob({
+                        data: base.data,
+                        nome: base.nome,
+                        matricula: base.matricula,
+                        motivo: base.motivo,
+                        tipo: base.tipo,
+                        complemento: det?.complemento ?? base.complemento ?? null,
+                        evidencias,
+                    })
 
-                const baseNome = `advertencia-${sanitizeNome(base.nome)}-${base.matricula}`
+                const baseNome = `${ehSusp ? 'suspensao' : 'advertencia'}-${sanitizeNome(base.nome)}-${base.matricula}`
                 let nomeArq = `${baseNome}.pdf`
                 let n = 2
                 while (usados.has(nomeArq)) { nomeArq = `${baseNome}-${n}.pdf`; n++ }
@@ -164,14 +233,14 @@ function App() {
 
             if (adicionados === 0) {
                 setBaixarLoteView(false)
-                showToast('Nenhuma advertência para baixar.', 'error')
+                showToast(`Nenhuma ${ehSusp ? 'suspensão' : 'advertência'} para baixar.`, 'error')
                 return
             }
 
             const zipBlob = await zip.generateAsync({ type: 'blob' })
-            baixarBlob(zipBlob, `advertencias_${adicionados}.zip`)
+            baixarBlob(zipBlob, `${ehSusp ? 'suspensoes' : 'advertencias'}_${adicionados}.zip`)
             setBaixarLoteView(false)
-            showToast(`${adicionados} advertências geradas (arquivo .zip)!`, 'success')
+            showToast(`${adicionados} ${ehSusp ? 'suspensões' : 'advertências'} geradas (arquivo .zip)!`, 'success')
         } catch {
             showToast('Erro ao gerar o arquivo.', 'error')
         } finally {
@@ -201,19 +270,60 @@ function App() {
         }
     }
 
-    const getAdiverts = async (nomeParam?: string) => {
-        const buscaNome = nomeParam !== undefined ? nomeParam : nome
-        const url = buscaNome === ''
-            ? `${import.meta.env.VITE_API_URL}/api/Adiverts`
-            : `${import.meta.env.VITE_API_URL}/api/Adiverts?nome=${encodeURIComponent(buscaNome)}`
+    const toggleAssinaturaSusp = async (id: number, assinada: boolean) => {
+        try {
+            await assinarSuspensao(id, assinada)
+            await getSuspensoes()
+            showToast(
+                assinada ? 'Suspensão marcada como assinada.' : 'Marcação de assinatura removida.',
+                'success'
+            )
+        } catch {
+            showToast('Erro ao atualizar a assinatura.', 'error')
+        }
+    }
+
+    // Filtro da lista: por motivos OU por colaborador (nunca os dois)
+    const filtroLista = (o: BuscaOpts = {}): FiltroHistorico => {
+        if (o.porMotivo ?? porMotivo) {
+            const ms = o.motivos ?? motivosSel
+            return ms.length > 0 ? { motivos: ms } : {}
+        }
+        const n = o.nome ?? nome
+        return n ? { nome: n } : {}
+    }
+
+    const getSuspensoes = async (opts?: BuscaOpts) => {
+        setCarregandoSusp(true)
+        try {
+            setSuspensoes(await listarSuspensoes(filtroLista(opts)))
+            setErroSusp(false)
+        } catch {
+            setErroSusp(true)
+            showToast('Não foi possível carregar as suspensões.', 'error')
+        } finally {
+            setCarregandoSusp(false)
+        }
+    }
+
+    // A busca (colaborador ou motivos) filtra as duas listas
+    const buscar = (opts?: BuscaOpts) => {
+        getAdiverts(opts)
+        getSuspensoes(opts)
+    }
+
+    const alternarPorMotivo = (ligado: boolean) => {
+        setPorMotivo(ligado)
+        setNome('')
+        setColabSel(null)
+        setMotivosSel([])
+        buscar({ nome: '', motivos: [], porMotivo: ligado })
+    }
+
+    const getAdiverts = async (opts?: BuscaOpts) => {
         setCarregando(true);
         try {
-            const response = await fetch(url, {
-                method: "GET",
-                headers: { "Accept": "application/json" }
-            });
-            if (!response.ok) throw new Error(`Erro: ${response.status}`);
-            const data = await response.json();
+            const data = await listarAdvertencias(filtroLista(opts));
             setAdiverts(data);
             setErroCarregar(false);
         } catch {
@@ -228,9 +338,14 @@ function App() {
 
     useEffect(() => {
         getAdiverts();
+        getSuspensoes();
         fetch(`${import.meta.env.VITE_API_URL}/api/Colabs`)
             .then(r => r.ok ? r.json() : [])
             .then(setColabs)
+            .catch(() => {})
+        fetch(`${import.meta.env.VITE_API_URL}/api/Motivos`)
+            .then(r => r.ok ? r.json() : [])
+            .then((d: { id: number; descricao: string }[]) => setMotivos(d.map(m => m.descricao)))
             .catch(() => {})
     }, [])
 
@@ -242,37 +357,74 @@ function App() {
         }
         let cancelado = false
         setInspCarregando(true)
-        fetch(`${import.meta.env.VITE_API_URL}/api/Adiverts/${selectedId}`, { headers: { Accept: 'application/json' } })
-            .then(r => r.ok ? r.json() : null)
+        const req = ehSusp
+            ? obterSuspensao(selectedId)
+            : fetch(`${import.meta.env.VITE_API_URL}/api/Adiverts/${selectedId}`, { headers: { Accept: 'application/json' } })
+                .then(r => r.ok ? r.json() : null)
+        req
             .then(det => { if (!cancelado) setInspDetalhe(det) })
             .catch(() => { if (!cancelado) setInspDetalhe(null) })
             .finally(() => { if (!cancelado) setInspCarregando(false) })
         return () => { cancelado = true }
-    }, [inspecionarView, selectedId])
+    }, [inspecionarView, selectedId, ehSusp])
 
     // Mantém a seleção coerente com a lista visível: remove ids que sumiram
     // (após busca/filtro/atualização/exclusão) para não sobrar "seleção fantasma".
     useEffect(() => {
         setSelectedIds(prev => {
-            const filtrado = prev.filter(id => adiverts.some(a => a.id === id))
+            const lista: { id: number }[] = ehSusp ? suspensoes : adiverts
+            const filtrado = prev.filter(id => lista.some(a => a.id === id))
             return filtrado.length === prev.length ? prev : filtrado
         })
-    }, [adiverts])
+    }, [adiverts, suspensoes, ehSusp])
 
-    const dataFormatada = (data: string) => {
-        const [yyyy, mm, dd] = data.slice(0, 10).split('-')
-        return `${dd}/${mm}/${yyyy}`
-    }
+    const dataFormatada = formatarDataBr
 
     // Enquanto a lista recarrega a tabela mostra esqueletos: liberar as ações aí
     // deixaria botões ativos apontando para linhas que não estão mais visíveis.
-    const podeUma = selectedIds.length === 1 && !carregando
-    const podeVarias = selectedIds.length > 0 && !carregando
+    const carregandoAtual = ehSusp ? carregandoSusp : carregando
+    const podeUma = selectedIds.length === 1 && !carregandoAtual
+    const podeVarias = selectedIds.length > 0 && !carregandoAtual
+    const nomeItem = ehSusp ? 'suspensão' : 'advertência'
+    const nomeItens = ehSusp ? 'suspensões' : 'advertências'
+    const itemSel = ehSusp ? selectedSusp : selectedAdivert
+
+    const alvoHistorico: AlvoHistorico | null = porMotivo
+        ? (motivosSel.length > 0 ? { tipo: 'motivos', motivos: motivosSel } : null)
+        : (colabSel ? { tipo: 'colaborador', nome: colabSel.nome, matricula: colabSel.matricula } : null)
 
     return (
         <>
             {/* ── Toast Notifications ── */}
             <ToastContainer />
+
+            {/* ── Notificações (canto superior direito): 4ª advertência ── */}
+            <NotificacaoContainer
+                onAplicar={(matricula, nomeColab) => {
+                    setAddAberto(false)
+                    setSuspForm({ matricula, nome: nomeColab })
+                }}
+            />
+
+            {/* ── Overlay: Suspensão (criação ou edição) ── */}
+            {suspForm && (
+                <div className='overlay'>
+                    <div className='caixa'>
+                        <SuspensaoForm
+                            key={suspForm.editar?.id ?? suspForm.matricula ?? 'nova'}
+                            matricula={suspForm.matricula}
+                            nome={suspForm.nome}
+                            editar={suspForm.editar}
+                            onFechar={() => setSuspForm(null)}
+                            onSalvo={() => {
+                                setSuspForm(null)
+                                setModo('suspensoes')
+                                getSuspensoes()
+                            }}
+                        />
+                    </div>
+                </div>
+            )}
 
             {/* ── Overlay: Nova Advertência ── */}
             {addAberto && (
@@ -312,7 +464,8 @@ function App() {
                 <div className='overlay'>
                     <div className='caixa'>
                         <Excluir
-                            getAdiverts={getAdiverts}
+                            recurso={ehSusp ? 'suspensao' : 'advertencia'}
+                            getAdiverts={ehSusp ? getSuspensoes : getAdiverts}
                             setExcluirView={setExcluirView}
                             ids={selectedIds}
                         />
@@ -327,7 +480,7 @@ function App() {
                         <div className="d-flex justify-content-center align-itens-center h-100">
                             <div className="d-flex flex-column justify-content-center h-75">
                                 <h5>
-                                    Você vai baixar <strong>{selectedIds.length}</strong> advertências: um PDF por advertência, em um arquivo <strong>.zip</strong>.
+                                    Você vai baixar <strong>{selectedIds.length}</strong> {nomeItens}: um PDF por {nomeItem}, em um arquivo <strong>.zip</strong>.
                                 </h5>
                                 <div className="d-flex justify-content-center modal-confirm-acoes">
                                     <button
@@ -352,7 +505,7 @@ function App() {
             )}
 
             {/* ── Overlay: Update ── */}
-            {updateView && selectedAdivert && (
+            {updateView && !ehSusp && selectedAdivert && (
                 <div className="overlay">
                     <div className="caixa">
                         <Update
@@ -371,13 +524,13 @@ function App() {
             )}
 
             {/* ── Overlay: Inspecionar ── */}
-            {inspecionarView && selectedAdivert && (
+            {inspecionarView && itemSel && (
                 <div className="overlay" onClick={() => setInspecionarView(false)}>
                     <div className="caixa inspecionar-caixa" onClick={e => e.stopPropagation()}>
                         <div className="inspecionar-header">
                             <span className="titulo-com-icone">
                                 <MagnifyingGlass size={20} />
-                                <h2 className="inspecionar-titulo">Detalhes da Advertência</h2>
+                                <h2 className="inspecionar-titulo">{ehSusp ? 'Detalhes da Suspensão' : 'Detalhes da Advertência'}</h2>
                             </span>
                             <button
                                 className="add-btn-fechar"
@@ -390,48 +543,69 @@ function App() {
 
                         <div className="inspecionar-body">
                             <div className="inspecionar-campo">
-                                <span className="inspecionar-label">Data</span>
-                                <span className="inspecionar-valor">{dataFormatada(selectedAdivert.data)}</span>
+                                <span className="inspecionar-label">{ehSusp ? 'Emissão' : 'Data'}</span>
+                                <span className="inspecionar-valor">
+                                    {dataFormatada(ehSusp ? selectedSusp!.dataEmissao : selectedAdivert!.data)}
+                                </span>
                             </div>
                             <div className="inspecionar-divider" />
                             <div className="inspecionar-campo">
                                 <span className="inspecionar-label">Nome do Colaborador</span>
-                                <span className="inspecionar-valor">{selectedAdivert.nome}</span>
+                                <span className="inspecionar-valor">{itemSel!.nome}</span>
                             </div>
                             <div className="inspecionar-divider" />
                             <div className="inspecionar-campo">
                                 <span className="inspecionar-label">Matrícula</span>
-                                <span className="inspecionar-valor">{selectedAdivert.matricula}</span>
+                                <span className="inspecionar-valor">{itemSel!.matricula}</span>
                             </div>
                             <div className="inspecionar-divider" />
-                            <div className="inspecionar-campo">
-                                <span className="inspecionar-label">Tipo</span>
-                                <span className={`inspecionar-badge ${selectedAdivert.tipo === 'Escrita' ? 'badge-escrita' : 'badge-verbal'}`}>
-                                    {selectedAdivert.tipo}
-                                </span>
-                            </div>
+                            {ehSusp ? (
+                                <>
+                                    <div className="inspecionar-campo">
+                                        <span className="inspecionar-label">Dias</span>
+                                        <span className="inspecionar-valor">{selectedSusp!.dias}</span>
+                                    </div>
+                                    <div className="inspecionar-divider" />
+                                    <div className="inspecionar-campo">
+                                        <span className="inspecionar-label">Início</span>
+                                        <span className="inspecionar-valor">{dataFormatada(selectedSusp!.dataInicio)}</span>
+                                    </div>
+                                    <div className="inspecionar-divider" />
+                                    <div className="inspecionar-campo">
+                                        <span className="inspecionar-label">Retorno</span>
+                                        <span className="inspecionar-valor">{dataFormatada(selectedSusp!.dataRetorno)}</span>
+                                    </div>
+                                </>
+                            ) : (
+                                <div className="inspecionar-campo">
+                                    <span className="inspecionar-label">Tipo</span>
+                                    <span className={`inspecionar-badge ${selectedAdivert!.tipo === 'Escrita' ? 'badge-escrita' : 'badge-verbal'}`}>
+                                        {selectedAdivert!.tipo}
+                                    </span>
+                                </div>
+                            )}
                             <div className="inspecionar-divider" />
                             <div className="inspecionar-campo inspecionar-campo--coluna">
                                 <span className="inspecionar-label">Motivo</span>
-                                <span className="inspecionar-motivo">{selectedAdivert.motivo}</span>
+                                <span className="inspecionar-motivo">{itemSel!.motivo}</span>
                             </div>
                             <div className="inspecionar-divider" />
                             <div className="inspecionar-campo">
                                 <span className="inspecionar-label">Assinatura</span>
-                                <span className={`assinada-badge ${selectedAdivert.assinada ? 'assinada-badge--sim' : 'assinada-badge--nao'}`}>
-                                    {selectedAdivert.assinada
+                                <span className={`assinada-badge ${itemSel!.assinada ? 'assinada-badge--sim' : 'assinada-badge--nao'}`}>
+                                    {itemSel!.assinada
                                         ? <><CheckCircle size={14} weight="fill" /> Assinada</>
                                         : <><Square size={14} /> Pendente</>}
                                 </span>
                             </div>
 
-                            {(inspDetalhe?.complemento ?? selectedAdivert.complemento) && (
+                            {(inspDetalhe?.complemento ?? itemSel!.complemento) && (
                                 <>
                                     <div className="inspecionar-divider" />
                                     <div className="inspecionar-campo inspecionar-campo--coluna">
                                         <span className="inspecionar-label">Complemento</span>
                                         <span className="inspecionar-motivo">
-                                            {inspDetalhe?.complemento ?? selectedAdivert.complemento}
+                                            {inspDetalhe?.complemento ?? itemSel!.complemento}
                                         </span>
                                     </div>
                                 </>
@@ -468,8 +642,12 @@ function App() {
                         <div className="inspecionar-rodape">
                             <button
                                 className="btn add-btn-confirm"
-                                onClick={() => { setInspecionarView(false); setUpdateView(true); }}
-                                title="Editar esta advertência"
+                                onClick={() => {
+                                    setInspecionarView(false)
+                                    if (ehSusp) setSuspForm({ editar: selectedSusp! })
+                                    else setUpdateView(true)
+                                }}
+                                title={`Editar esta ${nomeItem}`}
                             >
                                 <PencilSimple size={16} /> Editar
                             </button>
@@ -499,39 +677,20 @@ function App() {
                 </div>
             )}
 
-            {/* ── Overlay: Histórico (fluxo completo) ── */}
-            {histView === 'menu' && (
+            {/* ── Overlay: Histórico geral ── */}
+            {histGeralView && (
                 <div className='overlay'>
-                    <div className='caixa caixa--hist'>
-                        <HistoricoMenu
-                            onFechar={fecharHistorico}
-                            onEscolherColaborador={() => setHistView('colaborador')}
-                            onEscolherMotivo={() => setHistView('motivo')}
-                        />
+                    <div className='caixa caixa--hist-modal'>
+                        <HistoricoGeralModal onFechar={() => setHistGeralView(false)} />
                     </div>
                 </div>
             )}
 
-            {histView === 'colaborador' && (
+            {/* ── Overlay: Baixar histórico (colaborador selecionado ou motivos) ── */}
+            {baixarHistView && alvoHistorico && (
                 <div className='overlay'>
-                    <div className='caixa caixa--hist'>
-                        <HistoricoColaborador
-                            adiverts={adiverts}
-                            onVoltar={() => setHistView('menu')}
-                            onFechar={fecharHistorico}
-                        />
-                    </div>
-                </div>
-            )}
-
-            {histView === 'motivo' && (
-                <div className='overlay'>
-                    <div className='caixa caixa--hist'>
-                        <HistoricoMotivo
-                            adiverts={adiverts}
-                            onVoltar={() => setHistView('menu')}
-                            onFechar={fecharHistorico}
-                        />
+                    <div className='caixa caixa--hist-modal'>
+                        <BaixarHistoricoModal alvo={alvoHistorico} onFechar={() => setBaixarHistView(false)} />
                     </div>
                 </div>
             )}
@@ -542,43 +701,104 @@ function App() {
                         <img className='logo' src="/danlex.png" alt="logo-empresa" />
                         <h1>Sistema de Advertências</h1>
                     </div>
-                    <form className='box-search' onSubmit={e => {
-                        e.preventDefault();
-                        const nomeUpper = nome.toUpperCase();
-                        setNome(nomeUpper);
-                        getAdiverts(nomeUpper);
-                    }}>
-                        <ColabSelect
-                            nome={nome}
-                            colabs={colabs}
-                            onNomeChange={setNome}
-                            onColabSelect={(nomeColab) => {
-                                const upper = nomeColab.toUpperCase()
-                                setNome(upper)
-                                getAdiverts(upper)
-                            }}
-                            placeholder="Digite um colaborador para filtragem"
-                            className="search-colab-select"
-                        />
-                        <button className='search-buttom' disabled={carregando}>
-                            {carregando
-                                ? <span className="search-loading">...</span>
-                                : <MagnifyingGlass size={20} color="#fff" />
+                    <div className='busca-bloco'>
+                        <form className='box-search' onSubmit={e => {
+                            e.preventDefault();
+                            if (porMotivo) {
+                                buscar({ motivos: motivosSel });
+                                return
                             }
-                        </button>
-                    </form>
+                            const nomeUpper = nome.toUpperCase();
+                            setNome(nomeUpper);
+                            setColabSel(colabs.find(c => c.nome.toUpperCase() === nomeUpper) ?? null);
+                            buscar({ nome: nomeUpper });
+                        }}>
+                            {porMotivo ? (
+                                <div className="search-motivos">
+                                    <MotivosSelect
+                                        multiple
+                                        values={motivosSel}
+                                        motivos={motivos}
+                                        onChange={setMotivosSel}
+                                    />
+                                </div>
+                            ) : (
+                                <ColabSelect
+                                    nome={nome}
+                                    colabs={colabs}
+                                    onNomeChange={v => {
+                                        setNome(v)
+                                        if (colabSel && v.toUpperCase() !== colabSel.nome.toUpperCase()) setColabSel(null)
+                                    }}
+                                    onColabSelect={(nomeColab, matricula) => {
+                                        const upper = nomeColab.toUpperCase()
+                                        setNome(upper)
+                                        setColabSel(colabs.find(c => c.matricula === matricula) ?? { id: 0, nome: nomeColab, matricula })
+                                        buscar({ nome: upper })
+                                    }}
+                                    placeholder="Digite um colaborador para filtragem"
+                                    className="search-colab-select"
+                                />
+                            )}
+                            <button className='search-buttom' disabled={carregandoAtual}>
+                                {carregandoAtual
+                                    ? <span className="search-loading">...</span>
+                                    : <MagnifyingGlass size={20} color="#fff" />
+                                }
+                            </button>
+                        </form>
+                        <div className="busca-opcoes">
+                            <label className="hist-filtro-check">
+                                <input
+                                    type="checkbox"
+                                    checked={porMotivo}
+                                    onChange={e => alternarPorMotivo(e.target.checked)}
+                                />
+                                Filtrar por motivo
+                            </label>
+                            {alvoHistorico && (
+                                <button
+                                    type="button"
+                                    className="btn add-btn-confirm busca-opcoes__baixar"
+                                    onClick={() => setBaixarHistView(true)}
+                                >
+                                    <DownloadSimple size={16} /> Baixar Histórico
+                                </button>
+                            )}
+                        </div>
+                    </div>
                     <div className='d-flex box-content'>
                         <div className='d-flex box-main'>
                             <div className='box-adiverts-wrapper'>
+                                <div className="lista-topo">
+                                    <div className="modo-toggle" role="group" aria-label="Alternar lista">
+                                        <button
+                                            type="button"
+                                            className={`modo-toggle__btn ${!ehSusp ? 'modo-toggle__btn--ativo' : ''}`}
+                                            onClick={() => trocarModo('advertencias')}
+                                            aria-pressed={!ehSusp}
+                                        >
+                                            Advertências
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className={`modo-toggle__btn ${ehSusp ? 'modo-toggle__btn--ativo' : ''}`}
+                                            onClick={() => trocarModo('suspensoes')}
+                                            aria-pressed={ehSusp}
+                                        >
+                                            Suspensões
+                                        </button>
+                                    </div>
+                                </div>
                                 <div className="tabela-hint">
-                                    {carregando ? (
+                                    {carregandoAtual ? (
                                         <>
                                             <CircleNotch size={14} className="girando" />
-                                            Carregando advertências...
+                                            Carregando {nomeItens}...
                                         </>
                                     ) : (
                                         <>
-                                            <Info size={14} /> Segure <kbd>Ctrl</kbd> para selecionar mais de uma advertência.
+                                            <Info size={14} /> Segure <kbd>Ctrl</kbd> para selecionar mais de uma {nomeItem}.
                                             {selectedIds.length > 1 && (
                                                 <strong className="tabela-hint__count"> · {selectedIds.length} selecionadas</strong>
                                             )}
@@ -586,57 +806,93 @@ function App() {
                                     )}
                                 </div>
                                 <div className='box-adiverts'>
-                                    <table className='adivert'>
+                                    <table className={`adivert ${ehSusp ? 'adivert--susp' : ''}`}>
                                         <thead>
-                                            <tr>
-                                                <th className='adivert-column' id='data'>Data</th>
-                                                <th className='adivert-column' id='matricula'>Matrícula</th>
-                                                <th className='adivert-column' id='nome'>Nome</th>
-                                                <th className='adivert-column' id='tipo'>Tipo</th>
-                                                <th className='adivert-column' id='motivo'>Motivo</th>
-                                                <th className='adivert-column' id='assinada'>Assinada</th>
-                                            </tr>
+                                            {ehSusp ? (
+                                                <tr>
+                                                    <th className='adivert-column' id='data'>Emissão</th>
+                                                    <th className='adivert-column' id='matricula'>Matrícula</th>
+                                                    <th className='adivert-column' id='nome'>Nome</th>
+                                                    <th className='adivert-column' id='dias'>Dias</th>
+                                                    <th className='adivert-column' id='inicio'>Início</th>
+                                                    <th className='adivert-column' id='retorno'>Retorno</th>
+                                                    <th className='adivert-column' id='motivo'>Motivo</th>
+                                                    <th className='adivert-column' id='assinada'>Assinada</th>
+                                                </tr>
+                                            ) : (
+                                                <tr>
+                                                    <th className='adivert-column' id='data'>Data</th>
+                                                    <th className='adivert-column' id='matricula'>Matrícula</th>
+                                                    <th className='adivert-column' id='nome'>Nome</th>
+                                                    <th className='adivert-column' id='tipo'>Tipo</th>
+                                                    <th className='adivert-column' id='motivo'>Motivo</th>
+                                                    <th className='adivert-column' id='assinada'>Assinada</th>
+                                                </tr>
+                                            )}
                                         </thead>
-                                        {carregando ? (
+                                        {carregandoAtual ? (
                                             <tbody className="tabela-skeleton">
                                                 {Array.from({ length: SKELETON_LINHAS }, (_, i) => (
                                                     <tr key={i} style={{ animationDelay: `${i * 70}ms` }}>
                                                         <td><span className="sk sk--curto" /></td>
                                                         <td><span className="sk sk--curto" /></td>
                                                         <td><span className="sk sk--medio" /></td>
-                                                        <td><span className="sk sk--curto" /></td>
+                                                        {ehSusp && (
+                                                            <>
+                                                                <td><span className="sk sk--curto" /></td>
+                                                                <td><span className="sk sk--curto" /></td>
+                                                                <td><span className="sk sk--curto" /></td>
+                                                            </>
+                                                        )}
+                                                        {!ehSusp && <td><span className="sk sk--curto" /></td>}
                                                         <td><span className="sk sk--longo" /></td>
                                                         <td><span className="sk sk--badge" /></td>
                                                     </tr>
                                                 ))}
                                             </tbody>
-                                        ) : erroCarregar ? (
+                                        ) : (ehSusp ? erroSusp : erroCarregar) ? (
                                             <tbody>
                                                 <tr>
-                                                    <td colSpan={6} className="tabela-vazia">
+                                                    <td colSpan={ehSusp ? 8 : 6} className="tabela-vazia">
                                                         <span className="tabela-vazia__icone tabela-vazia__icone--erro">
                                                             <WarningCircle size={44} />
                                                         </span>
                                                         <span className="tabela-vazia__texto">
-                                                            Não foi possível carregar as advertências.
+                                                            Não foi possível carregar as {nomeItens}.
                                                             <br />Seus dados continuam salvos — foi só a consulta que falhou.
                                                         </span>
-                                                        <button className="tabela-vazia__retry" onClick={() => getAdiverts()}>
+                                                        <button className="tabela-vazia__retry" onClick={() => ehSusp ? getSuspensoes() : getAdiverts()}>
                                                             <ArrowClockwise size={14} /> Tentar novamente
                                                         </button>
                                                     </td>
                                                 </tr>
                                             </tbody>
-                                        ) : adiverts.length === 0 ? (
+                                        ) : (ehSusp ? suspensoes : adiverts).length === 0 ? (
                                             <tbody>
                                                 <tr>
-                                                    <td colSpan={6} className="tabela-vazia">
+                                                    <td colSpan={ehSusp ? 8 : 6} className="tabela-vazia">
                                                         <span className="tabela-vazia__icone"><ClipboardText size={44} /></span>
-                                                        <span className="tabela-vazia__texto">Nenhuma advertência registrada</span>
+                                                        <span className="tabela-vazia__texto">Nenhuma {nomeItem} registrada</span>
                                                     </td>
                                                 </tr>
                                             </tbody>
-                                        ) : adiverts.map(adivert => (
+                                        ) : ehSusp ? suspensoes.map(susp => (
+                                            <TabelaSuspensao
+                                                key={susp.id}
+                                                dataEmissao={susp.dataEmissao}
+                                                matricula={susp.matricula}
+                                                nome={susp.nome}
+                                                dias={susp.dias}
+                                                dataInicio={susp.dataInicio}
+                                                dataRetorno={susp.dataRetorno}
+                                                motivo={susp.motivo}
+                                                assinada={!!susp.assinada}
+                                                id={susp.id}
+                                                selected={selectedIds.includes(susp.id)}
+                                                onRowSelect={onRowSelect}
+                                                onToggleAssinatura={toggleAssinaturaSusp}
+                                            />
+                                        )) : adiverts.map(adivert => (
                                             <Tabela
                                                 key={adivert.id}
                                                 data={adivert.data}
@@ -662,7 +918,7 @@ function App() {
                                             className={`acoes-btn ${!podeUma ? 'acoes-btn--disabled' : ''}`}
                                             onClick={() => podeUma && setInspecionarView(true)}
                                             disabled={!podeUma}
-                                            title="Inspecionar (selecione uma advertência)"
+                                            title={`Inspecionar (selecione uma ${nomeItem})`}
                                         >
                                             <MagnifyingGlass size={16} /> Inspecionar
                                         </button>
@@ -670,15 +926,19 @@ function App() {
                                             className={`acoes-btn acoes-btn--excluir ${!podeVarias ? 'acoes-btn--disabled' : ''}`}
                                             onClick={() => podeVarias && setExcluirView(true)}
                                             disabled={!podeVarias}
-                                            title="Excluir advertência(s) selecionada(s)"
+                                            title={`Excluir ${nomeItem}(s) selecionada(s)`}
                                         >
                                             <Trash size={16} /> Excluir{selectedIds.length > 1 ? ` (${selectedIds.length})` : ''}
                                         </button>
                                         <button
                                             className={`acoes-btn ${!podeUma ? 'acoes-btn--disabled' : ''}`}
-                                            onClick={() => podeUma && setUpdateView(true)}
+                                            onClick={() => {
+                                                if (!podeUma) return
+                                                if (ehSusp && selectedSusp) setSuspForm({ editar: selectedSusp })
+                                                else setUpdateView(true)
+                                            }}
                                             disabled={!podeUma}
-                                            title="Editar (selecione uma advertência)"
+                                            title={`Editar (selecione uma ${nomeItem})`}
                                         >
                                             <PencilSimple size={16} /> Editar
                                         </button>
@@ -686,11 +946,12 @@ function App() {
                                             className={`acoes-btn ${!podeVarias ? 'acoes-btn--disabled' : ''}`}
                                             onClick={() => {
                                                 if (!podeVarias) return
-                                                if (selectedIds.length === 1 && selectedAdivert) downloadPdfLinha(selectedAdivert)
+                                                if (selectedIds.length === 1 && ehSusp && selectedSusp) downloadPdfSusp(selectedSusp)
+                                                else if (selectedIds.length === 1 && selectedAdivert) downloadPdfLinha(selectedAdivert)
                                                 else if (selectedIds.length > 1) setBaixarLoteView(true)
                                             }}
                                             disabled={!podeVarias}
-                                            title="Baixar PDF da(s) advertência(s) selecionada(s)"
+                                            title={`Baixar PDF da(s) ${nomeItem}(s) selecionada(s)`}
                                         >
                                             <FilePdf size={16} /> Baixar PDF{selectedIds.length > 1 ? ` (${selectedIds.length})` : ''}
                                         </button>
@@ -716,10 +977,10 @@ function App() {
                                 <Users size={22} color="#fff" />
                             </button>
 
-                            {/* Botão: Histórico (abre o menu com as duas opções) */}
+                            {/* Botão: Gerar histórico geral */}
                             <button
-                                onClick={() => setHistView('menu')}
-                                title="Histórico de advertências"
+                                onClick={() => setHistGeralView(true)}
+                                title="Gerar histórico geral"
                             >
                                 <DownloadSimple size={22} color="#fff" />
                             </button>

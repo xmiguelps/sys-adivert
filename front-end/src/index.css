@@ -2878,3 +2878,196 @@ select:focus {
     .add-lista { max-height: 40vh; }
     .colab-lista { max-height: 38vh; }
 }
+
+/* ══════════════════════════════════════════════════
+   SUSPENSÃO: toggle da lista, tabela, formulário
+══════════════════════════════════════════════════ */
+.lista-topo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.modo-toggle {
+    display: inline-flex;
+    gap: 6px;
+    padding: 4px 0 8px;
+}
+.modo-toggle__btn {
+    border: 1.5px solid var(--gray-300);
+    background: #fff;
+    color: var(--gray-700);
+    border-radius: var(--radius-sm);
+    padding: 5px 14px;
+    font-size: 12.5px;
+    cursor: pointer;
+    transition: all var(--transition);
+}
+.modo-toggle__btn:hover:not(.modo-toggle__btn--ativo) { border-color: var(--red-primary); }
+.modo-toggle__btn--ativo {
+    background: var(--red-primary);
+    border-color: var(--red-primary);
+    color: #fff;
+    font-weight: 600;
+}
+
+/* Tabela de suspensões (8 colunas): motivo ocupa o restante */
+.adivert--susp thead th#nome   { width: 21%; }
+.adivert--susp thead th#motivo { width: auto; }
+.adivert--susp thead th#dias    { width: 62px; }
+.adivert--susp thead th#inicio  { width: 92px; }
+.adivert--susp thead th#retorno { width: 92px; }
+.adivert--susp { min-width: 760px; }
+.dias-dado { text-align: center; white-space: nowrap; }
+
+.susp-input-dias { width: 80px; }
+
+.susp-aviso {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #fff8f0;
+    border: 1px solid #f3d3b5;
+    border-left: 4px solid var(--orange);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    font-size: 13px;
+    color: var(--gray-800);
+    animation: fadeIn 0.2s ease;
+}
+
+/* ══════════════════════════════════════════════════
+   NOTIFICAÇÃO (canto superior direito, empilhável)
+══════════════════════════════════════════════════ */
+.notif-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 9999;
+    width: 360px;
+    max-width: calc(100vw - 40px);
+    pointer-events: none;
+}
+
+.notif {
+    position: relative;
+    pointer-events: auto;
+    background: #fff;
+    border-radius: var(--radius-md);
+    border-left: 4px solid var(--red-primary);
+    box-shadow: var(--shadow-lg);
+    padding: 14px 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    overflow: hidden;
+}
+
+.notif--enter { animation: notifIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+.notif--exit  { animation: notifOut 0.3s ease forwards; }
+
+@keyframes notifIn {
+    from { opacity: 0; transform: translateX(110%); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes notifOut {
+    from { opacity: 1; transform: translateX(0); }
+    to   { opacity: 0; transform: translateX(110%); }
+}
+
+.notif-corpo { display: flex; gap: 10px; padding-right: 18px; }
+.notif-icone { color: var(--red-primary); flex-shrink: 0; display: flex; padding-top: 1px; }
+.notif-texto { font-size: 13.5px; line-height: 1.4; color: var(--gray-800); }
+
+.notif-fechar {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    background: none;
+    border: none;
+    color: var(--gray-600);
+    cursor: pointer;
+    padding: 3px;
+    border-radius: var(--radius-xs);
+}
+.notif-fechar:hover { color: var(--gray-900); background: var(--gray-200); }
+
+.notif-acoes { display: flex; justify-content: flex-end; gap: 8px; }
+
+.notif-barra {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 4px;
+    background: var(--gray-200);
+}
+.notif-barra__fill {
+    display: block;
+    height: 100%;
+    background: var(--red-primary);
+    transform-origin: left;
+    animation: notifBarra 15s linear forwards;
+}
+.notif:hover .notif-barra__fill { animation-play-state: paused; }
+
+@keyframes notifBarra {
+    from { transform: scaleX(0); }
+    to   { transform: scaleX(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .notif--enter, .notif--exit { animation-duration: 0.01s; }
+}
+
+/* ══════════════════════════════════════════════════
+   HISTÓRICO — MODAIS DE DOWNLOAD E BUSCA POR MOTIVO
+══════════════════════════════════════════════════ */
+.caixa--hist-modal {
+    width: 520px;
+    max-width: 100%;
+    max-height: 95vh;
+}
+
+.hist-modal-grupo {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.busca-bloco {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-width: 640px;
+}
+
+.busca-opcoes {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.busca-opcoes__baixar { padding: 6px 14px; font-size: 13px; }
+
+/* Seleção de motivos no lugar do campo de colaborador (mesma altura da busca) */
+.search-motivos {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+}
+.search-motivos .motivos-select-wrap { flex: 1; }
+.search-motivos .motivos-select__trigger {
+    min-height: 43px;
+    border-radius: var(--radius-md) 0 0 var(--radius-md);
+    border-right: none;
+    font-size: 14px;
+}
