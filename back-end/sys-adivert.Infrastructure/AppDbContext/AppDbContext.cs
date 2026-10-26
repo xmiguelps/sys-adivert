@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using sys_adivert.adivert.Entity;
 using sys_adivert.colab.Entity;
 using sys_adivert.motivo.Entity;
+using sys_adivert.suspensao.Entity;
 
 namespace sys_adivert.Infrastructure.AppDb;
 
@@ -12,6 +13,10 @@ public class AppDbContext : DbContext
     public DbSet<Adivert> Adiverts => Set<Adivert>();
 
     public DbSet<AdivertEvidencia> AdivertEvidencias => Set<AdivertEvidencia>();
+
+    public DbSet<Suspensao> Suspensoes => Set<Suspensao>();
+
+    public DbSet<SuspensaoEvidencia> SuspensaoEvidencias => Set<SuspensaoEvidencia>();
 
     public DbSet<Colab> Colabs => Set<Colab>();
 

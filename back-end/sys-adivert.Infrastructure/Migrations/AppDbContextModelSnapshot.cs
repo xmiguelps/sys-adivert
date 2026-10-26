@@ -144,6 +144,90 @@ namespace sys_adivert.Infrastructure.Migrations
                     b.ToTable("Motivos");
                 });
 
+            modelBuilder.Entity("sys_adivert.suspensao.Entity.Suspensao", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Assinada")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("Complemento")
+                        .HasColumnType("text");
+
+                    b.Property<DateOnly>("DataEmissao")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly>("DataInicio")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly>("DataRetorno")
+                        .HasColumnType("date");
+
+                    b.Property<int>("Dias")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Matricula")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Motivo")
+                        .IsRequired()
+                        .HasMaxLength(455)
+                        .HasColumnType("character varying(455)");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Matricula");
+
+                    b.ToTable("Suspensoes");
+                });
+
+            modelBuilder.Entity("sys_adivert.suspensao.Entity.SuspensaoEvidencia", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<byte[]>("Conteudo")
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<string>("NomeArquivo")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<int>("Ordem")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SuspensaoId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SuspensaoId");
+
+                    b.ToTable("SuspensaoEvidencias");
+                });
+
             modelBuilder.Entity("sys_adivert.adivert.Entity.AdivertEvidencia", b =>
                 {
                     b.HasOne("sys_adivert.adivert.Entity.Adivert", "Adivert")
@@ -155,7 +239,23 @@ namespace sys_adivert.Infrastructure.Migrations
                     b.Navigation("Adivert");
                 });
 
+            modelBuilder.Entity("sys_adivert.suspensao.Entity.SuspensaoEvidencia", b =>
+                {
+                    b.HasOne("sys_adivert.suspensao.Entity.Suspensao", "Suspensao")
+                        .WithMany("Evidencias")
+                        .HasForeignKey("SuspensaoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Suspensao");
+                });
+
             modelBuilder.Entity("sys_adivert.adivert.Entity.Adivert", b =>
+                {
+                    b.Navigation("Evidencias");
+                });
+
+            modelBuilder.Entity("sys_adivert.suspensao.Entity.Suspensao", b =>
                 {
                     b.Navigation("Evidencias");
                 });

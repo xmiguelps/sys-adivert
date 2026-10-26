@@ -6,7 +6,7 @@ namespace sys_adivert.Application.Service;
 
 public interface IAdivertService
 {
-    Task<IEnumerable<AdivertReadDto>>  GetAllAsync(string? nome, CancellationToken cancellationToken = default);
+    Task<IEnumerable<AdivertReadDto>>  GetAllAsync(RegistroFiltro filtro, CancellationToken cancellationToken = default);
 
     Task<AdivertDetailDto?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
 

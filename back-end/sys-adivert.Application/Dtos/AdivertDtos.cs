@@ -60,7 +60,14 @@ public enum AdivertBatchStatus
 
 public record AdivertBatchItemErroDto(int Indice, string Erro);
 
-public record AdivertBatchCreatedDto(IReadOnlyList<int> Ids, int Total);
+// Contagem de advertencias (Escritas e Verbais) do colaborador desde a ultima
+// suspensao (todas, se nao houver). Chave: matricula normalizada.
+public record ColaboradorContagemDto(string Matricula, string Nome, int Total);
+
+public record AdivertBatchCreatedDto(
+    IReadOnlyList<int> Ids,
+    int Total,
+    IReadOnlyList<ColaboradorContagemDto> Contagens);
 
 public record AdivertBatchErroDto(string Mensagem, IReadOnlyList<AdivertBatchItemErroDto> Erros);
 
@@ -69,4 +76,5 @@ public record AdivertBatchResultDto(
     AdivertBatchStatus Status,
     IReadOnlyList<int> Ids,
     IReadOnlyList<AdivertBatchItemErroDto> Erros,
-    string? Mensagem);
+    string? Mensagem,
+    IReadOnlyList<ColaboradorContagemDto>? Contagens = null);

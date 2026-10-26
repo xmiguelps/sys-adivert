@@ -14,9 +14,16 @@ public class AdivertsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll([FromQuery] string? nome, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAll(
+        [FromQuery] string? matricula,
+        [FromQuery] string? nome,
+        [FromQuery] string[]? motivos,
+        [FromQuery] DateOnly? de,
+        [FromQuery] DateOnly? ate,
+        CancellationToken cancellationToken)
     {
-        var adiverts = await _adivertService.GetAllAsync(nome, cancellationToken);
+        var filtro = RegistroFiltro.Criar(matricula, nome, motivos, de, ate);
+        var adiverts = await _adivertService.GetAllAsync(filtro, cancellationToken);
         return Ok(adiverts);
     }
 
@@ -47,7 +54,10 @@ public class AdivertsController : ControllerBase
         {
             AdivertBatchStatus.Sucesso => StatusCode(
                 StatusCodes.Status201Created,
-                new AdivertBatchCreatedDto(resultado.Ids, resultado.Ids.Count)),
+                new AdivertBatchCreatedDto(
+                    resultado.Ids,
+                    resultado.Ids.Count,
+                    resultado.Contagens ?? Array.Empty<ColaboradorContagemDto>())),
 
             AdivertBatchStatus.LimiteExcedido => StatusCode(
                 StatusCodes.Status413PayloadTooLarge,

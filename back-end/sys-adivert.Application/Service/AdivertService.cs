@@ -1,6 +1,7 @@
 using sys_adivert.adivert.Entity;
 using sys_adivert.Application.Adiverts.Dtos;
 using sys_adivert.Application.Exceptions;
+using sys_adivert.Application.Helpers;
 using sys_adivert.Application.Repository;
 
 namespace sys_adivert.Application.Service;
@@ -16,15 +17,11 @@ public class AdivertService : IAdivertService
         _repository = repository;
     }
 
-    public async Task<IEnumerable<AdivertReadDto>> GetAllAsync (string? nome, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<AdivertReadDto>> GetAllAsync(RegistroFiltro filtro, CancellationToken cancellationToken = default)
     {
-        var Adiverts = await _repository.GetAllAsync(cancellationToken);
-        if (!string.IsNullOrWhiteSpace(nome))
-        {
-            Adiverts = await _repository.GetByColabAsync(nome, cancellationToken);
-        }
+        var adiverts = await _repository.GetAllAsync(filtro, cancellationToken);
 
-        return Adiverts.Select(a => new AdivertReadDto(a.Data, a.Matricula, a.Nome, a.Tipo, a.Motivo, a.Assinada, a.Id, a.Complemento));
+        return adiverts.Select(a => new AdivertReadDto(a.Data, a.Matricula, a.Nome, a.Tipo, a.Motivo, a.Assinada, a.Id, a.Complemento));
     }
 
     public async Task<AdivertDetailDto?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
@@ -103,20 +100,35 @@ public class AdivertService : IAdivertService
             return Falha(status, ex.Message);
         }
 
+        // Contagem calculada apos a gravacao do bloco, do estado final do banco.
+        var colaboradores = adiverts
+            .GroupBy(a => a.Matricula)
+            .Select(g => (Matricula: g.Key, Nome: g.First().Nome))
+            .ToList();
+
+        var totais = await _repository.ContarDesdeUltimaSuspensaoAsync(
+            colaboradores.Select(c => c.Matricula).ToList(), cancellationToken);
+
+        var contagens = colaboradores
+            .Select(c => new ColaboradorContagemDto(
+                c.Matricula, c.Nome, totais.TryGetValue(c.Matricula, out var total) ? total : 0))
+            .ToList();
+
         // A lista preserva a ordem do payload, entao os ids saem na mesma
         // ordem em que os itens chegaram.
         return new AdivertBatchResultDto(
             AdivertBatchStatus.Sucesso,
             adiverts.Select(a => a.Id).ToList(),
             Array.Empty<AdivertBatchItemErroDto>(),
-            null);
+            null,
+            contagens);
     }
 
     public async Task<bool> UpdateAsync(int id, AdivertUpdateDto dto, CancellationToken cancellationToken = default) {
         var adivert = await _repository.GetByIdWithEvidenciasAsync(id, cancellationToken);
         if (adivert is null) return false;
 
-        adivert.Update(dto.Data, dto.Matricula, dto.Nome, dto.Tipo, dto.Motivo, dto.Complemento);
+        adivert.Update(dto.Data, TextoHelper.NormalizarOuNulo(dto.Matricula), TextoHelper.NormalizarOuNulo(dto.Nome), dto.Tipo, dto.Motivo, dto.Complemento);
 
         if (dto.EvidenciasParaRemoverIds != null && dto.EvidenciasParaRemoverIds.Count > 0)
         {
@@ -131,13 +143,13 @@ public class AdivertService : IAdivertService
             int ordem = adivert.Evidencias.Count > 0 ? adivert.Evidencias.Max(e => e.Ordem) + 1 : 0;
             foreach (var ev in dto.EvidenciasParaAdicionar)
             {
-                var bytes = DecodeBase64(ev.Base64);
+                var bytes = TextoHelper.DecodeBase64(ev.Base64);
                 if (bytes.Length == 0) continue;
                 adivert.Evidencias.Add(new AdivertEvidencia
                 {
                     Conteudo = bytes,
                     ContentType = string.IsNullOrWhiteSpace(ev.ContentType) ? "image/jpeg" : ev.ContentType,
-                    NomeArquivo = LimitarNome(ev.NomeArquivo),
+                    NomeArquivo = TextoHelper.LimitarNome(ev.NomeArquivo),
                     Ordem = ordem++
                 });
             }
@@ -166,9 +178,6 @@ public class AdivertService : IAdivertService
         return true;
     }
 
-    private static string? LimitarNome(string? nome)
-        => nome is { Length: > 255 } ? nome[..255] : nome;
-
     private static AdivertBatchResultDto Falha(AdivertBatchStatus status, string mensagem)
         => new(status, Array.Empty<int>(), Array.Empty<AdivertBatchItemErroDto>(), mensagem);
 
@@ -176,20 +185,20 @@ public class AdivertService : IAdivertService
     // entidade e das evidencias nos dois caminhos.
     private static Adivert MontarAdivert(AdivertCreateDto dto)
     {
-        var adivert = new Adivert(dto.Data, dto.Matricula, dto.Motivo, dto.Nome, dto.Tipo, dto.Complemento);
+        var adivert = new Adivert(dto.Data, TextoHelper.Normalizar(dto.Matricula), dto.Motivo, TextoHelper.Normalizar(dto.Nome), dto.Tipo, dto.Complemento);
 
         if (dto.Evidencias != null)
         {
             int ordem = 0;
             foreach (var ev in dto.Evidencias)
             {
-                var bytes = DecodeBase64(ev.Base64);
+                var bytes = TextoHelper.DecodeBase64(ev.Base64);
                 if (bytes.Length == 0) continue;
                 adivert.Evidencias.Add(new AdivertEvidencia
                 {
                     Conteudo = bytes,
                     ContentType = string.IsNullOrWhiteSpace(ev.ContentType) ? "image/jpeg" : ev.ContentType,
-                    NomeArquivo = LimitarNome(ev.NomeArquivo),
+                    NomeArquivo = TextoHelper.LimitarNome(ev.NomeArquivo),
                     Ordem = ordem++
                 });
             }
@@ -213,20 +222,5 @@ public class AdivertService : IAdivertService
         if (dto.Motivo.Length > 455)                  return "O campo Motivo excede 455 caracteres.";
         if (dto.Data == default)                      return "O campo Data e obrigatorio.";
         return null;
-    }
-
-    private static byte[] DecodeBase64(string? base64)
-    {
-        if (string.IsNullOrWhiteSpace(base64)) return Array.Empty<byte>();
-
-        var data = base64;
-        if (data.StartsWith("data:"))
-        {
-            var comma = data.IndexOf(',');
-            if (comma >= 0) data = data[(comma + 1)..];
-        }
-
-        try { return Convert.FromBase64String(data); }
-        catch { return Array.Empty<byte>(); }
     }
 }

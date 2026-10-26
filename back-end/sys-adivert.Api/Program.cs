@@ -4,6 +4,7 @@ using sys_adivert.Application.Service;
 using sys_adivert.Infrastructure.Adiverts.Repository;
 using sys_adivert.Infrastructure.Colabs.Repository;
 using sys_adivert.Infrastructure.Motivos.Repository;
+using sys_adivert.Infrastructure.Suspensoes.Repository;
 using sys_adivert.Infrastructure.AppDb;
 using sys_adivert.Infrastructure.Seed;
 
@@ -37,6 +38,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // Adivert
 builder.Services.AddScoped<IAdivertRepository, AdivertRepository>();
 builder.Services.AddScoped<IAdivertService, AdivertService>();
+
+// Suspensao
+builder.Services.AddScoped<ISuspensaoRepository, SuspensaoRepository>();
+builder.Services.AddScoped<ISuspensaoService, SuspensaoService>();
 
 // Colab
 builder.Services.AddScoped<IColabRepository, ColabRepository>();

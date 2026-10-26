@@ -1,6 +1,7 @@
 using sys_adivert.adivert.Entity;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
+using sys_adivert.Application.Adiverts.Dtos;
 using sys_adivert.Application.Exceptions;
 using sys_adivert.Application.Repository;
 using sys_adivert.Infrastructure.AppDb;
@@ -16,12 +17,43 @@ public class AdivertRepository : IAdivertRepository
         _db = db;
     }
 
-    public async Task<IEnumerable<Adivert>> GetAllAsync(CancellationToken cancellationToken  = default)
+    public async Task<IEnumerable<Adivert>> GetAllAsync(RegistroFiltro filtro, CancellationToken cancellationToken = default)
     {
+        var query = _db.Adiverts.AsNoTracking();
+
+        if (filtro.Matricula is not null) query = query.Where(a => a.Matricula == filtro.Matricula);
+        if (filtro.Nome is not null) query = query.Where(a => a.Nome == filtro.Nome);
+        if (filtro.Motivos is not null)
+        {
+            var motivos = filtro.Motivos;
+            query = query.Where(a => motivos.Contains(a.Motivo));
+        }
+        if (filtro.De is not null) query = query.Where(a => a.Data >= filtro.De.Value);
+        if (filtro.Ate is not null) query = query.Where(a => a.Data <= filtro.Ate.Value);
+
+        return await query
+            .OrderByDescending(a => a.Data)
+            .ThenByDescending(a => a.Id)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyDictionary<string, int>> ContarDesdeUltimaSuspensaoAsync(
+        IReadOnlyCollection<string> matriculas,
+        CancellationToken cancellationToken = default)
+    {
+        if (matriculas.Count == 0) return new Dictionary<string, int>();
+
+        var lista = matriculas.ToList();
+
+        // Data > DataEmissao da ultima suspensao  <=>  nao existe suspensao
+        // da matricula com DataEmissao >= Data da advertencia.
         return await _db.Adiverts
             .AsNoTracking()
-            .OrderByDescending(adv => adv.Data)
-            .ToListAsync(cancellationToken);
+            .Where(a => lista.Contains(a.Matricula))
+            .Where(a => !_db.Suspensoes.Any(s => s.Matricula == a.Matricula && s.DataEmissao >= a.Data))
+            .GroupBy(a => a.Matricula)
+            .Select(g => new { Matricula = g.Key, Total = g.Count() })
+            .ToDictionaryAsync(x => x.Matricula, x => x.Total, cancellationToken);
     }
 
     public async Task<Adivert?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
@@ -34,14 +66,6 @@ public class AdivertRepository : IAdivertRepository
         return await _db.Adiverts
             .Include(a => a.Evidencias)
             .FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
-    }
-
-    public async Task<IEnumerable<Adivert>> GetByColabAsync(string nome, CancellationToken cancellationToken = default)
-    {
-        return await _db.Adiverts
-            .AsNoTracking()
-            .Where(a => a.Nome == nome)
-            .ToListAsync(cancellationToken);
     }
 
     public async Task CreateAsync(Adivert adivert ,CancellationToken cancellationToken = default)
