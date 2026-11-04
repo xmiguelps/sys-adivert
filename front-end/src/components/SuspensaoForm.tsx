@@ -21,9 +21,11 @@ const MAX_NOME = 255;
 const MAX_MOTIVO = 455;
 
 type SuspensaoFormProps = {
-    // Pré-preenchimento na criação (vem da notificação)
+    // Pré-preenchimento na criação (vem da notificação). No "+" da aba Suspensões nada vem:
+    // colaborador, matrícula e motivo são escolhidos no próprio formulário.
     matricula?: string;
     nome?: string;
+    motivo?: string;
     // Presente = modo edição
     editar?: Suspensao;
     onFechar: () => void;
@@ -34,7 +36,7 @@ type SuspensaoFormProps = {
 const diasEntre = (inicio: string, retorno: string) =>
     Math.round((parseDataLocal(retorno).getTime() - parseDataLocal(inicio).getTime()) / 86400000);
 
-function SuspensaoForm({ matricula, nome, editar, onFechar, onSalvo }: SuspensaoFormProps) {
+function SuspensaoForm({ matricula, nome, motivo, editar, onFechar, onSalvo }: SuspensaoFormProps) {
 
     const [colabs, setColabs] = useState<Colab[]>([]);
     const [motivos, setMotivos] = useState<string[]>([]);
@@ -44,7 +46,7 @@ function SuspensaoForm({ matricula, nome, editar, onFechar, onSalvo }: Suspensao
         dias: editar ? String(editar.dias) : "",
         dataInicio: editar?.dataInicio.slice(0, 10) ?? "",
         dataRetorno: editar?.dataRetorno.slice(0, 10) ?? "",
-        motivo: editar?.motivo ?? "",
+        motivo: editar?.motivo ?? motivo ?? "",
         complemento: editar?.complemento ?? "",
     });
     const [novas, setNovas] = useState<EvidenciaLocal[]>([]);

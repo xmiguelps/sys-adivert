@@ -37,23 +37,30 @@ public class AdivertRepository : IAdivertRepository
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyDictionary<string, int>> ContarDesdeUltimaSuspensaoAsync(
-        IReadOnlyCollection<string> matriculas,
+    public async Task<IReadOnlyDictionary<(string Matricula, string Motivo), int>> ContarDesdeUltimaSuspensaoAsync(
+        IReadOnlyCollection<(string Matricula, string Motivo)> pares,
         CancellationToken cancellationToken = default)
     {
-        if (matriculas.Count == 0) return new Dictionary<string, int>();
+        if (pares.Count == 0) return new Dictionary<(string Matricula, string Motivo), int>();
 
-        var lista = matriculas.ToList();
+        // O EF nao traduz Contains sobre uma lista local de tuplas: filtra por
+        // matriculas E motivos (dois Contains escalares) e deixa o par exato
+        // para o dicionario, que o service consulta so pelos pares do lote.
+        var matriculas = pares.Select(p => p.Matricula).Distinct().ToList();
+        var motivos = pares.Select(p => p.Motivo).Distinct().ToList();
 
         // Data > DataEmissao da ultima suspensao  <=>  nao existe suspensao
-        // da matricula com DataEmissao >= Data da advertencia.
-        return await _db.Adiverts
+        // da mesma matricula E do mesmo motivo com DataEmissao >= Data da advertencia.
+        var linhas = await _db.Adiverts
             .AsNoTracking()
-            .Where(a => lista.Contains(a.Matricula))
-            .Where(a => !_db.Suspensoes.Any(s => s.Matricula == a.Matricula && s.DataEmissao >= a.Data))
-            .GroupBy(a => a.Matricula)
-            .Select(g => new { Matricula = g.Key, Total = g.Count() })
-            .ToDictionaryAsync(x => x.Matricula, x => x.Total, cancellationToken);
+            .Where(a => matriculas.Contains(a.Matricula) && motivos.Contains(a.Motivo))
+            .Where(a => !_db.Suspensoes.Any(s =>
+                s.Matricula == a.Matricula && s.Motivo == a.Motivo && s.DataEmissao >= a.Data))
+            .GroupBy(a => new { a.Matricula, a.Motivo })
+            .Select(g => new { g.Key.Matricula, g.Key.Motivo, Total = g.Count() })
+            .ToListAsync(cancellationToken);
+
+        return linhas.ToDictionary(x => (x.Matricula, x.Motivo), x => x.Total);
     }
 
     public async Task<Adivert?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
