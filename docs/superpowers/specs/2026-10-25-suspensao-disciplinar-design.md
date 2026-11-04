@@ -1,6 +1,6 @@
 # Suspensão disciplinar, históricos e downloads — design e plano
 
-Status: rascunho para revisão (Opus 5.5) e aprovação do usuário. Nada foi implementado.
+Status: implementado. **A regra de contagem da notificação foi corrigida em 04/11/2026: veja a seção "Correção da regra de contagem" no fim deste arquivo, que prevalece sobre o que estiver em conflito.**
 
 ## Objetivo
 
@@ -82,3 +82,18 @@ Substituem o que estiver em conflito com as seções acima.
 9. **Excel "ambas"**: uma aba por tipo (Advertências, Suspensões).
 10. **Migration**: roda no startup; testar em homologação com backup antes de produção.
 11. **Fase 5**: os históricos passam a usar os endpoints com filtro no servidor, substituindo o array `adiverts` do App.
+
+## Correção da regra de contagem (04/11/2026)
+
+**Substitui tudo o que esta spec diz sobre contar "por colaborador" ou "por matrícula"** (objetivo 2, "Decisões do usuário" 14–16, premissas 29, 30 e 32, e ajustes 6 e 7). A regra original estava errada: contava as advertências do colaborador sem olhar o motivo.
+
+Regra correta, dita pelo usuário: a notificação aparece a partir da **4ª advertência do mesmo colaborador pelo mesmo motivo**. Não precisa ser seguida. Exemplo: X, X, X, Y, X. O Y não notifica (é a 1ª advertência do motivo Y); o último X notifica (é o 4º X).
+
+- **Chave da contagem**: matrícula normalizada + motivo (comparação por igualdade; o motivo vem da lista fixa `/api/Motivos` tanto na advertência quanto na suspensão).
+- **Janela**: conta as advertências do par (matrícula, motivo) posteriores à `DataEmissao` da última suspensão **da mesma matrícula e do mesmo motivo**. Decisão do usuário: a suspensão zera só a contagem do motivo da suspensão, não a dos outros motivos do colaborador.
+- **Do 4º em diante** continua notificando, até existir suspensão daquele motivo. Escritas e Verbais continuam contando juntas.
+- **Contrato**: `ColaboradorContagemDto` passa a ser `(Matricula, Nome, Motivo, Total)`, uma entrada por par (matrícula, motivo) do lote. O front guarda a última contagem de cada par (chave matrícula + motivo) e a notificação é única por par.
+- **Notificação**: o texto cita o motivo (limitado a 3 linhas, texto inteiro no tooltip). "Aplicar suspensão" abre o formulário com colaborador, matrícula **e motivo** preenchidos, porque o motivo da suspensão é o que zera a contagem. Se o usuário trocar o motivo no formulário, o aviso do motivo original continua valendo.
+- **Criação manual**: na aba Suspensões, o botão "+" abre o formulário de suspensão vazio (título "Nova Suspensão"). Colaborador, matrícula e motivo são escolhidos no próprio formulário. Não há pré-preenchimento.
+- **Efeitos retroativos aceitos**: suspensões criadas antes desta correção só zeram advertências do mesmo motivo. Editar o motivo de uma suspensão desloca o "zerar" de um motivo para o outro. Editar o motivo de uma advertência não dispara notificação (só o salvamento em lote notifica).
+- **Texto do motivo**: nenhum dos serviços normaliza o motivo; a igualdade depende de os dois virem da mesma lista. Apagar e recriar um motivo com texto diferente divide a contagem.

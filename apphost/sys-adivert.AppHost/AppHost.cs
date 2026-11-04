@@ -13,7 +13,7 @@ var postgres = builder.AddPostgres("postgres", userName: pgUser, password: pgPas
 
 var db = postgres.AddDatabase("sysadivert");
 
-// launchProfileName "http": o Program.cs chama UseHttpsRedirection() incondicionalmente,
+// launchProfileName "http": o Program.cs chama UseHttpsRedirection() para tudo, exceto /health,
 // entao o middleware RODA de qualquer forma. Com um unico endpoint HTTP nao existe porta
 // HTTPS de destino, e o redirect nao dispara; e o Kestrel nao precisa do certificado de
 // dev para abrir um listener HTTPS. Efeito colateral conhecido: o middleware loga uma vez

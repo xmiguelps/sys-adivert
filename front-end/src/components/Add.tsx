@@ -43,7 +43,7 @@ type AddProps = {
 // A partir da 4ª advertência o sistema oferece aplicar suspensão
 const LIMITE_SUSPENSAO = 4;
 
-type Contagem = { matricula: string; nome: string; total: number }
+type Contagem = { matricula: string; nome: string; motivo: string; total: number }
 
 const campoVazio = (): Advertencia => ({
     Nome: "",
@@ -383,7 +383,7 @@ function Add({ setAddAberto, getAdiverts }: AddProps) {
         // montar o corpo da requisicao.
         const blocos = fatiarLote(lista.map(adv => JSON.stringify(toCreatePayload(adv))));
         let salvos = 0;
-        // Última contagem devolvida por matrícula (um colaborador pode aparecer em vários blocos)
+        // Última contagem devolvida por matrícula + motivo (o mesmo par pode aparecer em vários blocos)
         const contagens = new Map<string, Contagem>();
         // Notifica quem atingiu o limite, inclusive na falha parcial (blocos já gravados)
         const notificar = () => {
@@ -430,7 +430,7 @@ function Add({ setAddAberto, getAdiverts }: AddProps) {
 
                 const { ids, contagens: cont } = await res.json() as { ids: number[]; total: number; contagens?: Contagem[] };
                 salvos += ids.length;
-                (cont ?? []).forEach(c => contagens.set(c.matricula, c));
+                (cont ?? []).forEach(c => contagens.set(`${c.matricula}\u0000${c.motivo}`, c));
             }
 
             notificar();

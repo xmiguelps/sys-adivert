@@ -79,8 +79,9 @@ function App() {
     const [carregandoSusp, setCarregandoSusp] = useState<boolean>(true)
     const [erroSusp, setErroSusp] = useState<boolean>(false)
     const ehSusp = modo === 'suspensoes'
-    // Formulário de suspensão: criação (pré-preenchida pela notificação) ou edição
-    const [suspForm, setSuspForm] = useState<{ matricula?: string; nome?: string; editar?: Suspensao } | null>(null)
+    // Formulário de suspensão: criação (pré-preenchida pela notificação, ou vazia pelo botão "+"
+    // na aba Suspensões) ou edição
+    const [suspForm, setSuspForm] = useState<{ matricula?: string; nome?: string; motivo?: string; editar?: Suspensao } | null>(null)
 
     // Seleção de linha (múltipla - segure Ctrl para selecionar várias)
     const [selectedIds, setSelectedIds] = useState<number[]>([])
@@ -400,9 +401,9 @@ function App() {
 
             {/* ── Notificações (canto superior direito): 4ª advertência ── */}
             <NotificacaoContainer
-                onAplicar={(matricula, nomeColab) => {
+                onAplicar={(matricula, nomeColab, motivo) => {
                     setAddAberto(false)
-                    setSuspForm({ matricula, nome: nomeColab })
+                    setSuspForm({ matricula, nome: nomeColab, motivo })
                 }}
             />
 
@@ -411,9 +412,12 @@ function App() {
                 <div className='overlay'>
                     <div className='caixa'>
                         <SuspensaoForm
-                            key={suspForm.editar?.id ?? suspForm.matricula ?? 'nova'}
+                            // O motivo entra na chave: dois avisos do mesmo colaborador (motivos
+                            // diferentes) precisam remontar o form, que só lê as props na montagem.
+                            key={suspForm.editar?.id ?? (suspForm.matricula ? `${suspForm.matricula}|${suspForm.motivo ?? ''}` : 'nova')}
                             matricula={suspForm.matricula}
                             nome={suspForm.nome}
+                            motivo={suspForm.motivo}
                             editar={suspForm.editar}
                             onFechar={() => setSuspForm(null)}
                             onSalvo={() => {
@@ -960,10 +964,18 @@ function App() {
                             </div>
                         </div>
                         <div className='d-flex box-menu flex-column'>
-                            {/* Botão: Nova Advertência */}
+                            {/* Botão: Nova Advertência (ou Nova Suspensão, na aba Suspensões) */}
                             <button
-                                onClick={() => { setAddAberto(true); setColabAberto(false); }}
-                                title="Nova Advertência"
+                                onClick={() => {
+                                    setColabAberto(false)
+                                    if (ehSusp) {
+                                        setAddAberto(false)
+                                        setSuspForm({})
+                                    } else {
+                                        setAddAberto(true)
+                                    }
+                                }}
+                                title={ehSusp ? 'Nova Suspensão' : 'Nova Advertência'}
                             >
                                 <Plus size={22} color="#fff" />
                             </button>

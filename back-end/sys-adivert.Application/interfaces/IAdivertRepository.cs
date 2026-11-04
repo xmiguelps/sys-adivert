@@ -8,10 +8,11 @@ public interface IAdivertRepository
 {
     Task<IEnumerable<Adivert>> GetAllAsync(RegistroFiltro filtro, CancellationToken cancellationToken = default);
 
-    // Total de advertencias por matricula (normalizada) posteriores a
-    // DataEmissao da ultima suspensao da matricula (todas, sem suspensao).
-    Task<IReadOnlyDictionary<string, int>> ContarDesdeUltimaSuspensaoAsync(
-        IReadOnlyCollection<string> matriculas,
+    // Total de advertencias por (matricula normalizada, motivo) posteriores a
+    // DataEmissao da ultima suspensao da MESMA matricula e do MESMO motivo
+    // (todas, se nao houver). Uma suspensao so zera a contagem do proprio motivo.
+    Task<IReadOnlyDictionary<(string Matricula, string Motivo), int>> ContarDesdeUltimaSuspensaoAsync(
+        IReadOnlyCollection<(string Matricula, string Motivo)> pares,
         CancellationToken cancellationToken = default);
 
     Task<Adivert?> GetByIdAsync(int id, CancellationToken cancellationToken = default);

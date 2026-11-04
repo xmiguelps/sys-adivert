@@ -101,17 +101,20 @@ public class AdivertService : IAdivertService
         }
 
         // Contagem calculada apos a gravacao do bloco, do estado final do banco.
-        var colaboradores = adiverts
-            .GroupBy(a => a.Matricula)
-            .Select(g => (Matricula: g.Key, Nome: g.First().Nome))
+        // Um par (matricula, motivo) por contagem: a regra e "4ª advertencia do
+        // mesmo colaborador pelo mesmo motivo".
+        var pares = adiverts
+            .GroupBy(a => (a.Matricula, a.Motivo))
+            .Select(g => (Matricula: g.Key.Matricula, Motivo: g.Key.Motivo, Nome: g.First().Nome))
             .ToList();
 
         var totais = await _repository.ContarDesdeUltimaSuspensaoAsync(
-            colaboradores.Select(c => c.Matricula).ToList(), cancellationToken);
+            pares.Select(p => (p.Matricula, p.Motivo)).ToList(), cancellationToken);
 
-        var contagens = colaboradores
-            .Select(c => new ColaboradorContagemDto(
-                c.Matricula, c.Nome, totais.TryGetValue(c.Matricula, out var total) ? total : 0))
+        var contagens = pares
+            .Select(p => new ColaboradorContagemDto(
+                p.Matricula, p.Nome, p.Motivo,
+                totais.TryGetValue((p.Matricula, p.Motivo), out var total) ? total : 0))
             .ToList();
 
         // A lista preserva a ordem do payload, entao os ids saem na mesma

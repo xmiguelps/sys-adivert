@@ -2982,7 +2982,19 @@ select:focus {
 
 .notif-corpo { display: flex; gap: 10px; padding-right: 18px; }
 .notif-icone { color: var(--red-primary); flex-shrink: 0; display: flex; padding-top: 1px; }
+.notif-conteudo { min-width: 0; }
 .notif-texto { font-size: 13.5px; line-height: 1.4; color: var(--gray-800); }
+.notif-motivo {
+    margin-top: 6px;
+    font-size: 12.5px;
+    line-height: 1.35;
+    color: var(--gray-600);
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+}
 
 .notif-fechar {
     position: absolute;

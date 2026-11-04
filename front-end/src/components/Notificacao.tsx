@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Warning, X } from '@phosphor-icons/react'
 
-export type AvisoSuspensao = { matricula: string; nome: string; total: number }
+export type AvisoSuspensao = { matricula: string; nome: string; motivo: string; total: number }
 
 type Item = AvisoSuspensao & { id: number; exiting: boolean }
 
@@ -16,7 +16,7 @@ export function notificarSuspensao(aviso: AvisoSuspensao) {
 const SAIDA_MS = 300
 
 type Props = {
-    onAplicar: (matricula: string, nome: string) => void
+    onAplicar: (matricula: string, nome: string, motivo: string) => void
 }
 
 export function NotificacaoContainer({ onAplicar }: Props) {
@@ -25,9 +25,9 @@ export function NotificacaoContainer({ onAplicar }: Props) {
     useEffect(() => {
         _add = aviso => {
             const id = Date.now() + Math.random()
-            // Um aviso por colaborador: um novo substitui o anterior
+            // Um aviso por colaborador + motivo: um novo do mesmo par substitui o anterior
             setItens(prev => [
-                ...prev.filter(i => i.matricula !== aviso.matricula),
+                ...prev.filter(i => !(i.matricula === aviso.matricula && i.motivo === aviso.motivo)),
                 { ...aviso, id, exiting: false },
             ])
         }
@@ -54,11 +54,15 @@ export function NotificacaoContainer({ onAplicar }: Props) {
                     </button>
                     <div className="notif-corpo">
                         <span className="notif-icone"><Warning size={20} weight="fill" /></span>
-                        <p className="notif-texto">
-                            Esta já é a <strong>{i.total}ª advertência</strong> de{' '}
-                            <strong>{i.nome}</strong> (mat. {i.matricula}). Deseja aplicar uma
-                            suspensão em vez de uma nova advertência?
-                        </p>
+                        <div className="notif-conteudo">
+                            <p className="notif-texto">
+                                Esta já é a <strong>{i.total}ª advertência</strong> de{' '}
+                                <strong>{i.nome}</strong> (mat. {i.matricula}) pelo mesmo motivo.
+                                Deseja aplicar uma suspensão em vez de uma nova advertência?
+                            </p>
+                            {/* Motivo pode ter mais de 300 caracteres: limita a 3 linhas, o texto inteiro fica no tooltip */}
+                            <p className="notif-motivo" title={i.motivo}>Motivo: {i.motivo}</p>
+                        </div>
                     </div>
                     <div className="notif-acoes">
                         <button className="btn cancel-btn" onClick={() => fechar(i.id)}>
@@ -66,7 +70,7 @@ export function NotificacaoContainer({ onAplicar }: Props) {
                         </button>
                         <button
                             className="btn add-btn-confirm"
-                            onClick={() => { onAplicar(i.matricula, i.nome); fechar(i.id) }}
+                            onClick={() => { onAplicar(i.matricula, i.nome, i.motivo); fechar(i.id) }}
                         >
                             Aplicar suspensão
                         </button>
